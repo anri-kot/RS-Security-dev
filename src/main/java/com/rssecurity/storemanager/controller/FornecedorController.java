@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/fornecedor")
 public class FornecedorController {
@@ -17,15 +19,47 @@ public class FornecedorController {
         this.service = service;
     }
 
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Fornecedor findById(@PathVariable Long id) {
+        return service.findById(id);
+    }
+
+    @GetMapping("/{nome}")
+    public List<Fornecedor> findByName(@PathVariable String nome) {
+        return service.findByName(nome);
+    }
+
+    @GetMapping("/{cnpj}")
+    public Fornecedor findByCnpj(@PathVariable String cnpj) {
+        return service.findByCnpj(cnpj);
+    }
+
+    @GetMapping("/{telefone}")
+    public Fornecedor findByTelefone(@PathVariable String telefone) {
+        return service.findByTelefone(telefone);
+    }
+
+    @GetMapping("/{email}")
+    public Fornecedor findByEmail(@PathVariable String email) {
+        return service.findByEmail(email);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createFornecedor(@RequestBody Fornecedor fornecedor) {
-        service.createFornecedor(fornecedor);
+        service.create(fornecedor);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateFornecedor(@RequestBody Fornecedor fornecedor) {
-        service.updateFornecedor(fornecedor.getIdFornecedor(), fornecedor);
+    public void updateFornecedor(@PathVariable Fornecedor fornecedor) {
+        service.update(fornecedor.getIdFornecedor(), fornecedor);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(@PathVariable Long id) {
+        service.deleteById(id);
     }
 }
