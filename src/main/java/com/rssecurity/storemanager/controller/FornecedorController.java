@@ -1,65 +1,72 @@
 package com.rssecurity.storemanager.controller;
 
-import com.rssecurity.storemanager.model.Fornecedor;
+import com.rssecurity.storemanager.dto.FornecedorDTO;
+import com.rssecurity.storemanager.mapper.FornecedorMapper;
 import com.rssecurity.storemanager.service.FornecedorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/fornecedor")
+@RequestMapping("/api/fornecedor")
 public class FornecedorController {
 
     @Autowired
     private FornecedorService service;
+    @Autowired
+    FornecedorMapper mapper;
 
-    public FornecedorController(FornecedorService service) {
-        this.service = service;
+    @GetMapping
+    public ResponseEntity<List<FornecedorDTO>> findAll() {
+        List<FornecedorDTO> fornecedores = service.findAll();
+        return ResponseEntity.ok(fornecedores);
     }
 
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public Fornecedor findById(@PathVariable Long id) {
-        return service.findById(id);
+    @GetMapping("/{idFornecedor}")
+    public ResponseEntity<FornecedorDTO> findById(@PathVariable Long id) {
+
+        return ResponseEntity.ok(service.findById(id));
     }
 
-    @GetMapping("/{nome}")
-    public List<Fornecedor> findByName(@PathVariable String nome) {
-        return service.findByName(nome);
+    @GetMapping("/search")
+    public ResponseEntity<List<FornecedorDTO>> findByNome(@RequestParam String nome) {
+        return ResponseEntity.ok(service.findByNome(nome));
     }
 
-    @GetMapping("/{cnpj}")
-    public Fornecedor findByCnpj(@PathVariable String cnpj) {
-        return service.findByCnpj(cnpj);
+    @GetMapping("/search")
+    public ResponseEntity<FornecedorDTO> findByCnpj(@RequestParam String cnpj) {
+        return ResponseEntity.ok(service.findByCnpj(cnpj));
     }
 
-    @GetMapping("/{telefone}")
-    public Fornecedor findByTelefone(@PathVariable String telefone) {
-        return service.findByTelefone(telefone);
+    @GetMapping("/search")
+    public ResponseEntity<FornecedorDTO> findByTelefone(@RequestParam String telefone) {
+        return ResponseEntity.ok(service.findByTelefone(telefone));
     }
 
-    @GetMapping("/{email}")
-    public Fornecedor findByEmail(@PathVariable String email) {
-        return service.findByEmail(email);
+    @GetMapping("/search")
+    public ResponseEntity<FornecedorDTO> findByEmail(@PathVariable String email) {
+        return ResponseEntity.ok(service.findByEmail(email));
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public void createFornecedor(@RequestBody Fornecedor fornecedor) {
-        service.create(fornecedor);
+    public ResponseEntity createFornecedor(@RequestBody FornecedorDTO fornecedor) {
+        FornecedorDTO created = service.create(fornecedor);
+        URI location = URI.create("/api/fornecedor/" + created.idFornecedor());
+        return ResponseEntity.created(location).body(created);
     }
 
-    @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateFornecedor(@PathVariable Fornecedor fornecedor) {
-        service.update(fornecedor.getIdFornecedor(), fornecedor);
+    @PutMapping("/{idFornecedor}")
+    public ResponseEntity updateFornecedor(@PathVariable FornecedorDTO fornecedor) {
+        service.update(fornecedor.idFornecedor(), fornecedor);
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable Long id) {
+    @DeleteMapping("/{idFornecedor}")
+    public ResponseEntity deleteById(@PathVariable Long id) {
         service.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }

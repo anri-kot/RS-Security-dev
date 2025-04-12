@@ -1,16 +1,22 @@
 package com.rssecurity.storemanager.service;
 
+import com.rssecurity.storemanager.dto.FornecedorDTO;
+import com.rssecurity.storemanager.exception.ResourceNotFoundException;
+import com.rssecurity.storemanager.mapper.FornecedorMapper;
 import com.rssecurity.storemanager.model.Fornecedor;
 import com.rssecurity.storemanager.repository.FornecedorRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FornecedorService {
 
+    @Autowired
     private FornecedorRepository repository;
+    @Autowired
+    private FornecedorMapper mapper;
 
     public FornecedorService(FornecedorRepository repository) {
         this.repository = repository;
@@ -20,45 +26,61 @@ public class FornecedorService {
 
     // SEARCH
 
-    public List<Fornecedor> findAll() {
-        return repository.findAll();
+    public List<FornecedorDTO> findAll() {
+        List<FornecedorDTO> fornecedores = repository.findAll().stream()
+                .map(mapper::toDTO)
+                .toList();
+        return fornecedores;
     }
 
-    public Fornecedor findById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Fornecedor não encontrado. ID: " + id));
+    public FornecedorDTO findById(Long id) {
+        Fornecedor fornecedor = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado. ID: " + id));
+        return mapper.toDTO(fornecedor);
     }
 
-    public List<Fornecedor> findByName(String name) {
-        return repository.findByName(name);
+    public List<FornecedorDTO> findByNome(String nome) {
+        List<FornecedorDTO> fornecedores = repository.findByNomeContains(nome).stream()
+                .map(mapper::toDTO)
+                .toList();
+        return fornecedores;
     }
 
-    public Fornecedor findByCnpj(String cnpj) {
-        return repository.findByCnpj(cnpj);
+    public FornecedorDTO findByCnpj(String cnpj) {
+        Fornecedor fornecedor = repository.findByCnpj(cnpj)
+                .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado. CNPJ: " + cnpj));
+        return mapper.toDTO(fornecedor);
     }
 
-    public Fornecedor findByTelefone(String telefone) {
-        return repository.findByTelefone(telefone);
+    public FornecedorDTO findByTelefone(String telefone) {
+        Fornecedor fornecedor = repository.findByTelefone(telefone)
+                .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado. Telefone: " + telefone));
+        return mapper.toDTO(fornecedor);
     }
 
-    public Fornecedor findByEmail(String email) {
-        return repository.findByEmail(email);
+    public FornecedorDTO findByEmail(String email) {
+        Fornecedor fornecedor = repository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado. Email: " + email));
+        return mapper.toDTO(fornecedor);
     }
 
     // ACTION
 
-    public void create(Fornecedor fornecedor) {
-        if (repository.findById(fornecedor.getIdFornecedor()).isPresent()) {
-            throw new RuntimeException("Fornecedor já existe. ID: " + fornecedor.getIdFornecedor());
+    public FornecedorDTO create(FornecedorDTO fornecedor) {
+        if (repository.findById(fornecedor.idFornecedor()).isPresent()) {
+            throw new RuntimeException("Fornecedor já existe. ID: " + fornecedor.idFornecedor());
         }
-        repository.save(fornecedor);
+        Fornecedor entity = mapper.toEntity(fornecedor);
+        FornecedorDTO saved = mapper.toDTO(repository.save(entity));
+        return saved;
     }
 
-    public void update(Long id, Fornecedor fornecedor) {
+    public void update(Long id, FornecedorDTO fornecedor) {
         if(repository.findById(id).isEmpty()) {
             throw new RuntimeException("Fornecedor não encontrado. ID: " + id);
         }
-        repository.save(fornecedor);
+        Fornecedor entity = mapper.toEntity(fornecedor);
+        repository.save(entity);
     }
 
     public void deleteById(Long id) {

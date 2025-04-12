@@ -10,7 +10,7 @@ public class Fornecedor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idFornecedor;
-    private String nomeFornecedor;
+    private String nome;
     private String cnpj;
     private String telefone;
     private String email;
@@ -23,12 +23,12 @@ public class Fornecedor {
         this.idFornecedor = idFornecedor;
     }
 
-    public String getNomeFornecedor() {
-        return nomeFornecedor;
+    public String getnome() {
+        return nome;
     }
 
-    public void setNomeFornecedor(String nomeFornecedor) {
-        this.nomeFornecedor = nomeFornecedor;
+    public void setnome(String nome) {
+        this.nome = nome;
     }
 
     public String getCnpj() {
