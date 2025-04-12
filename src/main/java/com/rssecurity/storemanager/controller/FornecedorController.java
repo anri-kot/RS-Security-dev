@@ -16,8 +16,6 @@ public class FornecedorController {
 
     @Autowired
     private FornecedorService service;
-    @Autowired
-    FornecedorMapper mapper;
 
     @GetMapping
     public ResponseEntity<List<FornecedorDTO>> findAll() {
@@ -26,9 +24,8 @@ public class FornecedorController {
     }
 
     @GetMapping("/{idFornecedor}")
-    public ResponseEntity<FornecedorDTO> findById(@PathVariable Long id) {
-
-        return ResponseEntity.ok(service.findById(id));
+    public ResponseEntity<FornecedorDTO> findById(@PathVariable Long idFornecedor) {
+        return ResponseEntity.ok(service.findById(idFornecedor));
     }
 
     @GetMapping("/search")
@@ -36,17 +33,17 @@ public class FornecedorController {
         return ResponseEntity.ok(service.findByNome(nome));
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search/cnpj")
     public ResponseEntity<FornecedorDTO> findByCnpj(@RequestParam String cnpj) {
         return ResponseEntity.ok(service.findByCnpj(cnpj));
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search/fone")
     public ResponseEntity<FornecedorDTO> findByTelefone(@RequestParam String telefone) {
         return ResponseEntity.ok(service.findByTelefone(telefone));
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search/email")
     public ResponseEntity<FornecedorDTO> findByEmail(@PathVariable String email) {
         return ResponseEntity.ok(service.findByEmail(email));
     }
@@ -59,8 +56,8 @@ public class FornecedorController {
     }
 
     @PutMapping("/{idFornecedor}")
-    public ResponseEntity updateFornecedor(@PathVariable FornecedorDTO fornecedor) {
-        service.update(fornecedor.idFornecedor(), fornecedor);
+    public ResponseEntity updateFornecedor(@PathVariable Long idFornecedor, @RequestBody FornecedorDTO fornecedor) {
+        service.update(idFornecedor, fornecedor);
         return ResponseEntity.noContent().build();
     }
 

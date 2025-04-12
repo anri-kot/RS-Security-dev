@@ -13,4 +13,8 @@ public interface FornecedorRepository extends JpaRepository<Fornecedor, Long> {
     Optional<Fornecedor> findByCnpj(String cnpj);
     Optional<Fornecedor> findByTelefone(String telefone);
     Optional<Fornecedor> findByEmail(String email);
+
+    boolean existsByCnpj(String cnpj);
+    boolean existsByTelefone(String telefone);
+    boolean existsByEmail(String email);
 }

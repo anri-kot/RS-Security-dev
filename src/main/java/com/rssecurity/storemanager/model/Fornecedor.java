@@ -1,11 +1,13 @@
 package com.rssecurity.storemanager.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "fornecedor", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "cnpj"),
+        @UniqueConstraint(columnNames = "telefone"),
+        @UniqueConstraint(columnNames = "email")
+})
 public class Fornecedor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

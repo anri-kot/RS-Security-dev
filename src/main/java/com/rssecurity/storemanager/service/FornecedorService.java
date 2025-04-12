@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.service;
 
 import com.rssecurity.storemanager.dto.FornecedorDTO;
+import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.FornecedorMapper;
 import com.rssecurity.storemanager.model.Fornecedor;
@@ -67,9 +68,7 @@ public class FornecedorService {
     // ACTION
 
     public FornecedorDTO create(FornecedorDTO fornecedor) {
-        if (repository.findById(fornecedor.idFornecedor()).isPresent()) {
-            throw new RuntimeException("Fornecedor já existe. ID: " + fornecedor.idFornecedor());
-        }
+        validate(fornecedor);
         Fornecedor entity = mapper.toEntity(fornecedor);
         FornecedorDTO saved = mapper.toDTO(repository.save(entity));
         return saved;
@@ -77,13 +76,21 @@ public class FornecedorService {
 
     public void update(Long id, FornecedorDTO fornecedor) {
         if(repository.findById(id).isEmpty()) {
-            throw new RuntimeException("Fornecedor não encontrado. ID: " + id);
+            throw new ResourceNotFoundException("Fornecedor não encontrado. ID: " + id);
         }
+        validate(fornecedor);
         Fornecedor entity = mapper.toEntity(fornecedor);
         repository.save(entity);
     }
 
     public void deleteById(Long id) {
+        if (repository.findById(id).isEmpty()) throw new ResourceNotFoundException("Fornecedor não encontrado. ID: " + id);
         repository.deleteById(id);
+    }
+
+    private void validate(FornecedorDTO fornecedor) {
+        if (repository.existsByCnpj(fornecedor.cnpj())) throw new ConflictException("CNPJ ja existe: " + fornecedor.cnpj());
+        if (repository.existsByTelefone(fornecedor.telefone())) throw new ConflictException("Telefone ja existe: " + fornecedor.telefone());
+        if (repository.existsByEmail(fornecedor.email())) throw new ConflictException("Email ja existe: " + fornecedor.telefone());
     }
 }
