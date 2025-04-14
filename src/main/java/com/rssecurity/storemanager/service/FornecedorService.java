@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.service;
 
 import com.rssecurity.storemanager.dto.FornecedorDTO;
+import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.FornecedorMapper;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FornecedorService {
@@ -68,7 +70,10 @@ public class FornecedorService {
     // ACTION
 
     public FornecedorDTO create(FornecedorDTO fornecedor) {
-        validate(fornecedor);
+        if (fornecedor.idFornecedor() != null) {
+            throw new BadRequestException("Campo ID não deve ser fornecido.");
+        }
+        validateCreate(fornecedor);
         Fornecedor entity = mapper.toEntity(fornecedor);
         FornecedorDTO saved = mapper.toDTO(repository.save(entity));
         return saved;
@@ -78,7 +83,7 @@ public class FornecedorService {
         if(repository.findById(id).isEmpty()) {
             throw new ResourceNotFoundException("Fornecedor não encontrado. ID: " + id);
         }
-        validate(fornecedor);
+        validateUpdate(fornecedor);
         Fornecedor entity = mapper.toEntity(fornecedor);
         repository.save(entity);
     }
@@ -88,9 +93,21 @@ public class FornecedorService {
         repository.deleteById(id);
     }
 
-    private void validate(FornecedorDTO fornecedor) {
+    private void validateCreate(FornecedorDTO fornecedor) {
         if (repository.existsByCnpj(fornecedor.cnpj())) throw new ConflictException("CNPJ ja existe: " + fornecedor.cnpj());
         if (repository.existsByTelefone(fornecedor.telefone())) throw new ConflictException("Telefone ja existe: " + fornecedor.telefone());
         if (repository.existsByEmail(fornecedor.email())) throw new ConflictException("Email ja existe: " + fornecedor.telefone());
+    }
+
+    private void validateUpdate(FornecedorDTO fornecedor) {
+        // Validade CNPJ
+        Optional<Fornecedor> byCnpj = repository.findByCnpj(fornecedor.cnpj());
+        if (byCnpj.isPresent() && byCnpj.get().getIdFornecedor() != fornecedor.idFornecedor()) throw new ConflictException("CNPJ ja existe: " + fornecedor.cnpj());
+        // Validate Telefone
+        Optional<Fornecedor> byTelefone = repository.findByTelefone(fornecedor.telefone());
+        if (byTelefone.isPresent() && byTelefone.get().getIdFornecedor() != fornecedor.idFornecedor()) throw new ConflictException("Telefone ja existe: " + fornecedor.telefone());
+        // Validade Email
+        Optional<Fornecedor> byEmail = repository.findByEmail(fornecedor.email());
+        if (byEmail.isPresent() && byEmail.get().getIdFornecedor() != fornecedor.idFornecedor()) throw new ConflictException("Email ja existe: " + fornecedor.telefone());
     }
 }
