@@ -20,14 +20,6 @@ public class ItemCompra {
     @JoinColumn(name = "_id_produto")
     private Produto produto;
 
-    public ItemCompra(Long idCompra, int quantidade, BigDecimal valorUnitario, Compra compra, Produto produto) {
-        this.idCompra = idCompra;
-        this.quantidade = quantidade;
-        this.valorUnitario = valorUnitario;
-        this.compra = compra;
-        this.produto = produto;
-    }
-
     public Long getIdCompra() {
         return idCompra;
     }

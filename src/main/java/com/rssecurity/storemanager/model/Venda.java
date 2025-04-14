@@ -15,12 +15,6 @@ public class Venda {
     @JoinColumn(name = "_id_usuario")
     private Usuario usuario;
 
-    public Venda(Long idVenda, LocalDateTime data, String observacao) {
-        this.idVenda = idVenda;
-        this.data = data;
-        this.observacao = observacao;
-    }
-
     public Long getIdVenda() {
         return idVenda;
     }

@@ -21,18 +21,6 @@ public class Usuario {
     private BigDecimal salario;
     private boolean isAdmin;
 
-    public Usuario(Long idUsuario, String nome, String sobrenome, String cpf, String email, String endereco, String telefone, BigDecimal salario, boolean isAdmin) {
-        this.idUsuario = idUsuario;
-        this.nome = nome;
-        this.sobrenome = sobrenome;
-        this.cpf = cpf;
-        this.email = email;
-        this.endereco = endereco;
-        this.telefone = telefone;
-        this.salario = salario;
-        this.isAdmin = isAdmin;
-    }
-
     public Long getIdUsuario() {
         return idUsuario;
     }

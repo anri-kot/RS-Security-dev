@@ -14,14 +14,6 @@ public class Produto {
     @JoinColumn(name = "_id_categoria")
     private Categoria categoria;
 
-    public Produto(Long idProduto, String nome, String descricao, int estoqueMin, Categoria categoria) {
-        this.idProduto = idProduto;
-        this.nome = nome;
-        this.descricao = descricao;
-        this.estoqueMin = estoqueMin;
-        this.categoria = categoria;
-    }
-
     public Long getIdProduto() {
         return idProduto;
     }

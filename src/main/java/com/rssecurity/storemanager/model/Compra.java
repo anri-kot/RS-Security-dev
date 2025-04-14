@@ -14,13 +14,6 @@ public class Compra {
     @JoinColumn(name = "_id_fornecedor")
     private Fornecedor fornecedor;
 
-    public Compra(Long idCompra, LocalDateTime data, String observacao, Fornecedor fornecedor) {
-        this.idCompra = idCompra;
-        this.data = data;
-        this.observacao = observacao;
-        this.fornecedor = fornecedor;
-    }
-
     public Long getIdCompra() {
         return idCompra;
     }
