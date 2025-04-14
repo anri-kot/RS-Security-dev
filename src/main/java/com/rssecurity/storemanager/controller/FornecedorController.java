@@ -44,7 +44,7 @@ public class FornecedorController {
     }
 
     @GetMapping("/search/email")
-    public ResponseEntity<FornecedorDTO> findByEmail(@PathVariable String email) {
+    public ResponseEntity<FornecedorDTO> findByEmail(@RequestParam String email) {
         return ResponseEntity.ok(service.findByEmail(email));
     }
 
@@ -62,8 +62,8 @@ public class FornecedorController {
     }
 
     @DeleteMapping("/{idFornecedor}")
-    public ResponseEntity deleteById(@PathVariable Long id) {
-        service.deleteById(id);
+    public ResponseEntity deleteById(@PathVariable Long idFornecedor) {
+        service.deleteById(idFornecedor);
         return ResponseEntity.noContent().build();
     }
 }
