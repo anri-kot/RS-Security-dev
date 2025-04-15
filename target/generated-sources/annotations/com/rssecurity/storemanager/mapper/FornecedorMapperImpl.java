@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-04-12T18:49:21-0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.14 (Arch Linux)"
+    date = "2025-04-15T19:59:53-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 17.0.10 (Eclipse Adoptium)"
 )
 @Component
 public class FornecedorMapperImpl implements FornecedorMapper {
