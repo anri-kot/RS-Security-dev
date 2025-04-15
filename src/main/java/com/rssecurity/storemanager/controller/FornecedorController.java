@@ -1,7 +1,6 @@
 package com.rssecurity.storemanager.controller;
 
 import com.rssecurity.storemanager.dto.FornecedorDTO;
-import com.rssecurity.storemanager.mapper.FornecedorMapper;
 import com.rssecurity.storemanager.service.FornecedorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,23 +28,23 @@ public class FornecedorController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<FornecedorDTO>> findByNome(@RequestParam String nome) {
-        return ResponseEntity.ok(service.findByNome(nome));
+    public ResponseEntity<List<FornecedorDTO>> findByNomeContains(@RequestParam(required = false) String nome) {
+        return ResponseEntity.ok(service.findByNomeContains(nome));
     }
 
     @GetMapping("/search/cnpj")
-    public ResponseEntity<FornecedorDTO> findByCnpj(@RequestParam String cnpj) {
-        return ResponseEntity.ok(service.findByCnpj(cnpj));
+    public ResponseEntity<List<FornecedorDTO>> findByCnpjContains(@RequestParam(required = false) String cnpj) {
+        return ResponseEntity.ok(service.findByCnpjContains(cnpj));
     }
 
     @GetMapping("/search/fone")
-    public ResponseEntity<FornecedorDTO> findByTelefone(@RequestParam String telefone) {
-        return ResponseEntity.ok(service.findByTelefone(telefone));
+    public ResponseEntity<List<FornecedorDTO>> findByTelefoneContains(@RequestParam(required = false) String telefone) {
+        return ResponseEntity.ok(service.findByTelefoneContains(telefone));
     }
 
     @GetMapping("/search/email")
-    public ResponseEntity<FornecedorDTO> findByEmail(@RequestParam String email) {
-        return ResponseEntity.ok(service.findByEmail(email));
+    public ResponseEntity<List<FornecedorDTO>> findByEmailContains(@RequestParam(required = false) String email) {
+        return ResponseEntity.ok(service.findByEmailContains(email));
     }
 
     @PostMapping

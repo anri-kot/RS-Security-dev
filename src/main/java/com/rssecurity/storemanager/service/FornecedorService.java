@@ -30,10 +30,9 @@ public class FornecedorService {
     // SEARCH
 
     public List<FornecedorDTO> findAll() {
-        List<FornecedorDTO> fornecedores = repository.findAll().stream()
+        return repository.findAll().stream()
                 .map(mapper::toDTO)
                 .toList();
-        return fornecedores;
     }
 
     public FornecedorDTO findById(Long id) {
@@ -42,11 +41,28 @@ public class FornecedorService {
         return mapper.toDTO(fornecedor);
     }
 
-    public List<FornecedorDTO> findByNome(String nome) {
-        List<FornecedorDTO> fornecedores = repository.findByNomeContains(nome).stream()
+    public List<FornecedorDTO> findByNomeContains(String nome) {
+        return repository.findByNomeContains(nome).stream()
                 .map(mapper::toDTO)
                 .toList();
-        return fornecedores;
+    }
+
+    public List<FornecedorDTO> findByCnpjContains(String cnpj) {
+        return repository.findByCnpjContains(cnpj).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    public List<FornecedorDTO> findByTelefoneContains(String telefone) {
+        return repository.findByTelefoneContains(telefone).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    public List<FornecedorDTO> findByEmailContains(String email) {
+        return repository.findByEmailContains(email).stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
     public FornecedorDTO findByCnpj(String cnpj) {
@@ -75,8 +91,7 @@ public class FornecedorService {
         }
         validateCreate(fornecedor);
         Fornecedor entity = mapper.toEntity(fornecedor);
-        FornecedorDTO saved = mapper.toDTO(repository.save(entity));
-        return saved;
+        return mapper.toDTO(repository.save(entity));
     }
 
     public void update(Long id, FornecedorDTO fornecedor) {
