@@ -1,3 +1,5 @@
 package com.rssecurity.storemanager.dto;
 
-public record FornecedorDTO(Long idFornecedor, String nome, String cnpj, String telefone, String email) {}
+import jakarta.validation.constraints.NotNull;;
+
+public record FornecedorDTO(Long idFornecedor, @NotNull String nome, @NotNull String cnpj, @NotNull String telefone, @NotNull String email) {}

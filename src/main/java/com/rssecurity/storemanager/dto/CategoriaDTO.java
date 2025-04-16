@@ -1,4 +1,6 @@
 package com.rssecurity.storemanager.dto;
 
-public record CategoriaDTO(Long idCategoria, String nome) {
+import jakarta.validation.constraints.NotNull;
+
+public record CategoriaDTO(Long idCategoria, @NotNull String nome) {
 }

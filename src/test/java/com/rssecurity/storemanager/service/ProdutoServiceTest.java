@@ -1,5 +1,6 @@
 package com.rssecurity.storemanager.service;
 
+import com.rssecurity.storemanager.dto.CategoriaDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.mapper.ProdutoMapper;
@@ -32,11 +33,13 @@ class ProdutoServiceTest {
 
     @Test
     void deveCriarProdutoQuandoIdForNulo() {
-        ProdutoDTO input = new ProdutoDTO(null, "CAMERA SPX", "Camera de alta definicao", 30, 2L);
+        CategoriaDTO inCategoria = new CategoriaDTO(2L, "");
+        ProdutoDTO input = new ProdutoDTO(null, "CAMERA SPX", "Camera de alta definicao", 30, inCategoria);
         Produto entity = new Produto(); // preenche se quiser
         Produto saved = new Produto();  // pode simular que foi salvo
 
-        ProdutoDTO output = new ProdutoDTO(1L, "CAMERA SPX", "Camera de alta definicao", 30, 2L);
+        CategoriaDTO outCategoria = new CategoriaDTO(2L, "Vigilancia");
+        ProdutoDTO output = new ProdutoDTO(1L, "CAMERA SPX", "Camera de alta definicao", 30, outCategoria);
 
         when(mapper.toEntity(input)).thenReturn(entity);
         when(repository.save(entity)).thenReturn(saved);
@@ -50,7 +53,8 @@ class ProdutoServiceTest {
 
     @Test
     void deveLancarExcecaoQuandoIdNaoForNulo() {
-        ProdutoDTO input = new ProdutoDTO(22L, "CAMERA SPX", "Camera de alta definicao", 30, 2L);
+        CategoriaDTO inCategoria = new CategoriaDTO(2L, "");
+        ProdutoDTO input = new ProdutoDTO(22L, "CAMERA SPX", "Camera de alta definicao", 30, inCategoria);
 
         BadRequestException ex = assertThrows(BadRequestException.class, () -> service.create(input));
 

@@ -2,7 +2,6 @@ package com.rssecurity.storemanager.service;
 
 import com.rssecurity.storemanager.dto.CategoriaDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
-import com.rssecurity.storemanager.exception.ResourceAlreadyExistsException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.CategoriaMapper;
 import com.rssecurity.storemanager.model.Categoria;

@@ -1,4 +1,6 @@
 package com.rssecurity.storemanager.dto;
 
-public record ProdutoDTO(Long idProduto, String nome, String descricao, Integer estoqueMin, Long idCategoria) {
+import jakarta.validation.constraints.NotBlank;
+
+public record ProdutoDTO(Long idProduto, @NotBlank String nome, String descricao, Integer estoqueMin, CategoriaDTO categoria) {
 }
