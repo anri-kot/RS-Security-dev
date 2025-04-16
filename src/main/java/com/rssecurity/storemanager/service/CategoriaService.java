@@ -57,7 +57,7 @@ public class CategoriaService {
         repository.save(mapper.toEntity(categoria));
     }
 
-    public void delete(Long idCategoria) {
+    public void deleteById(Long idCategoria) {
         if (!repository.existsById(idCategoria)) {
             throw new ResourceNotFoundException("Categoria não encontrada. ID: " + idCategoria);
         }

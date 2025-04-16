@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.controller;
 
 import com.rssecurity.storemanager.dto.FornecedorDTO;
+import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.service.FornecedorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,9 @@ public class FornecedorController {
 
     @PutMapping("/{idFornecedor}")
     public ResponseEntity updateFornecedor(@PathVariable Long idFornecedor, @RequestBody FornecedorDTO fornecedor) {
+        if (!fornecedor.idFornecedor().equals(idFornecedor)) {
+            throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
+        }
         service.update(idFornecedor, fornecedor);
         return ResponseEntity.noContent().build();
     }
