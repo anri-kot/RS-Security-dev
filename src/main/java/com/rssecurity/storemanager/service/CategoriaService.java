@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.service;
 
 import com.rssecurity.storemanager.dto.CategoriaDTO;
+import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ResourceAlreadyExistsException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.CategoriaMapper;
@@ -44,7 +45,7 @@ public class CategoriaService {
 
     public CategoriaDTO create(CategoriaDTO categoria) {
         if (categoria.idCategoria() != null) {
-            throw new ResourceAlreadyExistsException("Campo ID não deve ser fornecido.");
+            throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
         }
         Categoria created = repository.save(mapper.toEntity(categoria));
         return mapper.toDTO(created);

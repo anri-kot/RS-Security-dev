@@ -6,19 +6,19 @@ import jakarta.persistence.*;
 public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idProduto;
+    private Integer idProduto;
     private String nome;
     private String descricao;
-    private int estoqueMin;
+    private Integer estoqueMin;
     @ManyToOne
     @JoinColumn(name = "_id_categoria")
     private Categoria categoria;
 
-    public Long getIdProduto() {
+    public Integer getIdProduto() {
         return idProduto;
     }
 
-    public void setIdProduto(Long idProduto) {
+    public void setIdProduto(Integer idProduto) {
         this.idProduto = idProduto;
     }
 
@@ -38,11 +38,11 @@ public class Produto {
         this.descricao = descricao;
     }
 
-    public int getEstoqueMin() {
+    public Integer getEstoqueMin() {
         return estoqueMin;
     }
 
-    public void setEstoqueMin(int estoqueMin) {
+    public void setEstoqueMin(Integer estoqueMin) {
         this.estoqueMin = estoqueMin;
     }
 

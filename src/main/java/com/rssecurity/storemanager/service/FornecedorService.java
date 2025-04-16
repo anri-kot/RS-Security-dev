@@ -87,7 +87,7 @@ public class FornecedorService {
 
     public FornecedorDTO create(FornecedorDTO fornecedor) {
         if (fornecedor.idFornecedor() != null) {
-            throw new BadRequestException("Campo ID não deve ser fornecido.");
+            throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
         }
         validateCreate(fornecedor);
         Fornecedor entity = mapper.toEntity(fornecedor);
