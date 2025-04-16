@@ -58,4 +58,11 @@ public class ProdutoService {
         }
         repository.save(mapper.toEntity(produto));
     }
+
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Produto nao encontrado. ID: " + id);
+        }
+        repository.deleteById(id);
+    }
 }

@@ -55,4 +55,10 @@ public class ProdutoController {
         service.update(idProduto, produto);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{idProduto}")
+    public ResponseEntity delete(@PathVariable Long idProduto) {
+        service.delete(idProduto);
+        return ResponseEntity.noContent().build();
+    }
 }
