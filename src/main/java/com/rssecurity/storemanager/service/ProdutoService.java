@@ -28,7 +28,7 @@ public class ProdutoService {
 
     public ProdutoDTO findById(Long id) {
         Produto produto = repository.findById(id).
-                orElseThrow(() -> new ResourceNotFoundException("Produto nao encontrado. ID: " + id));
+                orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado. ID: " + id));
         return mapper.toDTO(produto);
     }
 
@@ -54,14 +54,14 @@ public class ProdutoService {
 
     public void update(Long id, ProdutoDTO produto) {
         if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Produto nao encontrado. ID: " + id);
+            throw new ResourceNotFoundException("Produto não encontrado. ID: " + id);
         }
         repository.save(mapper.toEntity(produto));
     }
 
     public void deleteById(Long id) {
         if (!repository.existsById(id)) {
-            throw new ResourceNotFoundException("Produto nao encontrado. ID: " + id);
+            throw new ResourceNotFoundException("Produto não encontrado. ID: " + id);
         }
         repository.deleteById(id);
     }

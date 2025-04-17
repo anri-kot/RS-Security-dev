@@ -109,20 +109,20 @@ public class FornecedorService {
     }
 
     private void validateCreate(FornecedorDTO fornecedor) {
-        if (repository.existsByCnpj(fornecedor.cnpj())) throw new ConflictException("CNPJ ja existe: " + fornecedor.cnpj());
-        if (repository.existsByTelefone(fornecedor.telefone())) throw new ConflictException("Telefone ja existe: " + fornecedor.telefone());
-        if (repository.existsByEmail(fornecedor.email())) throw new ConflictException("Email ja existe: " + fornecedor.telefone());
+        if (repository.existsByCnpj(fornecedor.cnpj())) throw new ConflictException("CNPJ já existe: " + fornecedor.cnpj());
+        if (repository.existsByTelefone(fornecedor.telefone())) throw new ConflictException("Telefone já existe: " + fornecedor.telefone());
+        if (repository.existsByEmail(fornecedor.email())) throw new ConflictException("Email já existe: " + fornecedor.telefone());
     }
 
     private void validateUpdate(FornecedorDTO fornecedor) {
         // Validade CNPJ
         Optional<Fornecedor> byCnpj = repository.findByCnpj(fornecedor.cnpj());
-        if (byCnpj.isPresent() && byCnpj.get().getIdFornecedor() != fornecedor.idFornecedor()) throw new ConflictException("CNPJ ja existe: " + fornecedor.cnpj());
+        if (byCnpj.isPresent() && byCnpj.get().getIdFornecedor() != fornecedor.idFornecedor()) throw new ConflictException("CNPJ já existe: " + fornecedor.cnpj());
         // Validate Telefone
         Optional<Fornecedor> byTelefone = repository.findByTelefone(fornecedor.telefone());
-        if (byTelefone.isPresent() && byTelefone.get().getIdFornecedor() != fornecedor.idFornecedor()) throw new ConflictException("Telefone ja existe: " + fornecedor.telefone());
+        if (byTelefone.isPresent() && byTelefone.get().getIdFornecedor() != fornecedor.idFornecedor()) throw new ConflictException("Telefone já existe: " + fornecedor.telefone());
         // Validade Email
         Optional<Fornecedor> byEmail = repository.findByEmail(fornecedor.email());
-        if (byEmail.isPresent() && byEmail.get().getIdFornecedor() != fornecedor.idFornecedor()) throw new ConflictException("Email ja existe: " + fornecedor.telefone());
+        if (byEmail.isPresent() && byEmail.get().getIdFornecedor() != fornecedor.idFornecedor()) throw new ConflictException("Email já existe: " + fornecedor.telefone());
     }
 }
