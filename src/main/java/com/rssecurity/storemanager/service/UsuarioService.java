@@ -64,6 +64,21 @@ public class UsuarioService {
         return mapper.toDTO(repository.save(entity));
     }
 
+    public void update(Long id, UsuarioDTO usuario) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Usuario não encontrado. ID: " + id);
+        }
+        Usuario toUpdate = setPassword(usuario);
+        repository.save(toUpdate);
+    }
+
+    public void delete(Long idUsuario) {
+        if (!repository.existsById(idUsuario)) {
+            throw new ResourceNotFoundException("Usuario não encontrado. ID: " + idUsuario);
+        }
+        repository.deleteById(idUsuario);
+    }
+
     private void validateCreate(UsuarioDTO usuario) {
         if (repository.existsByCpf(usuario.cpf())) throw new ConflictException("CPF já existe: " + usuario.cpf());
         if (repository.existsByEmail(usuario.email())) throw new ConflictException("email já existe: " + usuario.email());

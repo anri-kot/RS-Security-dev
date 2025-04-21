@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.controller;
 
 import com.rssecurity.storemanager.dto.UsuarioDTO;
+import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.service.UsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,5 +48,20 @@ public class UsuarioController {
         UsuarioDTO created = service.create(usuario);
         URI location = URI.create("/api/usuario/" + usuario.idUsuario());
         return ResponseEntity.created(location).body(created);
+    }
+
+    @PutMapping("/{idUsuario}")
+    public ResponseEntity update(@PathVariable Long idUsuario, @RequestBody UsuarioDTO usuario) {
+        if (!usuario.idUsuario().equals(idUsuario)) {
+            throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
+        }
+        service.update(idUsuario, usuario);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{idUsuario}")
+    public ResponseEntity delete(@PathVariable Long idUsuario) {
+        service.delete(idUsuario);
+        return ResponseEntity.noContent().build();
     }
 }
