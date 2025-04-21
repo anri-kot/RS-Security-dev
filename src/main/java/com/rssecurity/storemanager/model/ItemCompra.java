@@ -1,38 +1,36 @@
 package com.rssecurity.storemanager.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
 @Entity
 public class ItemCompra {
     @Id
-    private Long idCompra;
-    private int quantidade;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idItem;
+    private Integer quantidade;
     private BigDecimal valorUnitario;
     @ManyToOne
-    @JoinColumn(name = "_id_compra")
+    @JoinColumn(name = "_id_compra", nullable = false)
     private Compra compra;
     @ManyToOne
     @JoinColumn(name = "_id_produto")
     private Produto produto;
 
-    public Long getIdCompra() {
-        return idCompra;
+    public Long getidItem() {
+        return idItem;
     }
 
-    public void setIdCompra(Long idCompra) {
-        this.idCompra = idCompra;
+    public void setidItem(Long idItem) {
+        this.idItem = idItem;
     }
 
-    public int getQuantidade() {
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
 
