@@ -1,15 +1,20 @@
 package com.rssecurity.storemanager.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 
 @Entity
 public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer idProduto;
+    @NotNull
     private String nome;
     private String descricao;
     private Integer estoqueMin;
+    private BigDecimal precoAtual;
     @ManyToOne
     @JoinColumn(name = "_id_categoria")
     private Categoria categoria;
