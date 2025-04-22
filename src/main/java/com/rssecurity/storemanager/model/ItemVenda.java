@@ -1,18 +1,17 @@
 package com.rssecurity.storemanager.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 
 @Entity
 public class ItemVenda {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idItem;
     private int quantidade;
     private BigDecimal valorUnitario;
+    private BigDecimal desconto;
     @ManyToOne
     @JoinColumn(name = "_id_venda")
     private Venda venda;
@@ -58,5 +57,13 @@ public class ItemVenda {
 
     public void setProduto(Produto produto) {
         this.produto = produto;
+    }
+
+    public BigDecimal getDesconto() {
+        return desconto;
+    }
+
+    public void setDesconto(BigDecimal desconto) {
+        this.desconto = desconto;
     }
 }

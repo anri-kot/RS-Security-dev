@@ -117,6 +117,9 @@ public class CompraService {
     }
 
     public void deleteById(Long idCompra) {
+        if (!repository.existsById(idCompra)) {
+            throw new ResourceNotFoundException("Compra não encontrada. ID: " + idCompra);
+        }
         repository.deleteById(idCompra);
     }
 

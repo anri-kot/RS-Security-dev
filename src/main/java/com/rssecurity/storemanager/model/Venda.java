@@ -3,6 +3,7 @@ package com.rssecurity.storemanager.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 public class Venda {
@@ -14,6 +15,8 @@ public class Venda {
     @ManyToOne
     @JoinColumn(name = "_id_usuario")
     private Usuario usuario;
+    @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<ItemVenda> itens;
 
     public Long getIdVenda() {
         return idVenda;
@@ -45,5 +48,13 @@ public class Venda {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public List<ItemVenda> getItens() {
+        return itens;
+    }
+
+    public void setItens(List<ItemVenda> itens) {
+        this.itens = itens;
     }
 }

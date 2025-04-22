@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idProduto;
+    private Long idProduto;
     @NotNull
     private String nome;
     private String descricao;
@@ -19,11 +19,11 @@ public class Produto {
     @JoinColumn(name = "_id_categoria")
     private Categoria categoria;
 
-    public Integer getIdProduto() {
+    public Long getIdProduto() {
         return idProduto;
     }
 
-    public void setIdProduto(Integer idProduto) {
+    public void setIdProduto(Long idProduto) {
         this.idProduto = idProduto;
     }
 
