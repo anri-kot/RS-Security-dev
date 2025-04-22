@@ -60,8 +60,8 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{idUsuario}")
-    public ResponseEntity delete(@PathVariable Long idUsuario) {
-        service.delete(idUsuario);
+    public ResponseEntity deleteById(@PathVariable Long idUsuario) {
+        service.deleteById(idUsuario);
         return ResponseEntity.noContent().build();
     }
 }

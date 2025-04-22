@@ -11,8 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface CompraRepository extends JpaRepository<Compra, Long> {
-    Optional<Compra> findByFornecedor_IdFornecedor(Long idFornecedor);
-    Optional<Compra> findByData(LocalDate data);
+    List<Compra> findByFornecedor_IdFornecedor(Long idFornecedor);
     List<Compra> findByDataBetween(LocalDateTime inicio, LocalDateTime fim);
     List<Compra> findByDataAfter(LocalDateTime data);
     List<Compra> findByDataBefore(LocalDateTime data);

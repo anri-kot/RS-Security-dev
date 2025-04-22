@@ -51,6 +51,14 @@ public class Produto {
         this.estoqueMin = estoqueMin;
     }
 
+    public BigDecimal getPrecoAtual() {
+        return precoAtual;
+    }
+
+    public void setPrecoAtual(BigDecimal precoAtual) {
+        this.precoAtual = precoAtual;
+    }
+
     public Categoria getCategoria() {
         return categoria;
     }

@@ -72,7 +72,7 @@ public class UsuarioService {
         repository.save(toUpdate);
     }
 
-    public void delete(Long idUsuario) {
+    public void deleteById(Long idUsuario) {
         if (!repository.existsById(idUsuario)) {
             throw new ResourceNotFoundException("Usuario não encontrado. ID: " + idUsuario);
         }
