@@ -1,5 +1,6 @@
 package com.rssecurity.storemanager.service;
 
+import com.rssecurity.storemanager.dto.ProdutoEstoqueDTO;
 import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
@@ -11,15 +12,16 @@ import com.rssecurity.storemanager.model.ItemVenda;
 import com.rssecurity.storemanager.model.Produto;
 import com.rssecurity.storemanager.model.Usuario;
 import com.rssecurity.storemanager.model.Venda;
-import com.rssecurity.storemanager.repository.ProdutoRepository;
-import com.rssecurity.storemanager.repository.UsuarioRepository;
-import com.rssecurity.storemanager.repository.VendaRepository;
+import com.rssecurity.storemanager.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class VendaService {
@@ -155,7 +157,7 @@ public class VendaService {
                     idProdutos.add(item.getProduto().getIdProduto());
                     return item;
                 }).toList();
-        validadeProduto(idProdutos);
+        validateProduto(itens);
         return itens;
     }
 
@@ -170,13 +172,22 @@ public class VendaService {
         }
     }
 
-    private void validadeProduto(List<Long> ids) {
-        List<Long> found = produtoRepository.findAllById(ids).stream()
-                .map(Produto::getIdProduto)
+    private void validateProduto(List<ItemVenda> itens) {
+        List<Long> ids = itens.stream()
+                .map(item -> item.getProduto().getIdProduto())
                 .toList();
-        for (Long id : ids) {
-            if (!found.contains(id)) {
-                throw new ResourceNotFoundException("Produto não encontrado. ID: " + id);
+
+        Map<Long, ProdutoEstoqueDTO> estoqueMap = produtoRepository.findEstoqueAtualByProdutoIds(ids).stream()
+                .collect(Collectors.toMap(ProdutoEstoqueDTO::getIdProduto, Function.identity()));
+
+        for (ItemVenda item : itens) {
+            ProdutoEstoqueDTO dto = estoqueMap.get(item.getProduto().getIdProduto());
+            if (dto == null) {
+                throw new ResourceNotFoundException("Produto não encontrado. ID: " + item.getProduto().getIdProduto());
+            }
+
+            if (item.getQuantidade() > dto.getEstoque()) {
+                throw new BadRequestException("Estoque insuficiente para o produto: " + item.getProduto().getNome());
             }
         }
     }

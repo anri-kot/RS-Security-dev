@@ -13,4 +13,9 @@ public record VendaDTO(
         UsuarioResumoDTO usuario,
         List<ItemVendaDTO> itens
 ) {
+    public VendaDTO {
+        if (observacao == null) {
+            observacao = "VENDA NO BALCÃO";
+        }
+    }
 }
