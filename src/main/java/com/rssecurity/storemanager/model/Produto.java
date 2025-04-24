@@ -16,7 +16,7 @@ public class Produto {
     private Integer estoqueMin;
     private BigDecimal precoAtual;
     @ManyToOne
-    @JoinColumn(name = "_id_categoria")
+    @JoinColumn(name = "id_categoria")
     private Categoria categoria;
 
     public Long getIdProduto() {

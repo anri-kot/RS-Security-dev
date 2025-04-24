@@ -25,7 +25,7 @@ public class Usuario {
     private String endereco;
     private String telefone;
     private BigDecimal salario;
-    @Column(name = "is_admin")
+    @Column(name = "admin")
     private Boolean admin;
 
     // No args for Spring JPA

@@ -2,7 +2,6 @@ package com.rssecurity.storemanager.service;
 
 import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
-import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
@@ -24,11 +23,11 @@ import java.util.List;
 
 @Service
 public class VendaService {
-    private VendaRepository repository;
-    private VendaMapper mapper;
-    private ProdutoMapper produtoMapper;
-    private UsuarioRepository usuarioRepository;
-    private ProdutoRepository produtoRepository;
+    private final VendaRepository repository;
+    private final VendaMapper mapper;
+    private final ProdutoMapper produtoMapper;
+    private final UsuarioRepository usuarioRepository;
+    private final ProdutoRepository produtoRepository;
 
     public VendaService(VendaRepository repository, VendaMapper mapper, ProdutoMapper produtoMapper, UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository) {
         this.repository = repository;
@@ -165,7 +164,7 @@ public class VendaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. ID: " + usuario.idUsuario()));
 
         // Compares the inputed username with the register in the database
-        if (!theUsuario.getUsername().equals(usuario.idUsuario())) {
+        if (!theUsuario.getUsername().equals(usuario.username())) {
             throw new ConflictException("Username inserido não corresponde ao ID do usuario no banco de dados. ID e Usuario informados: "
                     + usuario.idUsuario() + " | " + usuario.username());
         }

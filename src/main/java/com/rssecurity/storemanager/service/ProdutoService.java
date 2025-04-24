@@ -12,8 +12,8 @@ import java.util.List;
 
 @Service
 public class ProdutoService {
-    private ProdutoRepository repository;
-    private ProdutoMapper mapper;
+    private final ProdutoRepository repository;
+    private final ProdutoMapper mapper;
 
     public ProdutoService(ProdutoRepository repository, ProdutoMapper mapper) {
         this.repository = repository;

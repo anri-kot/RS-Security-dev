@@ -12,10 +12,10 @@ public class ItemCompra {
     private Integer quantidade;
     private BigDecimal valorUnitario;
     @ManyToOne
-    @JoinColumn(name = "_id_compra", nullable = false)
+    @JoinColumn(name = "id_compra", nullable = false)
     private Compra compra;
     @ManyToOne
-    @JoinColumn(name = "_id_produto")
+    @JoinColumn(name = "id_produto")
     private Produto produto;
 
     public Long getidItem() {

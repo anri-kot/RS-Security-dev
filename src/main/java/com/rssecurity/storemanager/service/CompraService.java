@@ -17,10 +17,10 @@ import java.util.List;
 
 @Service
 public class CompraService {
-    private CompraRepository repository;
-    private ItemCompraRepository itemRepository;
-    private CompraMapper mapper;
-    private ProdutoMapper produtoMapper;
+    private final CompraRepository repository;
+    private final ItemCompraRepository itemRepository;
+    private final CompraMapper mapper;
+    private final ProdutoMapper produtoMapper;
 
     public CompraService(CompraRepository repository, ItemCompraRepository itemRepository, CompraMapper mapper, ProdutoMapper produtoMapper) {
         this.repository = repository;

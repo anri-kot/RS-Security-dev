@@ -14,7 +14,7 @@ public class Compra {
     private LocalDateTime data;
     private String observacao;
     @ManyToOne
-    @JoinColumn(name = "_id_fornecedor")
+    @JoinColumn(name = "id_fornecedor")
     private Fornecedor fornecedor;
     @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ItemCompra> itens = new ArrayList<>();

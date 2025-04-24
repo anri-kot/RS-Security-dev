@@ -13,10 +13,10 @@ public class ItemVenda {
     private BigDecimal valorUnitario;
     private BigDecimal desconto;
     @ManyToOne
-    @JoinColumn(name = "_id_venda")
+    @JoinColumn(name = "id_venda")
     private Venda venda;
     @ManyToOne
-    @JoinColumn(name = "_id_produto")
+    @JoinColumn(name = "id_produto")
     private Produto produto;
 
     public Long getIdItem() {

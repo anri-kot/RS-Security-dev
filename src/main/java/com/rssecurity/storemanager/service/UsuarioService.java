@@ -14,10 +14,10 @@ import java.util.List;
 
 @Service
 public class UsuarioService {
-    private UsuarioRepository repository;
-    private UsuarioMapper mapper;
+    private final UsuarioRepository repository;
+    private final UsuarioMapper mapper;
 
-    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
 
     public UsuarioService(UsuarioRepository repository, UsuarioMapper mapper) {
         this.repository = repository;

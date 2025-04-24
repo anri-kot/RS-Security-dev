@@ -13,7 +13,7 @@ public class Venda {
     private LocalDateTime data;
     private String observacao;
     @ManyToOne
-    @JoinColumn(name = "_id_usuario")
+    @JoinColumn(name = "id_usuario")
     private Usuario usuario;
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ItemVenda> itens;

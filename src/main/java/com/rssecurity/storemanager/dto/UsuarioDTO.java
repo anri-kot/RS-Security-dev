@@ -23,6 +23,6 @@ public record UsuarioDTO(
         String telefone,
         BigDecimal salario,
         @NotNull
-        Boolean isAdmin
+        Boolean admin
 ) {
 }
