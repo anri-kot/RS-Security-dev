@@ -1,0 +1,14 @@
+<form action="/api/produto" method="POST">
+    <input type="number" name="idProduto" id="idProduto">
+    <label for="idProduto">ID</label>
+    <input type="text" name="nome" id="nome">
+    <label for="nome">Nome</label>
+    <input type="number" name="estoqueMin" id="estoqueMin">
+    <label for="estoqueMin">Estoque Minimo</label>
+    <input type="number" name="precoAtual" id="precoAtual" step=".01">
+    <label for="precoAtual">Preço Atual</label>
+    <input list="fornecedores" name="fornecedor" id="fornecedor" onkeypress="searchFornecedor()">
+    <datalist id="fornecedores">
+    </datalist>
+    <button type="submit"></button>
+</form>

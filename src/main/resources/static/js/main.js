@@ -1,44 +1,38 @@
-document.getElementById("listarProdutos").addEventListener("click", () => {
-    console.log("test")
-  fetch("/rssecurity/api/produto")
-    .then(res => res.json())
-    .then(produtos => {
-      const div = document.getElementById("resultado");
-      if (produtos.length === 0) {
-        div.innerHTML = "<p>Nenhum produto encontrado.</p>";
-        return;
-      }
+document.addEventListener("DOMContentLoaded", () => {
+  const pathname = window.location.pathname.replace("/", "");
 
-      div.innerHTML = produtos.map(p =>
-        `<div class="card mb-2">
-          <div class="card-body">
-            <h5>${p.nome}</h5>
-            <p>Preço: R$ ${p.precoAtual.toFixed(2)}</p>
-          </div>
-        </div>`
-      ).join("");
-    });
-});
+  if (pathname == "" || pathname == "home") {
+    loadPage("home")
+  }
 
-document.getElementById("formProduto").addEventListener("submit", (e) => {
-  e.preventDefault();
+  loadPage(pathname);
+})
 
-  const nome = document.getElementById("nome").value;
-  const preco = document.getElementById("preco").value;
-
-  fetch("/resecurity/api/produto", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nome, precoAtual: parseFloat(preco) })
+function loadPage(page) {
+  fetch(`/${page}`, {
+    headers: {"is-update": "true"}
   })
-  .then(res => {
-    if (!res.ok) throw new Error("Erro ao salvar produto.");
-    return res.json();
-  })
-  .then(() => {
-    document.getElementById("formProduto").reset();
-    document.querySelector("#modalProduto .btn-close").click();
-    document.getElementById("listarProdutos").click(); // atualiza a lista
-  })
-  .catch(err => alert(err.message));
-});
+      .then(res => res.text())
+      .then(html => {
+          document.getElementById("content").innerHTML = html;
+      })
+      .catch(() => alert("Erro ao carregar a página."));
+}
+
+function searchFornecedor() {
+  nome = document.getElementById("fornecedor").value;
+
+  if (nome.length > 2) {
+    fetch('/api/fornecedor/search?nome=' + nome)
+      .then(res => res.json())
+      .then(data => {
+        fornecedores.innerHTML = "";
+
+        data.forEach(fornecedor => {
+          item = document.createElement("option");
+          item.value = fornecedor.nome;
+          fornecedores.appendChild(item);
+        });
+      })
+  }
+}
