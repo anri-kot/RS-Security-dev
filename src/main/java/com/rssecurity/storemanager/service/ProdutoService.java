@@ -44,6 +44,12 @@ public class ProdutoService {
                 .toList();
     }
 
+    public List<ProdutoDTO> findByCategoria_Nome(String categoria) {
+        return repository.findByCategoria_Nome(categoria).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
     public ProdutoDTO create(ProdutoDTO produto) {
         if (produto.idProduto() != null) {
             throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");

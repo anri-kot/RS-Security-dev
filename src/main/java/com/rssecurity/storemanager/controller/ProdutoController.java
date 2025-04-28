@@ -40,6 +40,11 @@ public class ProdutoController {
         return ResponseEntity.ok(service.findByDescricaoContains(descricao));
     }
 
+    @GetMapping("/search/categoria")
+    public ResponseEntity<List<ProdutoDTO>> findByCategoria_Nome(@RequestParam String categoria) {
+        return ResponseEntity.ok(service.findByCategoria_Nome(categoria));
+    }
+
     @PostMapping
     public ResponseEntity<ProdutoDTO> create(@RequestBody @Valid ProdutoDTO produto) {
         ProdutoDTO created = service.create(produto);
