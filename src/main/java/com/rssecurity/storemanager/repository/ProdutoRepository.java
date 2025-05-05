@@ -8,13 +8,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByNomeContains(String nome);
     List<Produto> findByDescricaoContains(String descricao);
     List<Produto> findByCategoria_Nome(String categoria);
+
+    List<Produto> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String nome, Long categoria);
 
     @Query("""
     SELECT 

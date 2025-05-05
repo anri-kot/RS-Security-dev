@@ -2,12 +2,13 @@ package com.rssecurity.storemanager.view;
 
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.service.ProdutoService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 
@@ -17,26 +18,33 @@ public class ViewController {
     @Autowired
     private ProdutoService produtoService;
 
-    @GetMapping("/")
-    public String getIndex(Model model) {
+    @GetMapping({ "/", "/home" })
+    public String getHome(HttpServletRequest request, Model model) {
+        if (Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))) {
+            return "index :: content";
+        }
+        
         return "index";
     }
 
-    @GetMapping("/home")
-    public String getHome(Model model) {
-        return "index";
-    }
-
-    @GetMapping("/produto")
+    @GetMapping("/produtos")
     public String getProdutos(HttpServletRequest request, Model model) {
         List<ProdutoDTO> produtos = produtoService.findAll();
         model.addAttribute("produtos", produtos);
 
-        boolean isHtmxRequest = "true".equals(request.getHeader("HX-Request"));
-        if (isHtmxRequest) {
-            return "fragments/produto :: content";
+        if (Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))) {
+            return "produtos :: content";
         }
 
-        return "produto";
+        return "produtos";
+    }
+
+    @GetMapping("/pdv")
+    public String getPdv(HttpServletRequest request, Model model) {
+        if (Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))) {
+            return "pdv :: content";
+        }
+
+        return "pdv";
     }
 }

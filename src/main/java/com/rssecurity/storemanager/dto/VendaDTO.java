@@ -7,15 +7,20 @@ import java.util.List;
 
 public record VendaDTO(
         Long idVenda,
-        @NotNull
         LocalDateTime data,
         String observacao,
+        @NotNull
         UsuarioResumoDTO usuario,
+        @NotNull
         List<ItemVendaDTO> itens
 ) {
     public VendaDTO {
-        if (observacao == null) {
+        if (observacao == null || observacao.trim().equals("")) {
             observacao = "VENDA NO BALCÃO";
+        }
+
+        if (data == null) {
+            data = LocalDateTime.now();
         }
     }
 }

@@ -1,38 +1,32 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const pathname = window.location.pathname.replace("/", "");
+document.addEventListener("DOMContentLoaded", loadModule);
+let currentModule;
+const conteudo = document.getElementById('conteudo');
 
-  if (pathname == "" || pathname == "home") {
-    loadPage("home")
+document.addEventListener("htmx:afterSettle", (e) => {
+  if (e.target.id === conteudo.id) {
+    loadModule();
   }
+});
 
-  loadPage(pathname);
-})
+function loadModule() {
+  const pageId = document.querySelector("[data-page-id]")?.dataset.pageId;
+  
+  if (!pageId) return;
 
-function loadPage(page) {
-  fetch(`/${page}`, {
-    headers: {"is-update": "true"}
-  })
-      .then(res => res.text())
-      .then(html => {
-          document.getElementById("content").innerHTML = html;
-      })
-      .catch(() => alert("Erro ao carregar a página."));
+  if (currentModule !== null && currentModule !== pageId) {
+
+  import(`/js/modules/${pageId}.js`)
+    .then(module => module.init())
+    .catch(err => console.warn(`Não foi possível carregar módulo para ${pageId}`, err));
+  }
+  currentModule = pageId;
 }
 
-function searchFornecedor() {
-  nome = document.getElementById("fornecedor").value;
-
-  if (nome.length > 2) {
-    fetch('/api/fornecedor/search?nome=' + nome)
-      .then(res => res.json())
-      .then(data => {
-        fornecedores.innerHTML = "";
-
-        data.forEach(fornecedor => {
-          item = document.createElement("option");
-          item.value = fornecedor.nome;
-          fornecedores.appendChild(item);
-        });
-      })
-  }
+function loadPage(page) {
+  fetch(`/${page}`)
+    .then(res => res.text())
+    .then(html => {
+      document.getElementById("conteudo").innerHTML = html;
+    })
+    .catch(() => alert("Erro ao carregar a página."));
 }

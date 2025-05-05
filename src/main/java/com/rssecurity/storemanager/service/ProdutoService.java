@@ -20,6 +20,8 @@ public class ProdutoService {
         this.mapper = mapper;
     }
 
+    // SEARCH
+
     public List<ProdutoDTO> findAll() {
         return repository.findAll().stream()
                 .map(mapper::toDTO)
@@ -27,8 +29,8 @@ public class ProdutoService {
     }
 
     public ProdutoDTO findById(Long id) {
-        Produto produto = repository.findById(id).
-                orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado. ID: " + id));
+        Produto produto = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado. ID: " + id));
         return mapper.toDTO(produto);
     }
 
@@ -50,6 +52,14 @@ public class ProdutoService {
                 .toList();
     }
 
+    public List<ProdutoDTO> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String termo, Long categoria) {
+        return repository.findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(termo, categoria).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    // ACTIONS
+
     public ProdutoDTO create(ProdutoDTO produto) {
         if (produto.idProduto() != null) {
             throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
@@ -70,5 +80,10 @@ public class ProdutoService {
             throw new ResourceNotFoundException("Produto não encontrado. ID: " + id);
         }
         repository.deleteById(id);
+    }
+
+    public List<ProdutoDTO> findByIdProdutoContainsAndCategoriaIdCategoria(Long termoId, Long idCategoria) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByIdProdutoContainsAndCategoriaIdCategoria'");
     }
 }

@@ -1,7 +1,6 @@
 package com.rssecurity.storemanager.controller;
 
 import com.rssecurity.storemanager.dto.ProdutoDTO;
-import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.service.ProdutoService;
 import jakarta.validation.Valid;
@@ -10,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/produto")
@@ -43,7 +45,7 @@ public class ProdutoController {
     @GetMapping("/search/categoria")
     public ResponseEntity<List<ProdutoDTO>> findByCategoria_Nome(@RequestParam String categoria) {
         return ResponseEntity.ok(service.findByCategoria_Nome(categoria));
-    }
+    }    
 
     @PostMapping
     public ResponseEntity<ProdutoDTO> create(@RequestBody @Valid ProdutoDTO produto) {

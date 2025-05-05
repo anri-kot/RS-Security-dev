@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>PDV</title>
+</head>
+
+<body>
+    <div layout:fragment="content" th:fragment="content" data-page-id="pdv">
+
+        <div class="container py-4">
+
+            <h1 class="mb-4">Ponto de Venda</h1>
+
+            <!-- Área de busca de produto -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form id="search-form" class="d-flex flex-wrap align-items-center">
+                        <label for="tipo">Buscar por:</label>
+                        <select id="search-type" name="tipo" class="form-select me-2 w-auto">
+                            <option value="nome">Nome</option>
+                            <option value="id">ID</option>
+                        </select>
+
+                        <label for="idCategoria">Filtrar:</label>
+                        <select id="categoria" name="idCategoria" class="form-select me-2 w-auto">
+                            <option value="">Todas Categorias</option>
+                            <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nome}">
+                            </option>
+                        </select>
+
+                        <div class="position-relative me-2" style="flex: 1; min-width: 250px;">
+                            <input type="text" id="search-product" name="termo" class="form-control"
+                                placeholder="Buscar produto..." hx-get="/pdv/autocomplete"
+                                hx-trigger="keyup changed delay:300ms" hx-target="#autocomplete-options"
+                                autocomplete="off">
+                            <input type="hidden" name="idProduto" id="selected-id" value="${idProduto}">
+
+                            <div class="dropdown-menu w-100" id="autocomplete-options"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="add-button">Adicionar</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Itens no carrinho -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    Carrinho de Compras
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Preço Unitário</th>
+                                <th>%</th>
+                                <th>Subtotal</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-items">
+                            <!-- Itens vão aqui -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Resumo e ações -->
+            <div class="card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <h4>Total: R$ <span id="total">0.00</span></h4>
+                    <div>
+                        <button class="btn btn-success me-2" id="finalizar-venda">Finalizar Venda</button>
+                        <button class="btn btn-danger" id="cancelar-venda">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="produtoModal" tabindex="-1" aria-labelledby="produtoModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Produto Selecionado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+              </div>
+              <div class="modal-body">
+                <form>
+                  <input type="hidden" id="modal-produto-id">
+                  <div class="mb-3">
+                    <label class="form-label">Nome</label>
+                    <input type="text" id="modal-produto-nome" class="form-control" disabled>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Categoria</label>
+                    <input type="text" id="modal-produto-categoria" class="form-control" disabled>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Preço</label>
+                    <input type="text" id="modal-produto-preco" class="form-control" disabled>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Desconto</label>
+                    <input type="text" id="modal-produto-desconto" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Quantidade</label>
+                    <input type="number" id="modal-produto-quantidade" class="form-control" value="1" min="1">
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button class="btn btn-primary" data-action="confirm-modal">Confirmar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</body>
+
+</html>
