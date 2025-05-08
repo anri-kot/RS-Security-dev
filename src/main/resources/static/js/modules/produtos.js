@@ -1,0 +1,137 @@
+export function init() {
+
+    const searchForm = document.getElementById('search-form');
+    const produtoModal = document.getElementById('produtoModal');
+
+    let lastSearch = '';
+
+    searchForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+    });
+
+    document.addEventListener('htmx:afterSettle', () => {
+        lastSearch = location.search;
+    });
+
+    // PRODUTO MODAL
+    let isNewField = document.getElementById('is-new');
+    const modal = new bootstrap.Modal(produtoModal);
+
+    document.getElementById('new-produto').addEventListener('click', () => {
+        showProdutoModal(-1);
+    });
+
+    document.getElementById('tabela-produtos').addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-outline-secondary')) {
+            showProdutoModal(e.target.dataset.id);
+        } else if (e.target.classList.contains('btn-outline-danger')) {
+            console.log('ID TO REMOVE: ' + e.target.dataset.id);
+            
+        }
+    });
+
+    document.getElementById('confirm-register').addEventListener('click', () => {
+        sendProduto();
+    })
+
+    async function showProdutoModal(id) {
+
+        if (id > 0) {
+            const response = await fetch(`/pdv/produto/${id}`);
+
+            if (!response.ok) throw new Error('Erro na requisição');
+            populateProdutoModal(id, await response.json());
+            isNewField.value = 'false';
+        } else {
+            isNewField.value = 'true';
+            clearProdutoModal();
+        }
+        
+        modal.show();
+    }
+
+    async function sendProduto() {
+        const isNew = (!isNewField) || isNewField.value === 'true';        
+
+        const nome = document.getElementById('modal-produto-nome').value;
+        const categoriaId= parseInt(document.getElementById('modal-produto-categoria-id').value);
+        const precoAtual = parseFloat(document.getElementById('modal-produto-preco').value);
+        const descricao = document.getElementById('modal-produto-descricao').value;
+        const estoqueMin = parseInt(document.getElementById('modal-produto-estoque-min').value);
+
+        let idProduto;
+        let url;
+        let method;
+        if (!isNew) {
+            idProduto = parseInt(document.getElementById('modal-produto-idProduto').value);
+            url = `/produtos/update/${idProduto}`;
+            method = 'PUT';
+        } else {
+            idProduto = null;
+            url = `/produtos/create`;
+            method = 'POST';
+        }
+
+        const json = JSON.stringify({
+            idProduto: idProduto,
+            nome: nome,
+            descricao: descricao,
+            precoAtual: precoAtual,
+            estoqueMin: estoqueMin,
+            categoria: {
+                idCategoria: categoriaId,
+            }
+        });
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'HX-Request': 'true'
+                },
+                body: json
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                produtoModal.hide();
+                return;
+            } else {
+                alert('Ação executada com sucesso.');
+                modal.hide();
+                clearProdutoModal();
+                refresh();
+            }
+        } catch (e) {
+            console.error('Erro inesperado:', e);
+            alert('Ocorreu um erro inesperado.');
+        }
+    }
+
+    function populateProdutoModal(id, produto) {        
+        document.getElementById('modal-produto-idProduto').value = id;
+        document.getElementById('is-new').value = 'false';
+        document.getElementById('modal-produto-nome').value = produto.nome;
+        document.getElementById('modal-produto-categoria-id').value = produto.categoria.idCategoria;
+        document.getElementById('modal-produto-preco').value = produto.precoAtual.toFixed(2);
+        document.getElementById('modal-produto-descricao').value = produto.descricao;
+        document.getElementById('modal-produto-estoque-min').value = produto.estoqueMin;
+    }
+
+    function clearProdutoModal() {
+        document.getElementById('modal-produto-idProduto').value = '';
+        document.getElementById('is-new').value = 'true';
+        document.getElementById('modal-produto-nome').value = '';
+        document.getElementById('modal-produto-categoria-id').value = '';
+        document.getElementById('modal-produto-preco').value = '00.00';
+        document.getElementById('modal-produto-descricao').value = '';
+        document.getElementById('modal-produto-estoque-min').value = '1';
+    }
+
+    async function refresh() {
+        const url = `/produtos${lastSearch}`
+        htmx.ajax('GET', url, { target: '#conteudo', selected: '#tabela-produtos'});
+    }
+}

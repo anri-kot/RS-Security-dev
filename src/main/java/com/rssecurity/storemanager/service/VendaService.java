@@ -1,20 +1,5 @@
 package com.rssecurity.storemanager.service;
 
-import com.rssecurity.storemanager.dto.ProdutoEstoqueDTO;
-import com.rssecurity.storemanager.dto.VendaDTO;
-import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
-import com.rssecurity.storemanager.exception.BadRequestException;
-import com.rssecurity.storemanager.exception.ConflictException;
-import com.rssecurity.storemanager.exception.ResourceNotFoundException;
-import com.rssecurity.storemanager.mapper.ProdutoMapper;
-import com.rssecurity.storemanager.mapper.VendaMapper;
-import com.rssecurity.storemanager.model.ItemVenda;
-import com.rssecurity.storemanager.model.Produto;
-import com.rssecurity.storemanager.model.Usuario;
-import com.rssecurity.storemanager.model.Venda;
-import com.rssecurity.storemanager.repository.*;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,6 +7,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.rssecurity.storemanager.dto.ProdutoEstoqueDTO;
+import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
+import com.rssecurity.storemanager.dto.VendaDTO;
+import com.rssecurity.storemanager.exception.BadRequestException;
+import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.exception.ResourceNotFoundException;
+import com.rssecurity.storemanager.mapper.ProdutoMapper;
+import com.rssecurity.storemanager.mapper.VendaMapper;
+import com.rssecurity.storemanager.model.ItemVenda;
+import com.rssecurity.storemanager.model.Usuario;
+import com.rssecurity.storemanager.model.Venda;
+import com.rssecurity.storemanager.repository.ProdutoRepository;
+import com.rssecurity.storemanager.repository.UsuarioRepository;
+import com.rssecurity.storemanager.repository.VendaRepository;
 
 @Service
 public class VendaService {
@@ -104,6 +106,21 @@ public class VendaService {
     }
 
     // ACTIONS
+
+    // Overloaded method for PDV transactions
+    public VendaDTO create(VendaDTO venda, String username) {
+        Usuario usuario = usuarioRepository.findByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. Username: " + username));
+        UsuarioResumoDTO usu = new UsuarioResumoDTO(usuario.getIdUsuario(), usuario.getUsername(), usuario.getNome(), usuario.getSobrenome());
+
+        VendaDTO dto = new VendaDTO(
+            venda.idVenda(), 
+            venda.data(), 
+            venda.observacao(), 
+            usu, 
+            venda.itens());
+        return create(dto);
+    }
 
     public VendaDTO create(VendaDTO venda) {
         if (venda.idVenda() != null) {

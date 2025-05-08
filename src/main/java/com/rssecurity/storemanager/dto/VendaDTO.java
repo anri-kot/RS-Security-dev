@@ -9,7 +9,6 @@ public record VendaDTO(
         Long idVenda,
         LocalDateTime data,
         String observacao,
-        @NotNull
         UsuarioResumoDTO usuario,
         @NotNull
         List<ItemVendaDTO> itens

@@ -1,6 +1,5 @@
 // js/modules/pdv.js
 export function init() {
-
     /* TODO:
         DISPLAY ERRORS ON THE PAGE
     */
@@ -8,25 +7,31 @@ export function init() {
     let lastQuery = '';
 
     let cart = [];
+    let tempProduto = null;
     const cartItems = document.getElementById('cart-items');
     let obs = '';
 
     const searchProduct = document.getElementById('search-product');
     const autocompleteOptions = document.getElementById('autocomplete-options');
     const modalElement = document.getElementById("produtoModal");
-    const finishSell = document.getElementById('finalizar-venda');
-    const cancelSell = document.getElementById('cancelar-venda');
+    const searchType = document.getElementById('search-type');
 
     /* === DROPDOWN === */
 
     // checks if search field is blank or < 3 before request
     document.body.addEventListener("htmx:beforeRequest", (event) => {
-
         if (!searchProduct) return;
-        const value = searchProduct.value.trim();
 
-        if (value.length < 3 || lastQuery.endsWith(value)) {
-            event.preventDefault();
+        if (event.target.id === searchProduct.id) {
+            const searchType = document.getElementById('search-type');
+            const value = searchProduct.value.trim();
+
+            if (value.length < 1) {
+                event.preventDefault();
+                return;
+            } else if (searchType.value !== 'id' && (value.length < 3 || lastQuery === value)) {
+                event.preventDefault();
+            }
         }
     });
 
@@ -40,7 +45,6 @@ export function init() {
 
     // Listens for click events in the dropdown
     document.body.addEventListener('click', (event) => {
-
         const li = event.target.closest('li.list-group-item');
         if (li && autocompleteOptions.contains(li)) {
             const idProduto = li.getAttribute('data-id-produto');
@@ -64,7 +68,7 @@ export function init() {
     });
 
     // Show dropdown on focus
-    searchProduct.addEventListener('focus', () => {
+    searchProduct.addEventListener('focus', () => {        
         updateDropdown();
     });
 
@@ -76,17 +80,20 @@ export function init() {
     });
 
     function updateDropdown() {
-
-        if (searchProduct.value.trim().length < 3) {
-            autocompleteOptions.classList.remove('show');
+        if (searchType.value === 'nome') {
+            if (searchProduct.value.trim().length >= 3) {
+                autocompleteOptions.classList.add('show');
+            }
         } else {
-            autocompleteOptions.classList.add('show');
+            if (searchProduct.value.trim().length != 0) {
+                autocompleteOptions.classList.add('show');
+            }
         }
     }
 
-    /* === ADD TO CART === */
+    /* === CART === */
 
-    // listens for submit action and shows the modal
+    // SHOW MODAL
     document.querySelector('#search-form').addEventListener('submit', (event) => {
 
         event.preventDefault();
@@ -95,7 +102,7 @@ export function init() {
         showProdutoModal(selectedId);
     });
 
-    // listens for click on 'remove' button and removes the item from the cart
+    // REMOVE/EDIT ITEM
     cartItems.addEventListener("click", (e) => {
         if (e.target.classList.contains("btn-danger")) {
             const index = parseInt(e.target.dataset.index);
@@ -103,6 +110,9 @@ export function init() {
                 cart.splice(index, 1);
                 renderCart();
             }
+        } else if (e.target.classList.contains("btn-secondary")) {
+            const index = parseInt(e.target.dataset.index);
+            editCart(index);
         }
     });
 
@@ -116,14 +126,14 @@ export function init() {
         autocompleteOptions.classList.remove('show');
     }
 
-    function addProductToCart(idProduto, nome, quantidade, preco, desconto) {
+    function addProductToCart(produto, quantidade, preco, desconto) {
         let exists = false;
 
         // If add item already exists in the cart
         cart.forEach(item => {
-            if (item.produto.idProduto === parseInt(idProduto)) {
+            if (item.produto.idProduto === parseInt(produto.idProduto)) {
 
-                item.quantidade += parseInt(quantidade);
+                item.quantidade = parseInt(quantidade);
                 item.desconto = parseFloat(desconto);
                 item.preco = parseInt(preco);
                 exists = true;
@@ -133,10 +143,7 @@ export function init() {
 
         if (!exists) {
             cart.push({
-                "produto": {
-                    'idProduto': parseInt(idProduto),
-                    "nome": nome
-                },
+                "produto": produto,
                 "quantidade": parseInt(quantidade),
                 "valorUnitario": parseFloat(preco),
                 "desconto": parseFloat(desconto)
@@ -144,6 +151,11 @@ export function init() {
         }
 
         renderCart();
+    }
+
+    function editCart(index) {
+        const selectedId = cart[index].produto.idProduto;
+        showProdutoModal(selectedId);
     }
 
     function renderCart() {
@@ -166,7 +178,8 @@ export function init() {
             <td>R$ ${item.valorUnitario.toFixed(2)}</td>
             <td>${(discount * 100).toFixed(0)}</td>
             <td>R$ ${finalPrice.toFixed(2)}</td>
-            <td><button class="btn btn-sm btn-danger" data-index="${index}">Remover</button></td>`;
+            <td><button class="btn btn-sm btn-danger" data-index="${index}">Remover</button>
+            <button class="btn btn-sm btn-secondary" data-index="${index}">Editar</button></td>`;
 
             cartItems.appendChild(tr);
         });
@@ -174,10 +187,11 @@ export function init() {
         document.getElementById('total').textContent = total.toFixed(2);
     }
 
-    /* === MODAL === */
+    /* === MODAL === */    
 
     // Colects modal data
-    modalElement.addEventListener("click", function (event) {
+    modalElement.addEventListener("click", function (event) {        
+
         if (event.target.dataset.action === "confirm-modal") {
 
             const idProduto = document.getElementById("modal-produto-id").value;
@@ -191,7 +205,10 @@ export function init() {
                 return;
             }
 
-            addProductToCart(idProduto, nome, quantidade, preco, desconto);
+            const produto = tempProduto;
+            tempProduto = null;
+
+            addProductToCart(produto, quantidade, preco, desconto);
 
             const modal = bootstrap.Modal.getInstance(modalElement);
             modal.hide();
@@ -206,19 +223,27 @@ export function init() {
         }
 
         try {
+            const modal = new bootstrap.Modal(modalElement);
+
+            if (cart != null) {
+                for (let item of cart) {
+                    if (parseInt(selectedId) === item.produto.idProduto) {
+                        tempProduto = item.produto;
+                        populateModal(tempProduto, item.quantidade, item.valorUnitario, item.desconto);
+                        modal.show();
+                        return;
+                    }
+                }
+            }
+
             const response = await fetch(`/pdv/produto/${selectedId}`);
             if (!response.ok) throw new Error("Erro na requisição");
 
-            const produto = await response.json();
+            tempProduto = await response.json();
 
             // Populate fields
-            document.getElementById("modal-produto-id").value = produto.idProduto;
-            document.getElementById("modal-produto-nome").value = produto.nome;
-            document.getElementById("modal-produto-categoria").value = produto.categoria.nome;
-            document.getElementById("modal-produto-preco").value = produto.precoAtual.toFixed(2);
-            document.getElementById("modal-produto-desconto").value = produto.desconto?.toFixed(2) || '0.00';
+            populateModal(tempProduto, 1, tempProduto.precoAtual, '0.00');
 
-            const modal = new bootstrap.Modal(modalElement);
             modal.show();
 
         } catch (e) {
@@ -227,11 +252,42 @@ export function init() {
         }
     }
 
+    // Populate fields
+    function populateModal(produto, quantidade, valorUnitario, desconto) {
+        document.getElementById("modal-produto-id").value = produto.idProduto;
+        document.getElementById("modal-produto-nome").value = produto.nome;
+        document.getElementById("modal-produto-categoria").value = produto.categoria.nome;
+        document.getElementById("modal-produto-preco").value = parseFloat(valorUnitario).toFixed(2);
+        document.getElementById("modal-produto-desconto").value = parseFloat(desconto).toFixed(2) || '0.00';
+        document.getElementById("modal-produto-quantidade").value = quantidade;
+    }
+
     /* === SELL ==*/
 
-    finishSell.addEventListener('click', sellCart);
+    const sellModal = new bootstrap.Modal(document.getElementById('confirmarVendaModal'));
+    // Show confirm sell modal
+    document.getElementById('finalizar-venda').addEventListener('click', () => {
+        if (cart.length === 0) {
+            alert('Carrinho vazio');
+            return;
+        }
+
+        sellModal.show();
+    });
+
+    // Confirm
+    document.getElementById('confirmar-venda').addEventListener('click', sellCart);
+
+    // Cancel
+    document.getElementById('cancelar-venda').addEventListener('click', () => {
+        cart = [];
+        renderCart();
+    });
 
     async function sellCart() {
+        observacao = document.getElementById('observacao');
+        obs = observacao.value;
+
         if (cart.length === 0) {
             alert('Carrinho vazio');
             return;
@@ -239,13 +295,7 @@ export function init() {
 
         const json = JSON.stringify({
             itens: cart,
-            observacao: obs,
-            usuario: {
-                'idUsuario': 3,
-                'username': 'user',
-                'nome': 'John',
-                'sobrenome': 'Doe'
-            }
+            observacao: obs
         });
 
         try {
@@ -263,11 +313,15 @@ export function init() {
                 alert(text);
                 cart = [];
                 obs = '';
+                observacao.value = '';
 
                 renderCart();
+                sellModal.hide();
             } else {
                 const errorData = await response.json();
                 alert(`Erro ${errorData.status}: ${errorData.message}`);
+                observacao.value = '';
+                sellModal.hide();
                 return;
             }
         } catch (e) {
@@ -275,9 +329,4 @@ export function init() {
             alert('Ocorreu um erro inesperado.');
         }
     }
-
-    cancelSell.addEventListener('click', () => {
-        cart = [];
-        renderCart();
-    })
 }

@@ -7,21 +7,46 @@ import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.UsuarioMapper;
 import com.rssecurity.storemanager.model.Usuario;
 import com.rssecurity.storemanager.repository.UsuarioRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UsuarioService {
+public class UsuarioService implements UserDetailsService {
+
     private final UsuarioRepository repository;
     private final UsuarioMapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(10);
-
-    public UsuarioService(UsuarioRepository repository, UsuarioMapper mapper) {
+    public UsuarioService(UsuarioRepository repository, UsuarioMapper mapper, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.mapper = mapper;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Usuario usuario = repository.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
+        
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        if (usuario.getAdmin()) {
+            authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        } else {
+            authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        
+        return new org.springframework.security.core.userdetails.User(
+            usuario.getUsername(),
+            usuario.getSenha(),
+            authorities);
     }
 
     public List<UsuarioDTO> findAll() {
@@ -88,7 +113,7 @@ public class UsuarioService {
 
     private Usuario setPassword(UsuarioDTO dto) {
         Usuario entity = mapper.toEntity(dto);
-        String encodedPwd = encoder.encode(dto.senha());
+        String encodedPwd = passwordEncoder.encode(dto.senha());
         entity.setSenha(encodedPwd);
         return entity;
     }
