@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -68,16 +69,17 @@ public class HtmxController {
 
     @PostMapping("/pdv/finalizar")
     @ResponseBody
-    public ResponseEntity<VendaDTO> pdvVenda(@RequestBody VendaDTO venda, Authentication authentication) {
+    public ResponseEntity<String> pdvVenda(@RequestBody VendaDTO venda, Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         String username = userDetails.getUsername();
+        VendaDTO created = vendaService.create(venda, username);
 
-        return ResponseEntity.ok(vendaService.create(venda, username));
+        return ResponseEntity.ok().body(created.observacao());
     }
 
     @PutMapping("/produtos/update/{id}")
     @ResponseBody
-    public ResponseEntity<?> createProduto(@RequestBody ProdutoDTO produto, @PathVariable Long id) throws ConflictException {
+    public ResponseEntity<?> updateProduto(@RequestBody ProdutoDTO produto, @PathVariable Long id) throws ConflictException {
         if (!id.equals(produto.idProduto())) {
             throw new ConflictException("ID do produto e ID especificado no caminho não correspondem. IDs: " + id + " e " + produto.idProduto());
         }
@@ -88,13 +90,17 @@ public class HtmxController {
 
     @PostMapping("/produtos/create")
     @ResponseBody
-    public ResponseEntity<?> postMethodName(@RequestBody ProdutoDTO produto) throws BadRequestException {
-        if (produto.idProduto() != null) {
-            throw new BadRequestException("ID do produto não deve ser definido.");
-        }
+    public ResponseEntity<String> createProduto(@RequestBody ProdutoDTO produto) throws BadRequestException {
 
         produtoService.create(produto);
         
+        return ResponseEntity.ok().body("Produto '" + produto.nome() + "'' criado com sucesso.");
+    }
+
+    @DeleteMapping("/produtos/delete/{id}")
+    @ResponseBody
+    public ResponseEntity<?> deleteProduto(@PathVariable Long id) {
+        produtoService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
     

@@ -2,6 +2,10 @@
 export function init() {
     /* TODO:
         DISPLAY ERRORS ON THE PAGE
+
+        ISSUE: 
+            Check if you need to reload the module after every htmx request/action.
+            Currently, after refresh() is called, the module is unloaded.*
     */
 
     let lastQuery = '';
@@ -285,7 +289,7 @@ export function init() {
     });
 
     async function sellCart() {
-        observacao = document.getElementById('observacao');
+        const observacao = document.getElementById('observacao');
         obs = observacao.value;
 
         if (cart.length === 0) {

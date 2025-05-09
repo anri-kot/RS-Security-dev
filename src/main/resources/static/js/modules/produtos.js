@@ -1,7 +1,8 @@
 export function init() {
 
     const searchForm = document.getElementById('search-form');
-    const produtoModal = document.getElementById('produtoModal');
+    const produtoModalEl = document.getElementById('produtoModal');
+    const confirmModalEl = document.getElementById('confirma-modal');
 
     let lastSearch = '';
 
@@ -15,7 +16,7 @@ export function init() {
 
     // PRODUTO MODAL
     let isNewField = document.getElementById('is-new');
-    const modal = new bootstrap.Modal(produtoModal);
+    const modal = new bootstrap.Modal(produtoModalEl);
 
     document.getElementById('new-produto').addEventListener('click', () => {
         showProdutoModal(-1);
@@ -25,14 +26,16 @@ export function init() {
         if (e.target.classList.contains('btn-outline-secondary')) {
             showProdutoModal(e.target.dataset.id);
         } else if (e.target.classList.contains('btn-outline-danger')) {
-            console.log('ID TO REMOVE: ' + e.target.dataset.id);
-            
+            const id = e.target.dataset.id;
+            const nome = e.target.closest('tr').querySelectorAll('td')[1].innerText;
+
+            showConfirmModal(id, nome, 'deletar');
         }
     });
 
     document.getElementById('confirm-register').addEventListener('click', () => {
         sendProduto();
-    })
+    });
 
     async function showProdutoModal(id) {
 
@@ -96,12 +99,60 @@ export function init() {
             if (!response.ok) {
                 const errorData = await response.json();
                 alert(`Erro ${errorData.status}: ${errorData.message}`);
-                produtoModal.hide();
+                produtoModalEl.hide();
                 return;
             } else {
                 alert('Ação executada com sucesso.');
                 modal.hide();
                 clearProdutoModal();
+                refresh();
+            }
+        } catch (e) {
+            console.error('Erro inesperado:', e);
+            alert('Ocorreu um erro inesperado.');
+        }
+    }
+
+    // CONFIRM MODAL
+
+    let currentAction = null;
+    let confirmModal = null;
+
+    // Confirm action
+    document.getElementById('confirmar-acao').addEventListener('click', (e) => {
+        if (currentAction === 'deletar') {
+            deleteProduto(e.target.dataset.id);
+        }
+        confirmModal.hide();
+    });
+
+    function showConfirmModal(id, nome, action) {
+        const mensagem = document.getElementById('modal-mensagem');
+        mensagem.innerText = `Tem certeza de que quer ${action} '${nome}'?`;
+
+        confirmModal = new bootstrap.Modal(confirmModalEl);
+        confirmModal.show();
+
+        document.getElementById('confirmar-acao').dataset.id = id;
+        currentAction = action;
+    }
+
+    async function deleteProduto(id) {
+        try {
+            const url = `/produtos/delete/${id}`;
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'HX-Request': 'true' },
+                body: {}
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                return;
+            } else {
+                alert('Ação executada com sucesso.');
                 refresh();
             }
         } catch (e) {

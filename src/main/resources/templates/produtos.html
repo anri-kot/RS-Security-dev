@@ -67,8 +67,10 @@
                                 <span class="badge bg-info text-dark" th:text="${produto.categoria.nome}"></span>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-outline-secondary me-2" th:attr="data-id=${produto.idProduto}">Editar</button>
-                                <button class="btn btn-sm btn-outline-danger" th:attr="data-id=${produto.idProduto}">Excluir</button>
+                                <button class="btn btn-sm btn-outline-secondary me-2"
+                                    th:attr="data-id=${produto.idProduto}">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                    th:attr="data-id=${produto.idProduto}">Excluir</button>
                             </td>
                         </tr>
                     </tbody>
@@ -101,7 +103,8 @@
                                     <label class="form-label">Categoria</label>
                                     <select id="modal-produto-categoria-id" class="form-select me-2">
                                         <option value="">Selecione uma categoria</option>
-                                        <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nome}"></option>
+                                        <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}"
+                                            th:text="${cat.nome}"></option>
                                     </select>
                                 </div>
                                 <div class="mb-3">
@@ -121,8 +124,31 @@
                             </form>
                             <div class="modal-footer">
                                 <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-                                <button class="btn btn-success" id="confirm-register" data-action="confirm-modal">Confirmar</button>
+                                <button class="btn btn-success" id="confirm-register"
+                                    data-action="confirm-modal">Confirmar</button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="confirma-modal" tabindex="-1" aria-labelledby="confirmarVendaLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmarVendaLabel">Confirmar ação</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <spam id="modal-mensagem">Tem certeza disso?</spam>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="confirmar-acao">Confirmar</button>
                         </div>
                     </div>
                 </div>

@@ -37,8 +37,10 @@ function loadModule() {
     import(`/js/modules/${pageId}.js`)
       .then(module => module.init())
       .catch(err => console.warn(`Não foi possível carregar módulo para ${pageId}`, err));
+
   }
 
+  
   currentModule = pageId;
 }
 
@@ -72,6 +74,7 @@ document.getElementById('toggleSidebar').addEventListener('click', () => {
 // HTMX: reload module after navigation
 document.addEventListener("htmx:afterSettle", e => {
   if (e.target.id === conteudo.id) {
+    currentModule = null;
     loadModule();
     updateSidebar();
   }
