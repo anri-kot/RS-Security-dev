@@ -16,31 +16,33 @@
                 <h1 class="mb-0">Produtos</h1>
                 <button id="new-produto" class="btn btn-success">+ Novo Produto</button>
             </div>
-            <form id="search-form" class="d-flex flex-wrap align-items-center" hx-get="/produtos"
-                hx-target="#tabela-produtos" hx-push-url="true" hx-select="#tabela-produtos">
-                <label for="tipo">Buscar por:</label>
-                <select id="search-type" name="tipo" class="form-select me-2 w-auto">
-                    <option value="nome">Nome</option>
-                    <option value="id">ID</option>
-                </select>
-
-                <label for="idCategoria">Filtrar:</label>
-                <select id="categoria" name="idCategoria" class="form-select me-2 w-auto">
-                    <option value="">Todas Categorias</option>
-                    <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nome}">
-                    </option>
-                </select>
-
-                <div class="position-relative me-2" style="flex: 1; min-width: 250px;">
-                    <input type="text" id="search-product" name="termo" class="form-control"
-                        placeholder="Buscar produto..." autocomplete="off">
-                </div>
-
-                <button type="submit" class="btn btn-primary" id="search-btn">Buscar</button>
-            </form>
             <div class="card mb-4">
+                <div class="card-body">
+                    <form id="search-form" class="d-flex flex-wrap align-items-center" hx-get="/produtos"
+                        hx-target="#tabela-produtos" hx-push-url="true" hx-select="#tabela-produtos">
+                        <label for="tipo">Buscar por:</label>
+                        <select id="search-type" name="tipo" class="form-select me-2 w-auto">
+                            <option value="nome">Nome</option>
+                            <option value="id">ID</option>
+                        </select>
 
+                        <label for="idCategoria">Filtrar:</label>
+                        <select id="categoria" name="idCategoria" class="form-select me-2 w-auto">
+                            <option value="">Todas Categorias</option>
+                            <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nome}">
+                            </option>
+                        </select>
+
+                        <div class="position-relative me-2" style="flex: 1; min-width: 250px;">
+                            <input type="text" id="search-product" name="termo" class="form-control"
+                                placeholder="Buscar produto..." autocomplete="off">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="search-btn">Buscar</button>
+                    </form>
+                </div>
             </div>
+
             <div id="tabela-produtos" th:fragment="produtos" class="table-responsive">
                 <table class="table table-striped table-hover table-bordered rounded shadow-sm">
                     <thead class="table-primary">

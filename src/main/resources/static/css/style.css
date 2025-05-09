@@ -30,6 +30,10 @@
     margin-left: 80px;
 }
 
+.container {
+    min-width: 70vw;
+}
+
 label {
     margin-right: 10px;;
 }

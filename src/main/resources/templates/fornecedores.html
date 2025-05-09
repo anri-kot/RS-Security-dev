@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fornecedores</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="container py-4" th:fragment="content" data-page-id="fornecedores">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Fornecedores</h1>
+                <button id="new-produto" class="btn btn-success">+ Novo Fornecedor</button>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+
+                    <form id="search-form" class="d-flex flex-wrap align-items-center" hx-get="/fornecedores"
+                        hx-target="#tabela-fornecedores" hx-push-url="true" hx-select="#tabela-fornecedores">
+
+                        <label for="tipo">Buscar por:</label>
+                        <select id="search-type" name="tipo" class="form-select me-2 w-auto">
+                            <option value="nome">Nome</option>
+                            <option value="id">ID</option>
+                            <option value="cnpj">CNPJ</option>
+                            <option value="email">Email</option>
+                            <option value="telefone">Telefone</option>
+                            <option value="produto">Produto</option>
+                        </select>
+
+                        <div class="position-relative me-2" style="flex: 1; min-width: 250px;">
+                            <input type="text" id="search-product" name="termo" class="form-control"
+                                placeholder="Buscar fornecedor..." autocomplete="off">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="search-btn">Buscar</button>
+                    </form>
+
+                </div>
+            </div>
+
+            <div id="tabela-fornecedores" th:fragment="fornecedores" class="table-responsive">
+                <table class="table table-striped table-hover table-bordered rounded shadow-sm">
+
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">CNPJ</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Telefone</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="fornecedor : ${fornecedores}">
+                            <td th:text="${fornecedor.idFornecedor}"></td>
+                            <td th:text="${fornecedor.nome}"></td>
+                            <td th:text="${fornecedor.cnpj}"></td>
+                            <td th:text="${fornecedor.email}"></td>
+                            <td th:text="${fornecedor.telefone}"></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary me-2"
+                                    th:attr="data-id=${fornecedor.idFornecedor}">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                    th:attr="data-id=${fornecedor.idFornecedor}">Excluir</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</body>
+
+</html>

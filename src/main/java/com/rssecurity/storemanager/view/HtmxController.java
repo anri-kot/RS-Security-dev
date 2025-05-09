@@ -26,6 +26,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
+/*
+ * TODO:
+ * Refactor code - actions on htmx controler and viewcontroller overlap
+*/
+
 @Controller
 public class HtmxController {
     private ProdutoService produtoService;

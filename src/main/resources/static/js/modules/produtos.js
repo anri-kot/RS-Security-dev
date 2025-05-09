@@ -1,5 +1,9 @@
 export function init() {
 
+    /* 
+        TODO: Show modal on edit
+    */
+
     const searchForm = document.getElementById('search-form');
     const produtoModalEl = document.getElementById('produtoModal');
     const confirmModalEl = document.getElementById('confirma-modal');

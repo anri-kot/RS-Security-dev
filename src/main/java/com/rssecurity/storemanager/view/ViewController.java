@@ -1,8 +1,10 @@
 package com.rssecurity.storemanager.view;
 
 import com.rssecurity.storemanager.dto.CategoriaDTO;
+import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.service.CategoriaService;
+import com.rssecurity.storemanager.service.FornecedorService;
 import com.rssecurity.storemanager.service.ProdutoService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +25,8 @@ public class ViewController {
     private ProdutoService produtoService;
     @Autowired
     private CategoriaService categoriaService;
+    @Autowired
+    private FornecedorService fornecedorService;
 
     @GetMapping({ "/", "/home" })
     public String getHome(HttpServletRequest request, Model model) {
@@ -80,6 +84,51 @@ public class ViewController {
 
         return "pdv";
     }
+
+    @GetMapping("/fornecedores")
+    public String getFornecedores(HttpServletRequest request, @RequestParam(required = false) String termo, @RequestParam(required = false) String tipo, Model model) {
+        List<FornecedorDTO> fornecedores;
+
+        if (tipo == null) {
+            tipo = "none";
+        }
+
+        switch (tipo) {
+            case "nome":
+                fornecedores = fornecedorService.findByNomeContains(termo);
+                break;
+
+            case "id":
+                fornecedores = new ArrayList<>();
+                fornecedores.add(fornecedorService.findById(Long.parseLong(termo)));
+                break;
+        
+            case "cnpj":
+                fornecedores = fornecedorService.findByCnpjContains(termo);
+                break;
+
+            case "telefone":
+                fornecedores = fornecedorService.findByTelefoneContains(termo);
+                break;
+
+            case "email":
+                fornecedores = fornecedorService.findByEmailContains(termo);
+                break;
+
+            default:
+                fornecedores = fornecedorService.findAll();
+                break;
+        }
+
+        model.addAttribute("fornecedores", fornecedores);
+
+        if (Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))) {
+            return "fornecedores :: content";
+        }
+
+        return "fornecedores";
+    }
+    
     
     @GetMapping("/auth/login")
     public String loginPage() {
