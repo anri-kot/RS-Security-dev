@@ -14,7 +14,7 @@
         <div class="container py-4" th:fragment="content" data-page-id="fornecedores">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="mb-0">Fornecedores</h1>
-                <button id="new-produto" class="btn btn-success">+ Novo Fornecedor</button>
+                <button id="new-fornecedor" class="btn btn-success">+ Novo Fornecedor</button>
             </div>
 
             <div class="card mb-4">
@@ -75,6 +75,81 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- MODALS -->
+
+            <!-- new/edit -->
+            <div class="modal fade" id="fornecedor-modal" tabindex="-1" aria-labelledby="fornecedorModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Fornecedor</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+
+                        <div class="modal-body">
+
+                            <form autocomplete="off">
+                                <div class="mb-3">
+                                    <label class="form-label">ID</label>
+                                    <input type="text" id="modal-fornecedor-idFornecedor" class="form-control" disabled>
+                                    <input type="hidden" name="is-new" id="is-new">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Nome</label>
+                                    <input type="text" id="modal-fornecedor-nome" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">CNPJ</label>
+                                    <input type="text" id="modal-fornecedor-cnpj" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Telefone</label>
+                                    <input type="text" id="modal-fornecedor-telefone" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="modal-fornecedor-email" class="form-control" required>
+                                </div>
+                            </form>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                                <button class="btn btn-success" id="confirm-register"
+                                    data-action="confirm-modal">Confirmar</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- confirm warning -->
+            <div class="modal fade" id="confirma-modal" tabindex="-1" aria-labelledby="confirmarLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmar-label">Confirmar ação</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <spam id="modal-mensagem">Tem certeza disso?</spam>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="confirmar-acao">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
