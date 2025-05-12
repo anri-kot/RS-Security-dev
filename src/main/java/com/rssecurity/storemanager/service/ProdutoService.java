@@ -81,9 +81,4 @@ public class ProdutoService {
         }
         repository.deleteById(id);
     }
-
-    public List<ProdutoDTO> findByIdProdutoContainsAndCategoriaIdCategoria(Long termoId, Long idCategoria) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByIdProdutoContainsAndCategoriaIdCategoria'");
-    }
 }
