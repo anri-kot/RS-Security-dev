@@ -51,7 +51,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{idUsuario}")
-    public ResponseEntity update(@PathVariable Long idUsuario, @RequestBody UsuarioDTO usuario) {
+    public ResponseEntity<Void> update(@PathVariable Long idUsuario, @RequestBody UsuarioDTO usuario) {
         if (!usuario.idUsuario().equals(idUsuario)) {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }
@@ -60,7 +60,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{idUsuario}")
-    public ResponseEntity deleteById(@PathVariable Long idUsuario) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long idUsuario) {
         service.deleteById(idUsuario);
         return ResponseEntity.noContent().build();
     }

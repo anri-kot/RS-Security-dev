@@ -1,4 +1,4 @@
-package com.rssecurity.storemanager.view;
+package com.rssecurity.storemanager.controller;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -55,7 +55,7 @@ public class ProdutoController {
     }
 
     @PutMapping("/{idProduto}")
-    public ResponseEntity update(@PathVariable Long idProduto, @RequestBody @Valid ProdutoDTO produto) {
+    public ResponseEntity<Void> update(@PathVariable Long idProduto, @RequestBody @Valid ProdutoDTO produto) {
         if (!produto.idProduto().equals(idProduto)) {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }
@@ -64,7 +64,7 @@ public class ProdutoController {
     }
 
     @DeleteMapping("/{idProduto}")
-    public ResponseEntity deleteById(@PathVariable Long idProduto) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long idProduto) {
         service.deleteById(idProduto);
         return ResponseEntity.noContent().build();
     }

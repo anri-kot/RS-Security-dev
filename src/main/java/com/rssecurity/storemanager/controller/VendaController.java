@@ -81,7 +81,7 @@ public class VendaController {
     }
 
     @PutMapping("/{idVenda}")
-    public ResponseEntity<VendaDTO> update(@PathVariable Long idVenda, @RequestBody VendaDTO venda) {
+    public ResponseEntity<Void> update(@PathVariable Long idVenda, @RequestBody VendaDTO venda) {
         if (!venda.idVenda().equals(idVenda)) {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }
@@ -90,7 +90,7 @@ public class VendaController {
     }
 
     @DeleteMapping("/{idVenda}")
-    public ResponseEntity<VendaDTO> deleteById(@PathVariable Long idVenda) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long idVenda) {
         service.deleteById(idVenda);
         return ResponseEntity.noContent().build();
     }
