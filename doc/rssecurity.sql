@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Apr 26, 2025 at 02:22 AM
+-- Generation Time: May 12, 2025 at 09:54 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -40,9 +40,9 @@ CREATE TABLE `categoria` (
 
 INSERT INTO `categoria` (`id_categoria`, `nome`) VALUES
 (1, 'Camera'),
-(2, 'Vigilancia'),
 (3, 'Periféricos'),
-(4, 'Redes');
+(4, 'Redes'),
+(2, 'Vigilancia');
 
 -- --------------------------------------------------------
 
@@ -86,10 +86,10 @@ CREATE TABLE `fornecedor` (
 --
 
 INSERT INTO `fornecedor` (`id_fornecedor`, `nome`, `cnpj`, `telefone`, `email`) VALUES
-(2, 'John Doe Teste TM', '85858585', '36363636', 'email@hotmal'),
-(3, 'Amaterasu Rance', '8525252', '9999999', 'race@email'),
+(2, 'John Teste Tomas Marques', '85858585', '36363636', 'email@hotmal'),
+(3, 'Amaterasu Doe Rance', '85252525', '9999999', 'race@email'),
 (4, 'Kennedy Doe Lucas', '85246582', '8885545', 'djsakdjsak@email'),
-(7, 'Ama Terasu Doe', '85246555', '8885111', '456789798ak@email');
+(7, 'Ama Terasu Doe', '85246555', '88851111', '456789798ak@email');
 
 -- --------------------------------------------------------
 
@@ -110,14 +110,14 @@ CREATE TABLE `item_compra` (
 --
 
 INSERT INTO `item_compra` (`id_item`, `quantidade`, `valor_unitario`, `id_compra`, `id_produto`) VALUES
-(3, 10, 250.00, 5, 4),
-(4, 5, 180.00, 5, 8),
-(5, 15, 75.00, 6, 6),
-(6, 8, 210.00, 7, 5),
-(7, 3, 300.00, 7, 7),
-(8, 5, 70.00, 8, 9),
-(9, 3, 170.00, 8, 10),
-(10, 2, 310.00, 8, 11);
+(3, 100, 250.00, 5, 4),
+(4, 100, 180.00, 5, 8),
+(5, 100, 75.00, 6, 6),
+(6, 100, 210.00, 7, 5),
+(7, 100, 300.00, 7, 7),
+(8, 100, 70.00, 8, 9),
+(9, 100, 170.00, 8, 10),
+(10, 100, 310.00, 8, 11);
 
 -- --------------------------------------------------------
 
@@ -145,7 +145,24 @@ INSERT INTO `item_venda` (`id_item`, `quantidade`, `valor_unitario`, `desconto`,
 (6, 6, 275.00, NULL, 6, 4),
 (7, 2, 120.00, NULL, 6, 12),
 (8, 2, 70.00, 0.00, 7, 9),
-(9, 1, 170.00, 10.00, 7, 10);
+(9, 1, 170.00, 10.00, 7, 10),
+(10, 1, 200.00, 0.00, 9, 4),
+(11, 1, 170.00, 0.00, 10, 10),
+(12, 1, 69.99, 0.00, 10, 6),
+(13, 5, 310.00, 0.00, 11, 11),
+(14, 1, 170.00, 0.00, 11, 10),
+(15, 1, 500.00, 0.00, 12, 7),
+(16, 1, 69.99, 0.00, 12, 6),
+(17, 1, 200.00, 0.00, 13, 8),
+(18, 1, 170.00, 0.00, 14, 10),
+(19, 1, 170.00, 0.00, 15, 10),
+(20, 3, 200.00, 0.00, 16, 4),
+(21, 1, 200.00, 0.00, 17, 4),
+(22, 1, 170.00, 0.00, 18, 10),
+(23, 1, 310.00, 0.00, 19, 11),
+(24, 1, 170.00, 0.00, 20, 10),
+(25, 1, 170.00, 0.00, 21, 10),
+(26, 1, 200.00, 0.00, 22, 4);
 
 -- --------------------------------------------------------
 
@@ -167,13 +184,13 @@ CREATE TABLE `produto` (
 --
 
 INSERT INTO `produto` (`id_produto`, `nome`, `preco_atual`, `descricao`, `estoque_min`, `id_categoria`) VALUES
-(4, 'Camera SPX', 200.00, 'Camera Profissional', 30, 2),
+(4, 'Camera SPX', 200.00, 'Camera Profissional', 30, 1),
 (5, 'Produto Vigilancia', 200.00, 'Monitoramento', 20, 1),
-(6, 'Camera 33', 69.99, 'Camera de baixa qualidade', 10, 2),
-(7, 'Camera ASD', 500.00, 'Camera de alta qualidade', 12, 2),
-(8, 'Camera K', 200.00, 'Camera de media qualidade', 12, 1),
+(6, 'Camera 33', 69.99, 'Camera de baixa qualidade', 11, 2),
+(7, 'Camera DSA', 500.00, 'Camera de alta qualidade', 12, 2),
+(8, 'Camera Super HD', 200.00, 'Camera de media qualidade', 14, 1),
 (9, 'Mouse sem fio', 70.00, 'Mouse silencioso com sensor óptico', 15, 3),
-(10, 'Teclado Mecânico', 170.00, 'Teclado RGB com switches silenciosos', 10, 3),
+(10, 'Teclado Mecânico Redragon', 170.00, 'Teclado RGB com switches silenciosos', 10, 3),
 (11, 'Roteador AX3600', 310.00, 'Roteador Wi-Fi 6 de alta performance', 8, 4),
 (12, 'Gravador DVR', 110.00, 'Gravador digital para câmeras analógicas', 5, 2);
 
@@ -202,8 +219,8 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`id_usuario`, `username`, `senha`, `nome`, `sobrenome`, `cpf`, `email`, `endereco`, `telefone`, `salario`, `admin`) VALUES
-(2, 'admin2', '$2a$10$8u8skbTkKGzUy5bzmDdc1OvvF40l3lwZYglSoijU.pY19pNgcUEX2', 'Admin 2', 'Administrator', '11111111111', 'admin2@email.com', 'Admin 2 Residence', '11111111111111', 1000, 1),
-(3, 'user', '$2a$10$nF5IvBalqyWsN17EiRInt.oSjy4TFDUICBAU6xU0/CdfTyDkOmb6u', 'John', 'Doe', '1122334455', 'johndoe@email', 'Brasil', '987123456', 3000, 0),
+(2, 'admin2', '$2a$12$EFq50CGeYPJ6OfewFmu18e0gzsO419HROQ/dPtWBN1KHnA41fpaqC', 'Admin 2', 'Administrator', '11111111111', 'admin2@email.com', 'Admin 2 Residence', '11111111111111', 1000, 1),
+(3, 'user', '$2a$12$OmjAQARhheggPgbAhxtxjemtbJU7k04dsVnAfYCKy/jkDRd3iorXK', 'John', 'Doe', '1122334455', 'johndoe@email', 'Brasil', '987123456', 3000, 0),
 (4, 'teste', '$2a$10$Fe.rh8KU8ILhhQJAAq3iZepdoPdM.MqDvt/6Zf2FBi2MgJOceHk5K', 'Teste', 'Teste', '369369369', 'teste@email', 'Brasil', '369258369', 3000, 0);
 
 -- --------------------------------------------------------
@@ -228,7 +245,21 @@ INSERT INTO `venda` (`id_venda`, `data`, `observacao`, `id_usuario`) VALUES
 (5, '2025-04-15 18:00:00', 'Venda de equipamentos de rede para filial norte', 2),
 (6, '2025-04-20 20:15:00', 'Venda de kit completo para instalação de segurança', 4),
 (7, '2025-04-24 16:45:00', 'VENDA NO BALCÃO', 2),
-(8, '2025-04-24 16:45:00', 'VENDA NO BALCÃO', 2);
+(8, '2025-04-24 16:45:00', 'VENDA NO BALCÃO', 2),
+(9, '2025-05-02 18:10:50', '', 3),
+(10, '2025-05-02 15:21:41', 'VENDA NO BALCÃO', 3),
+(11, '2025-05-02 15:27:16', 'VENDA NO BALCÃO', 3),
+(12, '2025-05-02 15:29:19', 'VENDA NO BALCÃO', 3),
+(13, '2025-05-02 15:45:14', 'VENDA NO BALCÃO', 3),
+(14, '2025-05-02 15:47:53', 'VENDA NO BALCÃO', 3),
+(15, '2025-05-02 15:47:59', 'VENDA NO BALCÃO', 3),
+(16, '2025-05-05 16:18:54', 'VENDA NO BALCÃO', 3),
+(17, '2025-05-06 16:52:46', 'VENDA NO BALCÃO', 2),
+(18, '2025-05-06 16:54:26', 'teclado', 2),
+(19, '2025-05-06 16:59:37', 'teste', 2),
+(20, '2025-05-09 15:08:05', 'VENDA NO BALCÃO', 3),
+(21, '2025-05-09 15:08:36', 'dsadsadsa', 3),
+(22, '2025-05-12 16:40:36', 'VENDA NO BALCÃO', 3);
 
 --
 -- Indexes for dumped tables
@@ -238,7 +269,8 @@ INSERT INTO `venda` (`id_venda`, `data`, `observacao`, `id_usuario`) VALUES
 -- Indexes for table `categoria`
 --
 ALTER TABLE `categoria`
-  ADD PRIMARY KEY (`id_categoria`);
+  ADD PRIMARY KEY (`id_categoria`),
+  ADD UNIQUE KEY `nome` (`nome`);
 
 --
 -- Indexes for table `compra`
@@ -317,7 +349,7 @@ ALTER TABLE `compra`
 -- AUTO_INCREMENT for table `fornecedor`
 --
 ALTER TABLE `fornecedor`
-  MODIFY `id_fornecedor` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_fornecedor` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `item_compra`
@@ -329,13 +361,13 @@ ALTER TABLE `item_compra`
 -- AUTO_INCREMENT for table `item_venda`
 --
 ALTER TABLE `item_venda`
-  MODIFY `id_item` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_item` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `produto`
 --
 ALTER TABLE `produto`
-  MODIFY `id_produto` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_produto` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `usuario`
@@ -347,7 +379,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT for table `venda`
 --
 ALTER TABLE `venda`
-  MODIFY `id_venda` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_venda` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- Constraints for dumped tables
