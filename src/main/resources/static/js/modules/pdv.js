@@ -240,7 +240,7 @@ export function init() {
                 }
             }
 
-            const response = await fetch(`/pdv/produto/${selectedId}`);
+            const response = await fetch(`/api/produto/${selectedId}`);
             if (!response.ok) throw new Error("Erro na requisição");
 
             tempProduto = await response.json();

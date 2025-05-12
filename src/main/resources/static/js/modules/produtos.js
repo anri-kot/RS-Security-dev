@@ -44,7 +44,7 @@ export function init() {
     async function showProdutoModal(id) {
 
         if (id > 0) {
-            const response = await fetch(`/pdv/produto/${id}`);
+            const response = await fetch(`/api/produto/${id}`);
 
             if (!response.ok) throw new Error('Erro na requisição');
             populateProdutoModal(id, await response.json());
@@ -71,11 +71,11 @@ export function init() {
         let method;
         if (!isNew) {
             idProduto = parseInt(document.getElementById('modal-produto-idProduto').value);
-            url = `/produtos/update/${idProduto}`;
+            url = `/api/produto/${idProduto}`;
             method = 'PUT';
         } else {
             idProduto = null;
-            url = `/produtos/create`;
+            url = `/produto`;
             method = 'POST';
         }
 
@@ -143,7 +143,7 @@ export function init() {
 
     async function deleteProduto(id) {
         try {
-            const url = `/produtos/delete/${id}`;
+            const url = `/api/produto/${id}`;
             const response = await fetch(url, {
                 method: 'DELETE',
                 headers: {
