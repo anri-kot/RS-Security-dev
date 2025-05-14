@@ -33,7 +33,7 @@ class CompraServiceTest {
         itemRepository = mock(ItemCompraRepository.class);
         compraMapper = mock(CompraMapper.class);
         produtoMapper = mock(ProdutoMapper.class);
-        compraService = new CompraService(compraRepository, itemRepository, compraMapper, produtoMapper);
+        compraService = new CompraService(compraRepository, compraMapper, produtoMapper);
     }
 
     @Test

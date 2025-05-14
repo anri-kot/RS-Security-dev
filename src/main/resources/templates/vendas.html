@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Vendas</title>
+</head>
+<!-- TODO:
+        Modals de Insert/Update
+        Botões de edit/remove
+        Warning
+        Search funcional -->
+<body>
+
+    <div layout:fragment="content">
+
+        <div class="container py-4" th:fragment="content" data-page-id="vendas">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Vendas</h1>
+                <button id="new-venda" class="btn btn-success">+ Registrar Venda</button>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+
+                    <form id="search-form" class="d-flex flex-column" hx-get="/vendas" hx-target="#tabela-vendas"
+                        hx-push-url="true" hx-select="#tabela-vendas">
+
+                        <div class="row g-3 align-items-end">
+
+                            <!-- Tipo de busca -->
+                            <div class="col-md-2">
+                                <label for="tipo" class="form-label">Buscar por</label>
+                                <select id="search-type" name="tipo" class="form-select">
+                                    <option value="usuario">Usuário</option>
+                                    <option value="id">ID da Venda</option>
+                                    <option value="produto">Produto</option>
+                                </select>
+                            </div>
+
+                            <!-- Campo de texto -->
+                            <div class="col-md-3">
+                                <label for="termo" class="form-label">Termo</label>
+                                <input type="text" id="search-term" name="termo" class="form-control"
+                                    placeholder="Digite o termo de busca..." autocomplete="off">
+                            </div>
+
+                            <!-- Método de pagamento -->
+                            <div class="col-md-2">
+                                <label for="metodoPagamento" class="form-label">Método de Pagamento</label>
+                                <select name="metodoPagamento" id="metodoPagamento" class="form-select">
+                                    <option>Todos</option>
+                                    <option value="CARTAO_CREDITO">Cartão de Crédito</option>
+                                    <option value="PIX">PIX</option>
+                                    <option value="DINHEIRO">Dinheiro</option>
+                                </select>
+                            </div>
+
+                            <!-- Observação -->
+                            <div class="col-md-3">
+                                <label for="observacao" class="form-label">Observação</label>
+                                <input type="text" name="observacao" id="observacao" class="form-control"
+                                    placeholder="Observação da venda">
+                            </div>
+
+                            <!-- Filtro de data -->
+                            <div class="col-md-2">
+                                <label for="filtro" class="form-label">Filtrar por data</label>
+                                <select name="filtro" id="filter" class="form-select">
+                                    <option>Nenhum</option>
+                                    <option value="antes">Antes de</option>
+                                    <option value="depois">Depois de</option>
+                                    <option value="entre">Entre</option>
+                                </select>
+                            </div>
+
+                            <!-- Datas -->
+                            <div class="col-md-3" id="data-inicio-container" style="display: none;">
+                                <label for="dataInicio" class="form-label">Data inicial</label>
+                                <input type="date" id="dataInicio" name="dataInicio" class="form-control" disabled>
+                            </div>
+
+                            <div class="col-md-3" id="data-fim-container" style="display: none;">
+                                <label for="dataFim" class="form-label">Data final</label>
+                                <input type="date" id="dataFim" name="dataFim" class="form-control" disabled>
+                            </div>
+
+                            <!-- Botão de busca -->
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <!-- VENDAS -->
+            <div class="card mb-4 shadow-sm border-0 venda-card" th:each="venda : ${vendas}">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3">
+
+                    <div>
+                        <strong th:text="'#' + ${venda.idVenda}" class="text-primary"></strong>
+                        <small class="text-muted ms-2"
+                            th:text="${#temporals.format(venda.data, 'dd/MM/yyyy HH:mm')}"></small>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-success"
+                            th:text="'R$ ' + ${#numbers.formatDecimal(venda.total, 1, 'POINT', 2, 'COMMA')}"></span>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                            th:attr="data-bs-target='#collapse__' + ${venda.idVenda}">
+                            Ver detalhes
+                        </button>
+                    </div>
+
+                </div>
+
+                <div class="card-body px-3">
+
+                    <p class="mb-1"><strong>Observação:</strong> <span th:text="${venda.observacao}"></span></p>
+                    <p class="mb-1"><strong>Pagamento:</strong> <span th:text="${venda.metodoPagamento}"></span></p>
+                    <p class="mb-1"><strong>Usuário:</strong> <span th:text="${venda.usuario.nome}"></span></p>
+
+                    <div class="collapse" th:id="'collapse__' + ${venda.idVenda}">
+                        <p class="fw-bold mb-1">Valor Recebido: <span class="text-info"
+                                th:text="'R$ ' + ${#numbers.formatDecimal(venda.valorRecebido, 1, 'POINT', 2, 'COMMA')}"></span>
+                        </p>
+                        <p class="fw-bold mb-1" th:if="${venda.troco != null}">Troco: <span class="text-danger"
+                                th:text="'R$ ' + ${#numbers.formatDecimal(venda.troco, 1, 'POINT', 2, 'COMMA')}"></span>
+                        </p>
+
+                        <h6 class="mb-2 text-secondary">Itens da venda</h6>
+                        <ul class="list-group list-group-flush" th:each="item : ${venda.itens}">
+                            <li class="list-group-item d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="fw-semibold" th:text="${item.produto.nome}"></div>
+                                    <small class="text-muted d-block">
+                                        <span
+                                            th:text="'Qtd: ' + ${item.quantidade} + ' × R$ ' + ${#numbers.formatDecimal(item.valorUnitario, 1, 'POINT', 2, 'COMMA')}"></span>
+                                    </small>
+                                    <small class="text-danger d-block"
+                                        th:if="${item.desconto != null and item.desconto > 0}">
+                                        <span
+                                            th:text="'Desconto: ' + ${#numbers.formatDecimal(item.desconto, 1, 'POINT', 2, 'COMMA')} + '%'"></span>
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="fw-bold text-dark"
+                                        th:text="'R$ ' + ${#numbers.formatDecimal((item.valorUnitario - (item.desconto != null ? ((item.desconto / 100) * item.valorUnitario) : 0)) * item.quantidade, 1, 'POINT', 2, 'COMMA')}"></span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODALS -->
+
+
+        </div>
+
+    </div>
+</body>
+
+</html>

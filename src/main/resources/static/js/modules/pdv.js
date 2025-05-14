@@ -209,6 +209,11 @@ export function init() {
                 return;
             }
 
+            if (parseFloat(desconto) / 100 > 0.99) {
+                alert("Desconto inválido");
+                return;
+            }
+
             const produto = tempProduto;
             tempProduto = null;
 
