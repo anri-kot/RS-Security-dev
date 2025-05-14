@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.rssecurity.storemanager.dto.ProdutoEstoqueDTO;
@@ -33,7 +34,8 @@ public class VendaService {
     private final UsuarioRepository usuarioRepository;
     private final ProdutoRepository produtoRepository;
 
-    public VendaService(VendaRepository repository, VendaMapper mapper, ProdutoMapper produtoMapper, UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository) {
+    public VendaService(VendaRepository repository, VendaMapper mapper, ProdutoMapper produtoMapper,
+            UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.produtoMapper = produtoMapper;
@@ -48,6 +50,13 @@ public class VendaService {
                 .map(mapper::toDTO)
                 .toList();
     }
+
+   public List<VendaDTO> findAllByCustomMatcher(Map<String, String> filter) {
+        Specification<Venda> spec = VendaSpecification.withFilters(filter);
+        return repository.findAll(spec).stream()
+            .map(mapper::toDTO)
+            .toList();
+   }
 
     public VendaDTO findById(Long idVenda) {
         Venda venda = repository.findById(idVenda)
@@ -110,15 +119,19 @@ public class VendaService {
     // Overloaded method for PDV transactions
     public VendaDTO create(VendaDTO venda, String username) {
         Usuario usuario = usuarioRepository.findByUsername(username)
-            .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. Username: " + username));
-        UsuarioResumoDTO usu = new UsuarioResumoDTO(usuario.getIdUsuario(), usuario.getUsername(), usuario.getNome(), usuario.getSobrenome());
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. Username: " + username));
+        UsuarioResumoDTO usu = new UsuarioResumoDTO(usuario.getIdUsuario(), usuario.getUsername(), usuario.getNome(),
+                usuario.getSobrenome());
 
         VendaDTO dto = new VendaDTO(
-            venda.idVenda(), 
-            venda.data(), 
-            venda.observacao(), 
-            usu, 
-            venda.itens());
+                venda.idVenda(),
+                venda.data(),
+                venda.observacao(),
+                usu,
+                venda.itens(),
+                venda.metodoPagamento(),
+                venda.valorRecebido(),
+                venda.troco());
         return create(dto);
     }
 
@@ -184,8 +197,9 @@ public class VendaService {
 
         // Compares the inputed username with the register in the database
         if (!theUsuario.getUsername().equals(usuario.username())) {
-            throw new ConflictException("Username inserido não corresponde ao ID do usuario no banco de dados. ID e Usuario informados: "
-                    + usuario.idUsuario() + " | " + usuario.username());
+            throw new ConflictException(
+                    "Username inserido não corresponde ao ID do usuario no banco de dados. ID e Usuario informados: "
+                            + usuario.idUsuario() + " | " + usuario.username());
         }
     }
 

@@ -3,9 +3,11 @@ package com.rssecurity.storemanager.view;
 import com.rssecurity.storemanager.dto.CategoriaDTO;
 import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
+import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.service.CategoriaService;
 import com.rssecurity.storemanager.service.FornecedorService;
 import com.rssecurity.storemanager.service.ProdutoService;
+import com.rssecurity.storemanager.service.VendaService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -27,6 +29,13 @@ public class ViewController {
     private CategoriaService categoriaService;
     @Autowired
     private FornecedorService fornecedorService;
+    @Autowired
+    private VendaService vendaService;
+
+    @GetMapping("/auth/login")
+    public String loginPage() {
+        return "login";  // Retorna o nome da página Thymeleaf (exemplo)
+    }
 
     @GetMapping({ "/", "/home" })
     public String getHome(HttpServletRequest request, Model model) {
@@ -128,11 +137,18 @@ public class ViewController {
 
         return "fornecedores";
     }
-    
-    
-    @GetMapping("/auth/login")
-    public String loginPage() {
-        return "login";  // Retorna o nome da página Thymeleaf (exemplo)
+
+    @GetMapping("/vendas")
+    public String getVendas(HttpServletRequest request, Model model) {
+        List<VendaDTO> vendas = vendaService.findAll();
+        model.addAttribute("vendas", vendas);
+
+        if (Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))) {
+            return "vendas :: content";
+        }
+
+        return "vendas";
     }
+    
 
 }

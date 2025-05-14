@@ -8,7 +8,6 @@ import com.rssecurity.storemanager.mapper.ProdutoMapper;
 import com.rssecurity.storemanager.model.Compra;
 import com.rssecurity.storemanager.model.ItemCompra;
 import com.rssecurity.storemanager.repository.CompraRepository;
-import com.rssecurity.storemanager.repository.ItemCompraRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,13 +17,11 @@ import java.util.List;
 @Service
 public class CompraService {
     private final CompraRepository repository;
-    private final ItemCompraRepository itemRepository;
     private final CompraMapper mapper;
     private final ProdutoMapper produtoMapper;
 
-    public CompraService(CompraRepository repository, ItemCompraRepository itemRepository, CompraMapper mapper, ProdutoMapper produtoMapper) {
+    public CompraService(CompraRepository repository, CompraMapper mapper, ProdutoMapper produtoMapper) {
         this.repository = repository;
-        this.itemRepository = itemRepository;
         this.mapper = mapper;
         this.produtoMapper = produtoMapper;
     }

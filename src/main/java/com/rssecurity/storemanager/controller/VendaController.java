@@ -10,7 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/venda")
@@ -29,6 +35,13 @@ public class VendaController {
     public ResponseEntity<VendaDTO> findById(@PathVariable Long idVenda) {
         return ResponseEntity.ok(service.findById(idVenda));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<VendaDTO>> findAllWithCustomMatcher(@RequestParam Map<String, String> allParams) {
+
+        return ResponseEntity.ok(service.findAllByCustomMatcher(allParams));
+    }
+    
 
     @GetMapping("/search/data")
     public ResponseEntity<List<VendaDTO>> findByData(@RequestParam LocalDate data) {
