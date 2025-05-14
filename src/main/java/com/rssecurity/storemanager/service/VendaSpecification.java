@@ -13,8 +13,6 @@ import com.rssecurity.storemanager.model.Venda;
 
 public class VendaSpecification {
 
-    private static final String List = null;
-
     public static Specification<Venda> withFilters(Map<String, String> filters) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();

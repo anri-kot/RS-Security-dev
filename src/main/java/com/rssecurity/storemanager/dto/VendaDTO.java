@@ -26,7 +26,7 @@ public record VendaDTO(
             data = LocalDateTime.now();
         }
 
-        if (metodoPagamento.equals("DINHEIRO")) {
+        if (metodoPagamento.equals("DINHEIRO") && troco == null) {
             troco = valorRecebido.subtract(getTotal());
         }
     }
