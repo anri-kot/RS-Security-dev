@@ -51,12 +51,14 @@ public class VendaService {
                 .toList();
     }
 
-   public List<VendaDTO> findAllByCustomMatcher(Map<String, String> filter) {
+    public List<VendaDTO> findAllByCustomMatcher(Map<String, String> filter) {
+        filter.values().removeIf(String::isBlank);
+
         Specification<Venda> spec = VendaSpecification.withFilters(filter);
         return repository.findAll(spec).stream()
-            .map(mapper::toDTO)
-            .toList();
-   }
+                .map(mapper::toDTO)
+                .toList();
+    }
 
     public VendaDTO findById(Long idVenda) {
         Venda venda = repository.findById(idVenda)

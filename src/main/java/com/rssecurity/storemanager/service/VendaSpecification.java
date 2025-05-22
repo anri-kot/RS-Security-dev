@@ -22,7 +22,7 @@ public class VendaSpecification {
             }
 
             if (filters.containsKey("usuario")) {
-                predicates.add(cb.equal(root.get("usuario").get("username"), filters.get("usuario")));
+                predicates.add(cb.like(root.get("usuario").get("username"), "%" + filters.get("usuario") + "%"));
             }
 
             if (filters.containsKey("metodoPagamento")) {

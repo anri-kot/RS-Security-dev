@@ -17,7 +17,7 @@
       <div class="card mb-4">
         <div class="card-body">
           <form id="search-form" class="d-flex flex-wrap align-items-center">
-            
+
             <label for="tipo">Buscar por:</label>
             <select id="search-type" name="tipo" class="form-select me-2 w-auto">
               <option value="nome">Nome</option>
@@ -120,7 +120,7 @@
           </div>
         </div>
       </div>
-  
+
       <!-- Modal de Confirmação -->
       <div class="modal fade" id="confirmarVendaModal" tabindex="-1" aria-labelledby="confirmarVendaLabel"
         aria-hidden="true">
@@ -135,6 +135,15 @@
                 <label for="observacao">Observação</label>
                 <input type="text" name="observacao" id="observacao" class="form-control" placeholder="VENDA NO BALCÃO">
               </div>
+              <div class="mb-3">
+                <label for="metodoPagamento">Método de Pagamento</label>
+                <select name="metodoPagamento" id="metodoPagamento" class="form-select">
+                  <option value="CARTAO_CREDITO">Cartão de Crédito</option>
+                  <option value="CARTAO_DEBITO">Cartão de Débito</option>
+                  <option value="PIX">PIX</option>
+                  <option value="DINHEIRO">DINHEIRO</option>
+                </select>
+              </div>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -143,9 +152,10 @@
           </div>
         </div>
       </div>
-  
+
       <!-- Modal de Sucesso -->
-      <div class="modal fade" id="sucessoVendaModal" tabindex="-1" aria-labelledby="sucessoVendaLabel" aria-hidden="true">
+      <div class="modal fade" id="sucessoVendaModal" tabindex="-1" aria-labelledby="sucessoVendaLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header bg-success text-white">

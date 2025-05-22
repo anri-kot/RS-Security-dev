@@ -79,3 +79,15 @@ label {
 .text-primary {
     color: #0d6efd !important;
 }
+
+.arrow {
+    display: inline-block; 
+}
+
+.arrow-hide {
+    transform: rotate(-90deg);
+}
+
+.arrow-show {
+    transform: rotate(90deg);
+}

@@ -3,10 +3,12 @@ package com.rssecurity.storemanager.view;
 import com.rssecurity.storemanager.dto.CategoriaDTO;
 import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
+import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.service.CategoriaService;
 import com.rssecurity.storemanager.service.FornecedorService;
 import com.rssecurity.storemanager.service.ProdutoService;
+import com.rssecurity.storemanager.service.UsuarioService;
 import com.rssecurity.storemanager.service.VendaService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,18 +21,25 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ViewController {
 
-    @Autowired
-    private ProdutoService produtoService;
-    @Autowired
-    private CategoriaService categoriaService;
-    @Autowired
-    private FornecedorService fornecedorService;
-    @Autowired
-    private VendaService vendaService;
+    private final ProdutoService produtoService;
+    private final CategoriaService categoriaService;
+    private final FornecedorService fornecedorService;
+    private final VendaService vendaService;
+    private final UsuarioService usuarioService;
+
+    public ViewController(ProdutoService produtoService, CategoriaService categoriaService,
+            FornecedorService fornecedorService, VendaService vendaService, UsuarioService usuarioService) {
+        this.produtoService = produtoService;
+        this.categoriaService = categoriaService;
+        this.fornecedorService = fornecedorService;
+        this.vendaService = vendaService;
+        this.usuarioService = usuarioService;
+    }
 
     @GetMapping("/auth/login")
     public String loginPage() {
@@ -139,13 +148,32 @@ public class ViewController {
     }
 
     @GetMapping("/vendas")
-    public String getVendas(HttpServletRequest request, Model model) {
-        List<VendaDTO> vendas = vendaService.findAll();
+    public String getVendas(HttpServletRequest request, Model model, @RequestParam(required = false) Map<String, String> params) {
+        List<VendaDTO> vendas;
+        List<UsuarioResumoDTO> funcionarios = usuarioService.findAll().stream()
+            .map(funcionario -> {
+                return new UsuarioResumoDTO(funcionario.idUsuario(), funcionario.username(), funcionario.nome(), funcionario.sobrenome());
+            })
+            .toList();
+
+        if (params == null || params.isEmpty()) {
+            vendas = vendaService.findAll();
+        } else if (params.get("tipo").equals("idVenda")) {
+            vendas = new ArrayList<>();
+            try {
+                vendas.add(vendaService.findById(Long.parseLong(params.get("idVenda"))));
+            } catch (Exception e) {}
+        } else {
+            vendas = vendaService.findAllByCustomMatcher(params);
+        }
+
         model.addAttribute("vendas", vendas);
 
         if (Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))) {
             return "vendas :: content";
         }
+
+        model.addAttribute("funcionarios", funcionarios);
 
         return "vendas";
     }

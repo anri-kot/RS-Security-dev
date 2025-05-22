@@ -295,6 +295,13 @@ export function init() {
 
     async function sellCart() {
         const observacao = document.getElementById('observacao');
+        const metodoPagamento = document.getElementById('metodoPagamento').value;
+
+        if (!metodoPagamento || metodoPagamento.length == 0) {
+            alert('Insira um método de pagamento');
+            return;
+        }
+
         obs = observacao.value;
 
         if (cart.length === 0) {
@@ -304,7 +311,8 @@ export function init() {
 
         const json = JSON.stringify({
             itens: cart,
-            observacao: obs
+            observacao: obs,
+            metodoPagamento: metodoPagamento
         });
 
         try {

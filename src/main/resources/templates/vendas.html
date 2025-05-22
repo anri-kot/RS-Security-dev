@@ -10,6 +10,7 @@
         Botões de edit/remove
         Warning
         Search funcional -->
+
 <body>
 
     <div layout:fragment="content">
@@ -23,8 +24,8 @@
             <div class="card mb-4">
                 <div class="card-body">
 
-                    <form id="search-form" class="d-flex flex-column" hx-get="/vendas" hx-target="#tabela-vendas"
-                        hx-push-url="true" hx-select="#tabela-vendas">
+                    <form id="search-form" class="d-flex flex-column" hx-get="/vendas" hx-target="#cards-vendas"
+                        hx-push-url="true" hx-select="#cards-vendas">
 
                         <div class="row g-3 align-items-end">
 
@@ -33,7 +34,7 @@
                                 <label for="tipo" class="form-label">Buscar por</label>
                                 <select id="search-type" name="tipo" class="form-select">
                                     <option value="usuario">Usuário</option>
-                                    <option value="id">ID da Venda</option>
+                                    <option value="idVenda">ID da Venda</option>
                                     <option value="produto">Produto</option>
                                 </select>
                             </div>
@@ -41,7 +42,7 @@
                             <!-- Campo de texto -->
                             <div class="col-md-3">
                                 <label for="termo" class="form-label">Termo</label>
-                                <input type="text" id="search-term" name="termo" class="form-control"
+                                <input type="text" id="search-term" class="form-control"
                                     placeholder="Digite o termo de busca..." autocomplete="off">
                             </div>
 
@@ -49,7 +50,7 @@
                             <div class="col-md-2">
                                 <label for="metodoPagamento" class="form-label">Método de Pagamento</label>
                                 <select name="metodoPagamento" id="metodoPagamento" class="form-select">
-                                    <option>Todos</option>
+                                    <option value="">Todos</option>
                                     <option value="CARTAO_CREDITO">Cartão de Crédito</option>
                                     <option value="PIX">PIX</option>
                                     <option value="DINHEIRO">Dinheiro</option>
@@ -67,7 +68,7 @@
                             <div class="col-md-2">
                                 <label for="filtro" class="form-label">Filtrar por data</label>
                                 <select name="filtro" id="filter" class="form-select">
-                                    <option>Nenhum</option>
+                                    <option value="">Nenhum</option>
                                     <option value="antes">Antes de</option>
                                     <option value="depois">Depois de</option>
                                     <option value="entre">Entre</option>
@@ -98,67 +99,170 @@
             </div>
 
             <!-- VENDAS -->
-            <div class="card mb-4 shadow-sm border-0 venda-card" th:each="venda : ${vendas}">
-                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3">
+            <div id="cards-vendas" th:fragment="vendas">
+                <div class="card mb-4 shadow-sm border-0 venda-card" th:each="venda : ${vendas}">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3">
 
-                    <div>
-                        <strong th:text="'#' + ${venda.idVenda}" class="text-primary"></strong>
-                        <small class="text-muted ms-2"
-                            th:text="${#temporals.format(venda.data, 'dd/MM/yyyy HH:mm')}"></small>
+                        <div>
+                            <strong th:text="'#' + ${venda.idVenda}" class="text-primary"></strong>
+                            <small class="text-muted ms-2"
+                                th:text="${#temporals.format(venda.data, 'dd/MM/yyyy HH:mm')}"></small>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-bold text-success"
+                                th:text="'R$ ' + ${#numbers.formatDecimal(venda.total, 1, 'POINT', 2, 'COMMA')}"></span>
+
+                            <button class="btn btn-sm btn-outline-primary" data-action="edit"
+                                th:attr="data-id=${venda.idVenda}">
+                                Editar
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" data-action="delete"
+                                th:attr="data-id=${venda.idVenda}">
+                                Excluir
+                            </button>
+
+
+                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                                th:attr="data-bs-target='#collapse__' + ${venda.idVenda}">
+                                Detalhes
+                            </button>
+                        </div>
+
                     </div>
 
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="fw-bold text-success"
-                            th:text="'R$ ' + ${#numbers.formatDecimal(venda.total, 1, 'POINT', 2, 'COMMA')}"></span>
-                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
-                            th:attr="data-bs-target='#collapse__' + ${venda.idVenda}">
-                            Ver detalhes
-                        </button>
-                    </div>
+                    <div class="card-body px-3">
 
-                </div>
+                        <p class="mb-1"><strong>Observação:</strong> <span th:text="${venda.observacao}"></span></p>
+                        <p class="mb-1"><strong>Pagamento:</strong> <span th:text="${venda.metodoPagamento}"></span></p>
+                        <p class="mb-1"><strong>Usuário:</strong> <abbr th:text="${venda.usuario.username}"
+                                class="initialism"
+                                th:title="${venda.usuario.nome} + ' ' + ${venda.usuario.sobrenome}"></abbr></p>
 
-                <div class="card-body px-3">
+                        <div class="collapse" th:id="'collapse__' + ${venda.idVenda}">
+                            <p class="fw-bold mb-1">Valor Recebido: <span class="text-info"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(venda.valorRecebido, 1, 'POINT', 2, 'COMMA')}"></span>
+                            </p>
+                            <p class="fw-bold mb-1" th:if="${venda.troco != null}">Troco: <span class="text-danger"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(venda.troco, 1, 'POINT', 2, 'COMMA')}"></span>
+                            </p>
 
-                    <p class="mb-1"><strong>Observação:</strong> <span th:text="${venda.observacao}"></span></p>
-                    <p class="mb-1"><strong>Pagamento:</strong> <span th:text="${venda.metodoPagamento}"></span></p>
-                    <p class="mb-1"><strong>Usuário:</strong> <span th:text="${venda.usuario.nome}"></span></p>
-
-                    <div class="collapse" th:id="'collapse__' + ${venda.idVenda}">
-                        <p class="fw-bold mb-1">Valor Recebido: <span class="text-info"
-                                th:text="'R$ ' + ${#numbers.formatDecimal(venda.valorRecebido, 1, 'POINT', 2, 'COMMA')}"></span>
-                        </p>
-                        <p class="fw-bold mb-1" th:if="${venda.troco != null}">Troco: <span class="text-danger"
-                                th:text="'R$ ' + ${#numbers.formatDecimal(venda.troco, 1, 'POINT', 2, 'COMMA')}"></span>
-                        </p>
-
-                        <h6 class="mb-2 text-secondary">Itens da venda</h6>
-                        <ul class="list-group list-group-flush" th:each="item : ${venda.itens}">
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                <div>
-                                    <div class="fw-semibold" th:text="${item.produto.nome}"></div>
-                                    <small class="text-muted d-block">
-                                        <span
-                                            th:text="'Qtd: ' + ${item.quantidade} + ' × R$ ' + ${#numbers.formatDecimal(item.valorUnitario, 1, 'POINT', 2, 'COMMA')}"></span>
-                                    </small>
-                                    <small class="text-danger d-block"
-                                        th:if="${item.desconto != null and item.desconto > 0}">
-                                        <span
-                                            th:text="'Desconto: ' + ${#numbers.formatDecimal(item.desconto, 1, 'POINT', 2, 'COMMA')} + '%'"></span>
-                                    </small>
-                                </div>
-                                <div class="text-end">
-                                    <span class="fw-bold text-dark"
-                                        th:text="'R$ ' + ${#numbers.formatDecimal((item.valorUnitario - (item.desconto != null ? ((item.desconto / 100) * item.valorUnitario) : 0)) * item.quantidade, 1, 'POINT', 2, 'COMMA')}"></span>
-                                </div>
-                            </li>
-                        </ul>
+                            <h6 class="mb-2 text-secondary">Itens da venda</h6>
+                            <ul class="list-group list-group-flush" th:each="item : ${venda.itens}">
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="fw-semibold" th:text="${item.produto.nome}"></div>
+                                        <small class="text-muted d-block">
+                                            <span
+                                                th:text="'Qtd: ' + ${item.quantidade} + ' × R$ ' + ${#numbers.formatDecimal(item.valorUnitario, 1, 'POINT', 2, 'COMMA')}"></span>
+                                        </small>
+                                        <small class="text-danger d-block"
+                                            th:if="${item.desconto != null and item.desconto > 0}">
+                                            <span
+                                                th:text="'Desconto: ' + ${#numbers.formatDecimal(item.desconto, 1, 'POINT', 2, 'COMMA')} + '%'"></span>
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fw-bold text-dark"
+                                            th:text="'R$ ' + ${#numbers.formatDecimal((item.valorUnitario - (item.desconto != null ? ((item.desconto / 100) * item.valorUnitario) : 0)) * item.quantidade, 1, 'POINT', 2, 'COMMA')}"></span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- MODALS -->
 
+            <!-- new/edit -->
+            <div class="modal fade" id="venda-modal" tabindex="-1" aria-labelledby="vendaModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Venda</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <form autocomplete="off" class="row">
+                                            <div class="mb-3">
+                                                <label class="form-label">ID</label>
+                                                <input type="text" id="modal-venda-idVenda" class="form-control"
+                                                    disabled>
+                                                <input type="hidden" name="is-new" id="is-new">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Data</label>
+                                                <input type="datetime-local" id="modal-venda-data" class="form-control"
+                                                    required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Observação</label>
+                                                <input type="text" id="modal-venda-observacao" class="form-control"
+                                                    required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Método de Pagamento</label>
+                                                <select id="modal-venda-metodoPagamento" class="form-select">
+                                                    <option value="CARTAO_CREDITO">Cartão de Crédito</option>
+                                                    <option value="CARTAO_DEBITO">Cartão de Débito</option>
+                                                    <option value="PIX">PIX</option>
+                                                    <option value="DINHEIRO">DINHEIRO</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Valor Recebido</label>
+                                                <input type="number" step="0.1" id="modal-venda-valorRecebido"
+                                                    class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Troco</label>
+                                                <input type="number" step="0.1" id="modal-venda-troco"
+                                                    class="form-control" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Funcionário</label>
+                                                <select name="modal-venda-funcionario" id="modal-venda-funcionario"
+                                                    class="form-select">
+                                                    <option th:each="funcionario : ${funcionarios}"
+                                                        th:value="${funcionario.idUsuario}"
+                                                        th:text="${funcionario.nome} + ' ' + ${funcionario.sobrenome}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="col-6">
+                                        <!-- items edit/add tab -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h4 class="mb-0">Itens</h4>
+                                            <button class="btn btn-outline-primary btn-sm" id="edit-list">Editar</button>
+                                        </div>
+                                        <hr>
+                                        <ul class="list-group list-group-flush" id="modal-venda-itens">
+
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                                <button class="btn btn-success" id="confirm-register"
+                                    data-action="confirm-modal">Confirmar</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
 
