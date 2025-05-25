@@ -5,12 +5,6 @@
 <head>
     <title>Vendas</title>
 </head>
-<!-- TODO:
-        Modals de Insert/Update
-        Botões de edit/remove
-        Warning
-        Search funcional -->
-
 <body>
 
     <div layout:fragment="content">
@@ -42,7 +36,7 @@
                             <!-- Campo de texto -->
                             <div class="col-md-3">
                                 <label for="termo" class="form-label">Termo</label>
-                                <input type="text" id="search-term" class="form-control"
+                                <input type="text" name="usuario" id="search-term" class="form-control"
                                     placeholder="Digite o termo de busca..." autocomplete="off">
                             </div>
 
@@ -189,82 +183,177 @@
                         <div class="modal-body">
                             <div class="container-fluid">
                                 <div class="row">
-                                    <div class="col-6">
-                                        <form autocomplete="off" class="row">
-                                            <div class="mb-3">
-                                                <label class="form-label">ID</label>
-                                                <input type="text" id="modal-venda-idVenda" class="form-control"
-                                                    disabled>
-                                                <input type="hidden" name="is-new" id="is-new">
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Data</label>
-                                                <input type="datetime-local" id="modal-venda-data" class="form-control"
-                                                    required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Observação</label>
-                                                <input type="text" id="modal-venda-observacao" class="form-control"
-                                                    required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Método de Pagamento</label>
-                                                <select id="modal-venda-metodoPagamento" class="form-select">
-                                                    <option value="CARTAO_CREDITO">Cartão de Crédito</option>
-                                                    <option value="CARTAO_DEBITO">Cartão de Débito</option>
-                                                    <option value="PIX">PIX</option>
-                                                    <option value="DINHEIRO">DINHEIRO</option>
-                                                </select>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Valor Recebido</label>
-                                                <input type="number" step="0.1" id="modal-venda-valorRecebido"
-                                                    class="form-control" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Troco</label>
-                                                <input type="number" step="0.1" id="modal-venda-troco"
-                                                    class="form-control" required>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Funcionário</label>
-                                                <select name="modal-venda-funcionario" id="modal-venda-funcionario"
-                                                    class="form-select">
-                                                    <option th:each="funcionario : ${funcionarios}"
-                                                        th:value="${funcionario.idUsuario}"
-                                                        th:text="${funcionario.nome} + ' ' + ${funcionario.sobrenome}">
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </form>
-                                    </div>
-                                    <div class="col-6">
-                                        <!-- items edit/add tab -->
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h4 class="mb-0">Itens</h4>
-                                            <button class="btn btn-outline-primary btn-sm" id="edit-list">Editar</button>
-                                        </div>
-                                        <hr>
-                                        <ul class="list-group list-group-flush" id="modal-venda-itens">
+                                    <div class="col-6 border-end mb-2">
 
-                                        </ul>
+                                        <!-- ITENS -->
+
+                                        <form id="items-form" autocomplete="off">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h4 class="mb-0">Itens</h4>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                    id="show-items-btn" data-bs-toggle="collapse"
+                                                    data-bs-target="#modal-venda-items-form" aria-expanded="false"
+                                                    aria-controls="item-venda-items-form">
+                                                    <i class="bi bi-chevron-down" id="show-items-icon"></i>
+                                                </button>
+                                            </div>
+
+                                            <hr>
+
+                                            <div class="collapse" id="modal-venda-items-form">
+                                                <div class="d-flex align-items-center mb-2">
+
+                                                    <label for="tipo">Por:</label>
+                                                    <select id="item-search-type" name="tipo"
+                                                        class="form-select form-select-sm w-auto">
+                                                        <option value="nome">Nome</option>
+                                                        <option value="id">ID</option>
+                                                    </select>
+
+                                                    <label for="idCategoria" class="mx-2">Filtrar:</label>
+                                                    <select id="categoria" name="idCategoria"
+                                                        class="form-select form-select-sm me-2 w-auto">
+                                                        <option value="">Todas Categorias</option>
+                                                        <option th:each="cat : ${categorias}"
+                                                            th:value="${cat.idCategoria}" th:text="${cat.nome}">
+                                                        </option>
+                                                    </select>
+
+                                                </div>
+                                                <div class="d-flex mb-2">
+                                                    <div class="position-relative" style="flex: 1; min-width: 250px;">
+                                                        <input type="text" id="search-product" name="termo"
+                                                            class="form-control" placeholder="Buscar produto..."
+                                                            hx-get="/pdv/autocomplete"
+                                                            hx-trigger="keyup changed delay:300ms"
+                                                            hx-target="#autocomplete-options"
+                                                            hx-include="#item-search-type, #categoria"
+                                                            autocomplete="off">
+
+                                                        <div class="dropdown-menu w-100" id="autocomplete-options">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="alert alert-primary mb-2" role="alert" id="current-product">
+                                                    Aguardando selecionar produto...
+                                                </div>
+                                                <input type="hidden" id="selected-product-id" value="" disabled>
+                                                <input type="hidden" id="selected-product-name" value="" disabled>
+
+                                                <div class="mb-2">
+                                                    <label for="quantidade" class="form-label">Quantidade</label>
+                                                    <input type="number" name="quantidade" id="modal-venda-quantidade"
+                                                        class="form-control" min="1" value="1">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label for="valorUnitario" class="form-label">Valor Unitário (R$)
+                                                        <small class="text-muted">Ex: 10.00</small></label>
+                                                    <input type="number" name="valorUnitario"
+                                                        id="modal-venda-valorUnitario" class="form-control" step="0.01"
+                                                        min="0.05" value="0.05">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label for="desconto" class="form-label">Desconto (%) <small
+                                                            class="text-muted">Ex: 15.00</small></label>
+                                                    <input type="number" name="desconto" id="modal-venda-desconto"
+                                                        class="form-control" min="0" step="0.01" value="0.0" max="99">
+                                                </div>
+
+                                                <div class="d-flex justify-content-center mb-2">
+                                                    <button type="submit" class="btn btn-primary btn-sm" id="add-button"
+                                                        disabled>Adicionar</button>
+                                                </div>
+                                        </form>
+
+                                        <hr>
+
                                     </div>
+
+                                    <!-- VENDA -->
+                                    <form autocomplete="off">
+
+                                        <div class="mb-2">
+                                            <label class="form-label">ID</label>
+                                            <input type="text" id="modal-venda-idVenda" class="form-control" disabled>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Data <small class="text-muted">mês/dia/ano,
+                                                    hora</small></label>
+                                            <input type="datetime-local" id="modal-venda-data" class="form-control"
+                                                required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Observação</label>
+                                            <input type="text" id="modal-venda-observacao" class="form-control"
+                                                required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Método de Pagamento</label>
+                                            <select id="modal-venda-metodoPagamento" class="form-select">
+                                                <option value="CARTAO_CREDITO">Cartão de Crédito</option>
+                                                <option value="CARTAO_DEBITO">Cartão de Débito</option>
+                                                <option value="PIX">PIX</option>
+                                                <option value="DINHEIRO">DINHEIRO</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Valor Recebido (R$)</label>
+                                            <input type="number" step="0.01" id="modal-venda-valorRecebido"
+                                                class="form-control" required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Troco</label>
+                                            <input type="number" step="0.1" id="modal-venda-troco" class="form-control"
+                                                required>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label">Funcionário</label>
+                                            <select name="modal-venda-funcionario" id="modal-venda-funcionario"
+                                                class="form-select" required>
+                                                <option value="">Selecione um funcionário</option>
+                                                <option th:each="funcionario : ${funcionarios}"
+                                                    th:value="${funcionario.idUsuario}"
+                                                    th:text="${funcionario.nome} + ' ' + ${funcionario.sobrenome}">
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                    </form>
                                 </div>
 
-                            </div>
+                                <div class="col-6 mb-2">
+                                    <!-- items edit/remove tab -->
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h4 class="mb-0">Itens Adicionados</h4>
+                                        <span class="fw-bold text-success" id="modal-items-total"></span>
+                                    </div>
 
-                            <div class="modal-footer">
-                                <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-                                <button class="btn btn-success" id="confirm-register"
-                                    data-action="confirm-modal">Confirmar</button>
+                                    <hr>
+
+                                    <ul class="list-group list-group-flush" id="modal-venda-itens">
+                                    </ul>
+                                </div>
                             </div>
 
                         </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                            <button class="btn btn-success" id="confirm-register"
+                                data-action="confirm-modal">Confirmar</button>
+                        </div>
+
                     </div>
                 </div>
             </div>
-
         </div>
+
+
+    </div>
+    </div>
+
+    </div>
 
     </div>
 </body>

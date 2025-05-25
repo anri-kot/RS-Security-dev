@@ -1,3 +1,10 @@
+/*
+    TODO:
+    - Send Vendas via POST and PUT
+    - Testing
+    - Pagination
+*/
+
 export function init() {
 
     const filterEl = document.getElementById('filter');
@@ -5,6 +12,8 @@ export function init() {
     const metodoPagamentoEl = document.getElementById('metodoPagamento');
     const observacaoEl = document.getElementById('observacao');
     const vendaModalEl = document.getElementById('venda-modal');
+
+    let currentItemIndex = null;
 
     // Venda Modal fields
     const modalIdEl = document.getElementById('modal-venda-idVenda');
@@ -15,6 +24,15 @@ export function init() {
     const modalTrocoEl = document.getElementById('modal-venda-troco');
     const modalFuncionarioEl = document.getElementById('modal-venda-funcionario');
     const modalItensEl = document.getElementById('modal-venda-itens');
+    // Venda Itens Modal fields
+    const modalItemsTotalEl = document.getElementById('modal-items-total');
+    const modalQuantidadeEl = document.getElementById('modal-venda-quantidade');
+    const modalValorUnitarioEl = document.getElementById('modal-venda-valorUnitario');
+    const modalDescontoEl = document.getElementById('modal-venda-desconto');
+    const modalCurrentProdutoEl = document.getElementById('current-product');
+    const selectedProdutoIdEl = document.getElementById('selected-product-id');
+    const selectedProdutoNameEl = document.getElementById('selected-product-name')
+    const addItemBtn = document.getElementById('add-button');
 
     filterEl.addEventListener('change', () => {
         toggleDateInputs();
@@ -84,9 +102,10 @@ export function init() {
 
     // MODALS
 
-    // VENDA MODAL
-
     const vendaModal = new bootstrap.Modal(vendaModalEl);
+    let itens = [];
+
+    // VENDA MODAL
 
     // Listens to new Venda button
     document.getElementById('new-venda').addEventListener('click', () => {
@@ -104,6 +123,18 @@ export function init() {
         }
     });
 
+    // Updates arrow symbol on toggle collapse
+    document.getElementById('show-items-btn').addEventListener('click', () => {
+        const iconEl = document.getElementById('show-items-icon');
+        if (iconEl.classList.contains('bi-chevron-down')) {
+            iconEl.classList.remove('bi-chevron-down');
+            iconEl.classList.add('bi-chevron-up');
+        } else {
+            iconEl.classList.remove('bi-chevron-up');
+            iconEl.classList.add('bi-chevron-down');
+        }
+    });
+
     // Checks if DINHEIRO is selected
     modalMetodoPagamentoEl.addEventListener('change', (e) => {
         if (e.target.value !== 'DINHEIRO') {
@@ -114,7 +145,7 @@ export function init() {
     });
 
     async function showVendaModal(id) {
-        clearVendaModalFields();
+        clearVendaModalFields();        
 
         if (id || id > 0) {
             let venda;
@@ -129,6 +160,7 @@ export function init() {
                 return;
             }
 
+            itens = venda.itens;
             populateVendaModal(venda);
         }
 
@@ -136,7 +168,6 @@ export function init() {
     }
 
     function populateVendaModal(venda) {
-
         modalIdEl.value = venda.idVenda;
         modalDataEl.value = venda.data;
 
@@ -147,9 +178,7 @@ export function init() {
         modalTrocoEl.value = parseFloat(venda.troco).toFixed(2) || '';
         modalFuncionarioEl.value = venda.usuario.idUsuario;
 
-        venda.itens.forEach(item => {
-            modalItensEl.appendChild(renderVendaItem(item));
-        });
+        refreshItems();
     }
 
     function clearVendaModalFields() {
@@ -158,59 +187,203 @@ export function init() {
             el.value = '';
         });
         modalItensEl.innerHTML = '';
+        modalValorRecebidoEl.setAttribute('min', '0.05');
+        modalItemsTotalEl.innerText = 'R$ 0,00';
+        modalCurrentProdutoEl.innerText = 'Aguardando selecionar produto...';
+
+        currentItemIndex = null;
+        itens = [];
     }
 
-    // Renders an 'li' element in the 'Itens' section of the modal
+    // MODAL ITEMS
+    let lastQuery;
+    const searchType = document.getElementById('item-search-type');
+    const searchProduct = document.getElementById('search-product');
+    const autocompleteOptions = document.getElementById('autocomplete-options');
+
+    // Listens for ADICIONAR button click
+    addItemBtn.addEventListener('click', () => {
+        addUpdateItem();
+    });
+
+    // Cancel submit
+    document.getElementById('items-form').addEventListener('submit', e => e.preventDefault());
+
+    function addUpdateItem() {
+        const idProduto = parseInt(selectedProdutoIdEl.value);
+        const nome = selectedProdutoNameEl.value;
+        const quantidade = parseInt(modalQuantidadeEl.value);
+        const valorUnitario = parseFloat(modalValorUnitarioEl.value);
+        let desconto = null;
+
+        if (currentItemIndex != null) {
+            itens[currentItemIndex].quantidade = quantidade;
+            itens[currentItemIndex].valorUnitario = valorUnitario;
+            if (modalDataEl.value.length !== 0 && parseFloat(modalDescontoEl.value) > 0) {
+                itens[currentItemIndex].desconto = parseFloat(modalDescontoEl.value);
+            }
+        } else {
+            itens.push({
+                quantidade: quantidade,
+                valorUnitario: valorUnitario,
+                produto: {
+                    idProduto: idProduto,
+                    nome: nome
+                },
+                desconto: desconto
+            });
+        }
+
+        refreshItems();
+    }
+
+    function refreshItems() {
+        let total = 0;
+        modalItensEl.innerHTML = '';
+        itens.forEach(item => {
+            modalItensEl.appendChild(renderVendaItem(item));
+            
+            // calculating total
+            const discount = parseFloat(item.desconto || 0);
+            const price = parseFloat(item.valorUnitario - (item.valorUnitario * (discount / 100)));
+            total += price * item.quantidade;
+        });
+
+        modalValorRecebidoEl.value = total.toFixed(2);
+        modalValorRecebidoEl.setAttribute('min', total);
+        modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    let tempId = 0;
     function renderVendaItem(item) {
         const li = document.createElement('li');
+        li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
 
-        // calculating total
-        const price = item.valorUnitario - (item.valorUnitario * item.desconto / 100) || item.valorUnitario;
+        // Calculate price with discount
+        const desconto = item.desconto || 0;
+        const precoComDesconto = item.valorUnitario * (1 - desconto / 100);
+        const total = precoComDesconto * item.quantidade;
 
-        const total = price * item.quantidade;
-
+        // Produto info container
         const mainContainer = document.createElement('div');
-        const totalContainer = document.createElement('div');
+        mainContainer.classList.add('flex-grow-1');
+
         const nomeEl = document.createElement('div');
-        const qtdPrecoEl = document.createElement('small');
-        const descontoEl = document.createElement('small');
-        const totalEl = document.createElement('span');
-
-        // styling
-        li.classList.add('list-group-item');
-        totalContainer.classList.add('text-end');
         nomeEl.classList.add('fw-semibold');
-        qtdPrecoEl.classList.add('text-muted', 'd-block');
-        descontoEl.classList.add('text-danger', 'd-block');
-        totalEl.classList.add('fw-bold', 'text-dark');
+        nomeEl.textContent = item.produto.nome;
 
-        // setting inner text
-        nomeEl.innerText = item.produto.nome;
-        qtdPrecoEl.innerText = `Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2})}`
-        descontoEl.innerText = `${item.desconto}%`;
-        totalEl.innerText = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2})}`;
+        const qtdPrecoEl = document.createElement('small');
+        qtdPrecoEl.classList.add('text-muted', 'd-block');
+        qtdPrecoEl.textContent = `Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+
+        const descontoEl = document.createElement('small');
+        descontoEl.classList.add('text-danger', 'd-block');
+        if (desconto > 0) {
+            descontoEl.textContent = `${desconto}%`;
+        }
 
         mainContainer.appendChild(nomeEl);
-        mainContainer.append(qtdPrecoEl);
-        if ((item.desconto) && item.desconto > 0) mainContainer.appendChild(descontoEl);
-        totalContainer.appendChild(totalEl);
+        mainContainer.appendChild(qtdPrecoEl);
+        if (desconto > 0) mainContainer.appendChild(descontoEl);
+
+        // total and buttons container
+        const rightContainer = document.createElement('div');
+        rightContainer.classList.add('d-flex', 'flex-column', 'justify-content-between')
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.classList.add('text-end', 'd-flex', 'align-items-center', 'gap-2', 'mb-2');
+
+        const totalEl = document.createElement('small');
+        totalEl.classList.add('fw-bold', 'text-dark');
+        totalEl.textContent = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+
+        // buttons
+        const editButton = document.createElement('button');
+        editButton.classList.add('btn', 'btn-sm', 'btn-outline-primary');
+        editButton.setAttribute('title', 'Editar');
+        editButton.innerHTML = '<i class="bi bi-pencil"></i>'; // Bootstrap Icons
+        editButton.dataset.idProduto = item.produto.idProduto;
+
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('btn', 'btn-sm', 'btn-outline-danger');
+        deleteButton.setAttribute('title', 'Excluir');
+        deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+        deleteButton.dataset.idProduto = item.produto.idProduto;
+
+        // edit/delete listeners
+        editButton.addEventListener('click', () => {
+            const itemIndex = itens.findIndex(item => item.produto.idProduto === parseInt(editButton.dataset.idProduto));
+            currentItemIndex = itemIndex;
+            populateItemFields(itens[itemIndex]);
+        });
+        deleteButton.addEventListener('click', () => {
+            itens.splice(itens.findIndex(item => item.produto.idProduto === parseInt(deleteButton.dataset.idProduto)), 1);
+            refreshItems();
+        });
+
+
+        buttonsContainer.appendChild(editButton);
+        buttonsContainer.appendChild(deleteButton);
+        rightContainer.appendChild(buttonsContainer);
+        rightContainer.appendChild(totalEl);
+
+        // Mount item
         li.appendChild(mainContainer);
-        li.appendChild(totalContainer);
+        li.appendChild(rightContainer);
 
         return li;
     }
 
+    function populateItemFields(item) {
+
+        console.log(item);
+        
+        modalCurrentProdutoEl.innerHTML = `Editando <strong>${item.produto.nome}</strong>`;        
+
+        modalQuantidadeEl.value = item.quantidade || 1;
+        modalValorUnitarioEl.value = parseFloat(item.valorUnitario || item.produto.precoAtual || '0.05').toFixed(2);
+        if (item.desconto && item.desconto !== 0) {
+            modalDescontoEl.value = parseFloat(item.desconto || '0.00').toFixed(2);
+        }
+        document.getElementById('add-button').removeAttribute('disabled');
+        selectedProdutoIdEl.value = item.produto.idProduto;
+        selectedProdutoNameEl.value = item.produto.nome;
+    }
+
     /* === DROPDOWN === */
-    let lastQuery;
-    const searchProduct = document.getElementById('search-product');
-    const autocompleteOptions = document.getElementById('autocomplete-options')
+
+    // Listens for DROPDOWN clicks
+    autocompleteOptions.addEventListener('click', (e) => {
+        const itemEl = e.target.closest('li');
+        autocompleteOptions.classList.remove('show');
+        clickDropdown(itemEl);
+    });
+
+    // Disables categoria if search types === ID
+    searchType.addEventListener('change', (e) => {
+        if (e.target.value === 'id') {
+            document.getElementById('categoria').setAttribute('disabled', true);
+        } else {
+            document.getElementById('categoria').removeAttribute('disabled');
+        }
+    });
+
+    // Show dropdown on focus
+    searchProduct.addEventListener('focus', () => {
+        updateDropdown();
+    });
+
+    // Hide dropdown when user clicks outside the search field
+    document.addEventListener('click', (event) => {
+        if (!autocompleteOptions.contains(event.target) && event.target !== searchProduct) {
+            autocompleteOptions.classList.remove('show');
+        }
+    });
 
     // checks if search field is blank or < 3 before request
     document.body.addEventListener("htmx:beforeRequest", (event) => {
         if (!searchProduct) return;
 
         if (event.target.id === searchProduct.id) {
-            const searchType = document.getElementById('search-type');
             const value = searchProduct.value.trim();
 
             if (value.length < 1) {
@@ -230,6 +403,28 @@ export function init() {
         }
     });
 
+    async function clickDropdown(itemEl) {
+
+        const idProduto = parseInt(itemEl.dataset.idProduto);
+        const itemIndex = itens.findIndex(item => item.produto.idProduto === idProduto);
+
+        searchProduct.value = itemEl.dataset.nomeProduto;
+
+        if (itemIndex !== -1) {
+            populateItemFields(itens[itemIndex]);
+            currentItemIndex = itemIndex;
+        } else {
+            const produto = await getProduto(idProduto);
+            populateItemFields({produto})
+            modalCurrentProdutoEl.innerHTML = `Inserindo <strong>${itemEl.dataset.nomeProduto}</strong>`
+            currentItemIndex = null;
+        };
+
+        document.getElementById('add-button').removeAttribute('disabled');
+        selectedProdutoIdEl.value = idProduto;
+        selectedProdutoNameEl.value = itemEl.dataset.nomeProduto;
+    }
+
     function updateDropdown() {
         if (searchType.value === 'nome') {
             if (searchProduct.value.trim().length >= 3) {
@@ -240,6 +435,21 @@ export function init() {
                 autocompleteOptions.classList.add('show');
             }
         }
+    }
+
+    async function getProduto(id) {
+        let produto;
+        try {
+            const response = await fetch(`/api/produto/${id}`);
+            if (!response.ok) {
+                alert('Erro ao pesquisar produto.');
+                console.error(response.json().message);
+                return null;
+            }
+
+            produto = await response.json();
+            return produto;
+        } catch (e) {}
     }
 
     // ACTIONS CREATE / DELETE / UPDATE

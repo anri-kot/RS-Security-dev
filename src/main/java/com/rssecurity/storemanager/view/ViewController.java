@@ -150,6 +150,7 @@ public class ViewController {
     @GetMapping("/vendas")
     public String getVendas(HttpServletRequest request, Model model, @RequestParam(required = false) Map<String, String> params) {
         List<VendaDTO> vendas;
+        List<CategoriaDTO> categorias = categoriaService.findAll();
         List<UsuarioResumoDTO> funcionarios = usuarioService.findAll().stream()
             .map(funcionario -> {
                 return new UsuarioResumoDTO(funcionario.idUsuario(), funcionario.username(), funcionario.nome(), funcionario.sobrenome());
@@ -174,6 +175,7 @@ public class ViewController {
         }
 
         model.addAttribute("funcionarios", funcionarios);
+        model.addAttribute("categorias", categorias);
 
         return "vendas";
     }
