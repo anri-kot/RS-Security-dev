@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.controller;
 
 import com.rssecurity.storemanager.dto.UsuarioDTO;
+import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.service.UsuarioService;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,14 @@ public class UsuarioController {
         return ResponseEntity.ok(service.findById(idUsuario));
     }
 
-    @GetMapping("/by-username")
+    @GetMapping("/username/")
     public ResponseEntity<UsuarioDTO> findByUsername(@RequestParam String username) {
         return ResponseEntity.ok(service.findByUsername(username));
+    }
+
+    @GetMapping("/short/username")
+    public ResponseEntity<UsuarioResumoDTO> findByUsernameResumo(@RequestParam String username) {
+        return ResponseEntity.ok(service.findByUsernameResumo(username));
     }
 
     @GetMapping("/search/username")

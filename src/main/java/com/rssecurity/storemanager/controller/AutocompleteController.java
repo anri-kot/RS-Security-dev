@@ -16,17 +16,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.rssecurity.storemanager.dto.ProdutoDTO;
+import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.service.ProdutoService;
+import com.rssecurity.storemanager.service.UsuarioService;
 import com.rssecurity.storemanager.service.VendaService;
 
 @Controller
-public class PdvController {
+public class AutocompleteController {
 
     @Autowired
     private ProdutoService produtoService;
     @Autowired
     private VendaService vendaService;
+    @Autowired
+    private UsuarioService usuarioService;
 
     @GetMapping("/pdv/autocomplete")
     public String pdvAutocomplete(@RequestParam String termo, @RequestParam(required = false) String tipo,
@@ -61,4 +65,16 @@ public class PdvController {
 
         return ResponseEntity.ok().body(created.observacao());
     }
+
+    @GetMapping("/vendas/autocomplete")
+    public String getVendasAutocomplete(@RequestParam String funcionario, Model model) {
+        List<UsuarioResumoDTO> results = usuarioService.findByNomeContainingOrSobrenomeContainingOrUsernameContaining(funcionario)
+                .stream()
+                .map((usuario) -> new UsuarioResumoDTO(usuario.idUsuario(), usuario.username(), usuario.nome(), usuario.sobrenome()))
+                .toList();
+        model.addAttribute("results", results);
+
+        return "fragments/autocomplete-funcionarios";
+    }
+    
 }

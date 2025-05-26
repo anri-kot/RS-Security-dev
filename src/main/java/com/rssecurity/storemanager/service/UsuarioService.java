@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.service;
 
 import com.rssecurity.storemanager.dto.UsuarioDTO;
+import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
@@ -34,19 +35,19 @@ public class UsuarioService implements UserDetailsService {
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usuario usuario = repository.findByUsername(username)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
-        
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
+
         List<GrantedAuthority> authorities = new ArrayList<>();
         if (usuario.getAdmin()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         } else {
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
         }
-        
+
         return new org.springframework.security.core.userdetails.User(
-            usuario.getUsername(),
-            usuario.getSenha(),
-            authorities);
+                usuario.getUsername(),
+                usuario.getSenha(),
+                authorities);
     }
 
     public List<UsuarioDTO> findAll() {
@@ -54,7 +55,7 @@ public class UsuarioService implements UserDetailsService {
                 .map(mapper::toDTO)
                 .toList();
     }
-    
+
     public UsuarioDTO findById(Long idUsuario) {
         Usuario usuario = repository.findById(idUsuario)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. ID: " + idUsuario));
@@ -67,6 +68,12 @@ public class UsuarioService implements UserDetailsService {
         return mapper.toDTO(usuario);
     }
 
+    public UsuarioResumoDTO findByUsernameResumo(String username) {
+        Usuario usuario = repository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. Username: " + username));
+        return new UsuarioResumoDTO(usuario.getIdUsuario(), usuario.getUsername(), usuario.getNome(), usuario.getSobrenome());
+    }
+
     public List<UsuarioDTO> findByUsernameContains(String username) {
         return repository.findByUsernameContains(username).stream()
                 .map(mapper::toDTO)
@@ -75,6 +82,12 @@ public class UsuarioService implements UserDetailsService {
 
     public List<UsuarioDTO> findByNomeContainingOrSobrenomeContaining(String nome) {
         return repository.findByNomeContainingOrSobrenomeContaining(nome, nome).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    public List<UsuarioDTO> findByNomeContainingOrSobrenomeContainingOrUsernameContaining(String query) {
+        return repository.findByNomeContainingOrSobrenomeContainingOrUsernameContaining(query, query, query).stream()
                 .map(mapper::toDTO)
                 .toList();
     }
@@ -105,10 +118,14 @@ public class UsuarioService implements UserDetailsService {
     }
 
     private void validateCreate(UsuarioDTO usuario) {
-        if (repository.existsByCpf(usuario.cpf())) throw new ConflictException("CPF já existe: " + usuario.cpf());
-        if (repository.existsByEmail(usuario.email())) throw new ConflictException("email já existe: " + usuario.email());
-        if (repository.existsByTelefone(usuario.telefone())) throw new ConflictException("telefone já existe: " + usuario.telefone());
-        if (repository.existsByUsername(usuario.username())) throw new ConflictException("username já existe: " + usuario.username());
+        if (repository.existsByCpf(usuario.cpf()))
+            throw new ConflictException("CPF já existe: " + usuario.cpf());
+        if (repository.existsByEmail(usuario.email()))
+            throw new ConflictException("email já existe: " + usuario.email());
+        if (repository.existsByTelefone(usuario.telefone()))
+            throw new ConflictException("telefone já existe: " + usuario.telefone());
+        if (repository.existsByUsername(usuario.username()))
+            throw new ConflictException("username já existe: " + usuario.username());
     }
 
     private Usuario setPassword(UsuarioDTO dto) {
