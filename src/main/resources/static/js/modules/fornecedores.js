@@ -99,7 +99,7 @@ export function init() {
             if (!response.ok) {
                 const errorData = await response.json();
                 alert(`Erro ${errorData.status}: ${errorData.message}`);
-                fornecedorModalEl.hide();
+                fornecedorModal.hide();
                 return;
             } else {
                 alert('Ação executada com sucesso.');

@@ -5,6 +5,7 @@
 <head>
     <title>Vendas</title>
 </head>
+
 <body>
 
     <div layout:fragment="content">
@@ -226,11 +227,11 @@
                                                             class="form-control" placeholder="Buscar produto..."
                                                             hx-get="/pdv/autocomplete"
                                                             hx-trigger="keyup changed delay:300ms"
-                                                            hx-target="#autocomplete-options"
+                                                            hx-target="#autocomplete-produto-options"
                                                             hx-include="#item-search-type, #categoria"
                                                             autocomplete="off">
 
-                                                        <div class="dropdown-menu w-100" id="autocomplete-options">
+                                                        <div class="dropdown-menu w-100" id="autocomplete-produto-options">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -308,15 +309,19 @@
                                                 required>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label">Funcionário</label>
-                                            <select name="modal-venda-funcionario" id="modal-venda-funcionario"
-                                                class="form-select" required>
-                                                <option value="">Selecione um funcionário</option>
-                                                <option th:each="funcionario : ${funcionarios}"
-                                                    th:value="${funcionario.idUsuario}"
-                                                    th:text="${funcionario.nome} + ' ' + ${funcionario.sobrenome}">
-                                                </option>
-                                            </select>
+                                            <div class="position-relative">
+                                                <label class="form-label">Funcionário</label>
+                                                <input class="form-control" id="modal-venda-funcionario"
+                                                    name="funcionario"
+                                                    placeholder="Digite o nome do funcionário"
+                                                    hx-get="/vendas/autocomplete" hx-target="#autocomplete-funcionario-options"
+                                                    hx-trigger="keyup changed delay:300ms">
+    
+                                                <input type="hidden" id="modal-venda-funcionario-id">
+                                                <input type="hidden" id="modal-venda-funcionario-username">
+    
+                                                <div class="dropdown-menu w-100" id="autocomplete-funcionario-options"></div>
+                                            </div>
                                         </div>
 
                                     </form>

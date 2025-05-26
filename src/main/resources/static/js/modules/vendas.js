@@ -30,6 +30,8 @@ export function init() {
     const modalValorUnitarioEl = document.getElementById('modal-venda-valorUnitario');
     const modalDescontoEl = document.getElementById('modal-venda-desconto');
     const modalCurrentProdutoEl = document.getElementById('current-product');
+    const modalFuncionarioIdEl = document.getElementById('modal-venda-funcionario-id');
+    const modalFuncionarioUsernameEl = document.getElementById('modal-venda-funcionario-username');
     const selectedProdutoIdEl = document.getElementById('selected-product-id');
     const selectedProdutoNameEl = document.getElementById('selected-product-name')
     const addItemBtn = document.getElementById('add-button');
@@ -176,7 +178,7 @@ export function init() {
         modalMetodoPagamentoEl.value = venda.metodoPagamento;
         modalValorRecebidoEl.value = parseFloat(venda.valorRecebido).toFixed(2);
         modalTrocoEl.value = parseFloat(venda.troco).toFixed(2) || '';
-        modalFuncionarioEl.value = venda.usuario.idUsuario;
+        modalFuncionarioEl.value = `${venda.usuario.nome} ${venda.usuario.sobrenome}`;
 
         refreshItems();
     }
@@ -199,11 +201,21 @@ export function init() {
     let lastQuery;
     const searchType = document.getElementById('item-search-type');
     const searchProduct = document.getElementById('search-product');
-    const autocompleteOptions = document.getElementById('autocomplete-options');
+    const searchUser = document.getElementById('modal-venda-funcionario');
+    const autocompleteProdutoOptions = document.getElementById('autocomplete-produto-options');
+    const autocompleteFuncionarioOptions = document.getElementById('autocomplete-funcionario-options');
 
     // Listens for ADICIONAR button click
     addItemBtn.addEventListener('click', () => {
-        addUpdateItem();
+        addUpdateItem();        
+    });
+
+    // Validates funcionario
+    searchUser.addEventListener('change', (e) => {
+        const value = e.target.value;
+        if (value !== e.dataset.nome) {
+            searchUser.setAttribute('isvalid', false);
+        }
     });
 
     // Cancel submit
@@ -334,9 +346,6 @@ export function init() {
     }
 
     function populateItemFields(item) {
-
-        console.log(item);
-        
         modalCurrentProdutoEl.innerHTML = `Editando <strong>${item.produto.nome}</strong>`;        
 
         modalQuantidadeEl.value = item.quantidade || 1;
@@ -349,13 +358,18 @@ export function init() {
         selectedProdutoNameEl.value = item.produto.nome;
     }
 
-    /* === DROPDOWN === */
+    /* === DROPDOWNS === */
 
     // Listens for DROPDOWN clicks
-    autocompleteOptions.addEventListener('click', (e) => {
+    autocompleteProdutoOptions.addEventListener('click', (e) => {
         const itemEl = e.target.closest('li');
-        autocompleteOptions.classList.remove('show');
-        clickDropdown(itemEl);
+        autocompleteProdutoOptions.classList.remove('show');
+        clickDropdown(itemEl, 'produto');
+    });
+    autocompleteFuncionarioOptions.addEventListener('click', (e) => {
+        const itemEl = e.target.closest('li');
+        autocompleteFuncionarioOptions.classList.remove('show');
+        clickDropdown(itemEl, 'funcionario');
     });
 
     // Disables categoria if search types === ID
@@ -369,13 +383,16 @@ export function init() {
 
     // Show dropdown on focus
     searchProduct.addEventListener('focus', () => {
-        updateDropdown();
+        updateDropdown('produto');
+    });
+    searchUser.addEventListener('focus', () => {
+        updateDropdown('funcionario');
     });
 
     // Hide dropdown when user clicks outside the search field
     document.addEventListener('click', (event) => {
-        if (!autocompleteOptions.contains(event.target) && event.target !== searchProduct) {
-            autocompleteOptions.classList.remove('show');
+        if (!autocompleteProdutoOptions.contains(event.target) && event.target !== searchProduct) {
+            autocompleteProdutoOptions.classList.remove('show');
         }
     });
 
@@ -397,43 +414,51 @@ export function init() {
 
     // Updated dropdown on htmx requests
     document.body.addEventListener('htmx:afterSwap', (event) => {
-        if (event.target.id === autocompleteOptions.id) {
+        if (event.target.id === autocompleteProdutoOptions.id) {
             lastQuery = searchProduct.value.trim();
-            updateDropdown();
+            updateDropdown('produto');
         }
     });
 
-    async function clickDropdown(itemEl) {
-
-        const idProduto = parseInt(itemEl.dataset.idProduto);
-        const itemIndex = itens.findIndex(item => item.produto.idProduto === idProduto);
-
-        searchProduct.value = itemEl.dataset.nomeProduto;
-
-        if (itemIndex !== -1) {
-            populateItemFields(itens[itemIndex]);
-            currentItemIndex = itemIndex;
+    async function clickDropdown(itemEl, source) {
+        if (source === 'funcionario') {
+            searchUser.value = itemEl.innerText;
+            modalFuncionarioIdEl.value = itemEl.dataset.idUsuario;
+            modalFuncionarioUsernameEl.value = itemEl.dataset.username;
         } else {
-            const produto = await getProduto(idProduto);
-            populateItemFields({produto})
-            modalCurrentProdutoEl.innerHTML = `Inserindo <strong>${itemEl.dataset.nomeProduto}</strong>`
-            currentItemIndex = null;
-        };
 
-        document.getElementById('add-button').removeAttribute('disabled');
-        selectedProdutoIdEl.value = idProduto;
-        selectedProdutoNameEl.value = itemEl.dataset.nomeProduto;
+            const idProduto = parseInt(itemEl.dataset.idProduto);
+            const itemIndex = itens.findIndex(item => item.produto.idProduto === idProduto);
+    
+            searchProduct.value = itemEl.dataset.nomeProduto;
+    
+            if (itemIndex !== -1) {
+                populateItemFields(itens[itemIndex]);
+                currentItemIndex = itemIndex;
+            } else {
+                const produto = await getProduto(idProduto);
+                populateItemFields({produto})
+                modalCurrentProdutoEl.innerHTML = `Inserindo <strong>${itemEl.dataset.nomeProduto}</strong>`
+                currentItemIndex = null;
+            };
+    
+            document.getElementById('add-button').removeAttribute('disabled');
+            selectedProdutoIdEl.value = idProduto;
+            selectedProdutoNameEl.value = itemEl.dataset.nomeProduto;
+        }
     }
 
-    function updateDropdown() {
-        if (searchType.value === 'nome') {
+    function updateDropdown(source) {
+        if (searchType.value === 'nome' && source === 'produto') {
             if (searchProduct.value.trim().length >= 3) {
-                autocompleteOptions.classList.add('show');
+                autocompleteProdutoOptions.classList.add('show');
+            }
+        } else if (source === 'produto') {
+            if (searchProduct.value.trim().length != 0) {
+                autocompleteProdutoOptions.classList.add('show');
             }
         } else {
-            if (searchProduct.value.trim().length != 0) {
-                autocompleteOptions.classList.add('show');
-            }
+            autocompleteFuncionarioOptions.classList.add('show');
         }
     }
 
@@ -456,21 +481,56 @@ export function init() {
 
     document.getElementById('confirm-register').addEventListener('click', (e) => {
         const id = parseInt(modalIdEl.value) || 0;
-        sendVenda(id);
+
+        modalFuncionarioEl.querySelectorAll('option').forEach(opt => {
+            if (opt.value === modalFuncionarioEl.value) {
+                modalFuncionarioEl.dataset.username = opt.dataset.username;
+                return;
+            }
+        });
+
+        console.log(modalFuncionarioEl.dataset.username);
+        
+
+        //sendVenda(id);
     });
 
     async function sendVenda(id) {
-        let URL;
+        let url;
         let method;
+        const body = JSON.stringify(getVendaObj());
+
         if (id > 0) {
-            URL = `/api/venda/${id}`;
+            url = `/api/venda/${id}`;
             method = 'PUT';
         } else {
-            URL = `/api/venda`;
+            url = `/api/venda`;
             method = 'POST'
         }
 
-        getVendaObj()
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'HX-Request': 'true'
+                },
+                body: body
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                vendaModal.hide();
+                return;
+            } else {
+                alert('Ação executada com sucesso.');
+                vendaModal.hide();
+            }
+        } catch (e) {
+            console.error('Erro inesperado:', e);
+            alert('Ocorreu um erro inesperado.');
+        }
     }
 
     function getVendaObj() {
@@ -484,6 +544,7 @@ export function init() {
         return {
             idVenda: idVenda,
             data: data,
+            itens: itens,
             metodoPagamento: metodoPagamento,
             valorRecebido: valorRecebido,
             troco: troco,
