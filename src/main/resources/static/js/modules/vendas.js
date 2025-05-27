@@ -35,6 +35,11 @@ export function init() {
     const selectedProdutoIdEl = document.getElementById('selected-product-id');
     const selectedProdutoNameEl = document.getElementById('selected-product-name')
     const addItemBtn = document.getElementById('add-button');
+    // Confirm modal
+    const modalConfirmEl = document.getElementById('confirma-modal');
+    const modalConfirmLabelEl = document.getElementById('confirmar-label');
+    const modalConfirmMsgEl = document.getElementById('confirmar-mensagem');
+    const modalConfirmOkButtonEl = document.getElementById('confirmar-acao');
 
     filterEl.addEventListener('change', () => {
         toggleDateInputs();
@@ -121,6 +126,8 @@ export function init() {
 
             if (el.dataset.action == 'edit') {
                 showVendaModal(el.dataset.id);
+            } else if (el.dataset.action == 'delete') {
+                showConfirmModal(el.dataset.id);
             }
         }
     });
@@ -164,7 +171,7 @@ export function init() {
 
             itens = venda.itens;
             populateVendaModal(venda);
-        }
+        }        
 
         vendaModal.show();
     }
@@ -179,6 +186,8 @@ export function init() {
         modalValorRecebidoEl.value = parseFloat(venda.valorRecebido).toFixed(2);
         modalTrocoEl.value = parseFloat(venda.troco).toFixed(2) || '';
         modalFuncionarioEl.value = `${venda.usuario.nome} ${venda.usuario.sobrenome}`;
+        modalFuncionarioIdEl.value = venda.usuario.idUsuario;
+        modalFuncionarioUsernameEl.value = venda.usuario.username;
 
         refreshItems();
     }
@@ -244,7 +253,7 @@ export function init() {
                 },
                 desconto: desconto
             });
-        }
+        }        
 
         refreshItems();
     }
@@ -358,6 +367,24 @@ export function init() {
         selectedProdutoNameEl.value = item.produto.nome;
     }
 
+    // CONFIRM MODAL
+
+    const confirmModal = new bootstrap.Modal(modalConfirmEl);
+
+    modalConfirmOkButtonEl.addEventListener('click', (e) => {
+        deleteVenda(e.target.dataset.id);
+    });
+
+    function showConfirmModal(id) { 
+        if (!id) return;
+
+        modalConfirmLabelEl.innerText = 'Confirmar delete';
+        modalConfirmOkButtonEl.dataset.id = id;
+        modalConfirmMsgEl.innerHTML = `Tem certeza que deseja deletar a venda número <strong>#${id}</strong>?`;
+
+        confirmModal.show();
+    }
+
     /* === DROPDOWNS === */
 
     // Listens for DROPDOWN clicks
@@ -422,7 +449,7 @@ export function init() {
 
     async function clickDropdown(itemEl, source) {
         if (source === 'funcionario') {
-            searchUser.value = itemEl.innerText;
+            searchUser.value = itemEl.dataset.nome;
             modalFuncionarioIdEl.value = itemEl.dataset.idUsuario;
             modalFuncionarioUsernameEl.value = itemEl.dataset.username;
         } else {
@@ -487,12 +514,9 @@ export function init() {
                 modalFuncionarioEl.dataset.username = opt.dataset.username;
                 return;
             }
-        });
+        });        
 
-        console.log(modalFuncionarioEl.dataset.username);
-        
-
-        //sendVenda(id);
+        sendVenda(id);
     });
 
     async function sendVenda(id) {
@@ -533,22 +557,50 @@ export function init() {
         }
     }
 
+    async function deleteVenda(id) {
+        try {
+            const response = await fetch(`/api/venda/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Hx-Request': true
+                },
+                body: {}
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                return;
+            } else {
+                alert('Ação executada com sucesso.');
+            }
+        } catch (e) {
+            console.error('Erro inesperado:', e);
+            alert('Ocorreu um erro inesperado.');
+        }
+        
+    }
+
     function getVendaObj() {
         const idVenda = parseInt(modalIdEl.value) || null;
         const data = modalDataEl.value;
+        const observacao = modalObservacaoEl.value;
         const metodoPagamento = modalMetodoPagamentoEl.value;
         const valorRecebido = parseFloat(modalValorRecebidoEl.value);
-        const troco = parseFloat(modalTrocoEl) || null;
-        const idFuncionario = parseInt(modalFuncionarioEl.value);
+        const troco = parseFloat(modalTrocoEl.value) || null;
+        const idFuncionario = parseInt(modalFuncionarioIdEl.value);
+        const username = modalFuncionarioUsernameEl.value;
 
         return {
             idVenda: idVenda,
             data: data,
             itens: itens,
+            observacao: observacao,
             metodoPagamento: metodoPagamento,
             valorRecebido: valorRecebido,
             troco: troco,
-            usuario: { idUsuario: idFuncionario }
+            usuario: { idUsuario: idFuncionario, username: username }
         }
     }
 

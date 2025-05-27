@@ -13,7 +13,6 @@ import com.rssecurity.storemanager.service.VendaService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +42,7 @@ public class ViewController {
 
     @GetMapping("/auth/login")
     public String loginPage() {
-        return "login";  // Retorna o nome da página Thymeleaf (exemplo)
+        return "login";
     }
 
     @GetMapping({ "/", "/home" })
