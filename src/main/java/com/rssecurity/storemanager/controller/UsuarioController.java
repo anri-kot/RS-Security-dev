@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.controller;
 
 import com.rssecurity.storemanager.dto.UsuarioDTO;
+import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.service.UsuarioService;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,14 @@ public class UsuarioController {
         return ResponseEntity.ok(service.findById(idUsuario));
     }
 
-    @GetMapping("/by-username")
+    @GetMapping("/username/")
     public ResponseEntity<UsuarioDTO> findByUsername(@RequestParam String username) {
         return ResponseEntity.ok(service.findByUsername(username));
+    }
+
+    @GetMapping("/short/username")
+    public ResponseEntity<UsuarioResumoDTO> findByUsernameResumo(@RequestParam String username) {
+        return ResponseEntity.ok(service.findByUsernameResumo(username));
     }
 
     @GetMapping("/search/username")
@@ -51,7 +57,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{idUsuario}")
-    public ResponseEntity update(@PathVariable Long idUsuario, @RequestBody UsuarioDTO usuario) {
+    public ResponseEntity<Void> update(@PathVariable Long idUsuario, @RequestBody UsuarioDTO usuario) {
         if (!usuario.idUsuario().equals(idUsuario)) {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }
@@ -60,7 +66,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{idUsuario}")
-    public ResponseEntity deleteById(@PathVariable Long idUsuario) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long idUsuario) {
         service.deleteById(idUsuario);
         return ResponseEntity.noContent().build();
     }

@@ -1,16 +1,27 @@
 package com.rssecurity.storemanager.controller;
 
-import com.rssecurity.storemanager.dto.VendaDTO;
-import com.rssecurity.storemanager.exception.ConflictException;
-import com.rssecurity.storemanager.service.VendaService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.rssecurity.storemanager.dto.VendaDTO;
+import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.service.VendaService;
+
 
 @RestController
 @RequestMapping("/api/venda")
@@ -29,6 +40,13 @@ public class VendaController {
     public ResponseEntity<VendaDTO> findById(@PathVariable Long idVenda) {
         return ResponseEntity.ok(service.findById(idVenda));
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<VendaDTO>> findAllWithCustomMatcher(@RequestParam Map<String, String> allParams) {
+
+        return ResponseEntity.ok(service.findAllByCustomMatcher(allParams));
+    }
+    
 
     @GetMapping("/search/data")
     public ResponseEntity<List<VendaDTO>> findByData(@RequestParam LocalDate data) {
@@ -81,7 +99,7 @@ public class VendaController {
     }
 
     @PutMapping("/{idVenda}")
-    public ResponseEntity<VendaDTO> update(@PathVariable Long idVenda, @RequestBody VendaDTO venda) {
+    public ResponseEntity<Void> update(@PathVariable Long idVenda, @RequestBody VendaDTO venda) {
         if (!venda.idVenda().equals(idVenda)) {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }
@@ -90,7 +108,7 @@ public class VendaController {
     }
 
     @DeleteMapping("/{idVenda}")
-    public ResponseEntity<VendaDTO> deleteById(@PathVariable Long idVenda) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long idVenda) {
         service.deleteById(idVenda);
         return ResponseEntity.noContent().build();
     }

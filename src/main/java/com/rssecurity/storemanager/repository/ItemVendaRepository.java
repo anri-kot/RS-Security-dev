@@ -1,10 +1,9 @@
 package com.rssecurity.storemanager.repository;
 
-import com.rssecurity.storemanager.model.ItemVenda;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import com.rssecurity.storemanager.model.ItemVenda;
 
 @Repository
 public interface ItemVendaRepository extends JpaRepository<ItemVenda, Long> {}

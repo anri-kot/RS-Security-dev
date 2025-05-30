@@ -1,7 +1,6 @@
 package com.rssecurity.storemanager.controller;
 
 import com.rssecurity.storemanager.dto.ProdutoDTO;
-import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.service.ProdutoService;
 import jakarta.validation.Valid;
@@ -10,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/produto")
@@ -40,6 +42,11 @@ public class ProdutoController {
         return ResponseEntity.ok(service.findByDescricaoContains(descricao));
     }
 
+    @GetMapping("/search/categoria")
+    public ResponseEntity<List<ProdutoDTO>> findByCategoria_Nome(@RequestParam String categoria) {
+        return ResponseEntity.ok(service.findByCategoria_Nome(categoria));
+    }    
+
     @PostMapping
     public ResponseEntity<ProdutoDTO> create(@RequestBody @Valid ProdutoDTO produto) {
         ProdutoDTO created = service.create(produto);
@@ -48,7 +55,7 @@ public class ProdutoController {
     }
 
     @PutMapping("/{idProduto}")
-    public ResponseEntity update(@PathVariable Long idProduto, @RequestBody @Valid ProdutoDTO produto) {
+    public ResponseEntity<Void> update(@PathVariable Long idProduto, @RequestBody @Valid ProdutoDTO produto) {
         if (!produto.idProduto().equals(idProduto)) {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }
@@ -57,7 +64,7 @@ public class ProdutoController {
     }
 
     @DeleteMapping("/{idProduto}")
-    public ResponseEntity deleteById(@PathVariable Long idProduto) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long idProduto) {
         service.deleteById(idProduto);
         return ResponseEntity.noContent().build();
     }

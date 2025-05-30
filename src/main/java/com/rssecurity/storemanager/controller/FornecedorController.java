@@ -49,14 +49,14 @@ public class FornecedorController {
     }
 
     @PostMapping
-    public ResponseEntity createFornecedor(@RequestBody FornecedorDTO fornecedor) {
+    public ResponseEntity<FornecedorDTO> create(@RequestBody FornecedorDTO fornecedor) {
         FornecedorDTO created = service.create(fornecedor);
         URI location = URI.create("/api/fornecedor/" + created.idFornecedor());
         return ResponseEntity.created(location).body(created);
     }
 
     @PutMapping("/{idFornecedor}")
-    public ResponseEntity updateFornecedor(@PathVariable Long idFornecedor, @RequestBody FornecedorDTO fornecedor) {
+    public ResponseEntity<Void> update(@PathVariable Long idFornecedor, @RequestBody FornecedorDTO fornecedor) {
         if (!fornecedor.idFornecedor().equals(idFornecedor)) {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }
@@ -65,7 +65,7 @@ public class FornecedorController {
     }
 
     @DeleteMapping("/{idFornecedor}")
-    public ResponseEntity deleteById(@PathVariable Long idFornecedor) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long idFornecedor) {
         service.deleteById(idFornecedor);
         return ResponseEntity.noContent().build();
     }

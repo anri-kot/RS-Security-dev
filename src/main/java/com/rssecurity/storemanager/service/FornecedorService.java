@@ -104,7 +104,7 @@ public class FornecedorService {
     }
 
     public void deleteById(Long id) {
-        if (repository.existsById(id)) throw new ResourceNotFoundException("Fornecedor não encontrado. ID: " + id);
+        if (!repository.existsById(id)) throw new ResourceNotFoundException("Fornecedor não encontrado. ID: " + id);
         repository.deleteById(id);
     }
 

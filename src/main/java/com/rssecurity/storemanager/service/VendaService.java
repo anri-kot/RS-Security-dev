@@ -1,20 +1,5 @@
 package com.rssecurity.storemanager.service;
 
-import com.rssecurity.storemanager.dto.ProdutoEstoqueDTO;
-import com.rssecurity.storemanager.dto.VendaDTO;
-import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
-import com.rssecurity.storemanager.exception.BadRequestException;
-import com.rssecurity.storemanager.exception.ConflictException;
-import com.rssecurity.storemanager.exception.ResourceNotFoundException;
-import com.rssecurity.storemanager.mapper.ProdutoMapper;
-import com.rssecurity.storemanager.mapper.VendaMapper;
-import com.rssecurity.storemanager.model.ItemVenda;
-import com.rssecurity.storemanager.model.Produto;
-import com.rssecurity.storemanager.model.Usuario;
-import com.rssecurity.storemanager.model.Venda;
-import com.rssecurity.storemanager.repository.*;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,6 +7,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.rssecurity.storemanager.dto.ProdutoEstoqueDTO;
+import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
+import com.rssecurity.storemanager.dto.VendaDTO;
+import com.rssecurity.storemanager.exception.BadRequestException;
+import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.exception.ResourceNotFoundException;
+import com.rssecurity.storemanager.mapper.ProdutoMapper;
+import com.rssecurity.storemanager.mapper.VendaMapper;
+import com.rssecurity.storemanager.model.ItemVenda;
+import com.rssecurity.storemanager.model.Usuario;
+import com.rssecurity.storemanager.model.Venda;
+import com.rssecurity.storemanager.repository.ProdutoRepository;
+import com.rssecurity.storemanager.repository.UsuarioRepository;
+import com.rssecurity.storemanager.repository.VendaRepository;
 
 @Service
 public class VendaService {
@@ -31,7 +34,8 @@ public class VendaService {
     private final UsuarioRepository usuarioRepository;
     private final ProdutoRepository produtoRepository;
 
-    public VendaService(VendaRepository repository, VendaMapper mapper, ProdutoMapper produtoMapper, UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository) {
+    public VendaService(VendaRepository repository, VendaMapper mapper, ProdutoMapper produtoMapper,
+            UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.produtoMapper = produtoMapper;
@@ -43,6 +47,15 @@ public class VendaService {
 
     public List<VendaDTO> findAll() {
         return repository.findAll().stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    public List<VendaDTO> findAllByCustomMatcher(Map<String, String> filter) {
+        filter.values().removeIf(String::isBlank);
+
+        Specification<Venda> spec = VendaSpecification.withFilters(filter);
+        return repository.findAll(spec).stream()
                 .map(mapper::toDTO)
                 .toList();
     }
@@ -104,6 +117,25 @@ public class VendaService {
     }
 
     // ACTIONS
+
+    // Overloaded method for PDV transactions
+    public VendaDTO create(VendaDTO venda, String username) {
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. Username: " + username));
+        UsuarioResumoDTO usu = new UsuarioResumoDTO(usuario.getIdUsuario(), usuario.getUsername(), usuario.getNome(),
+                usuario.getSobrenome());
+
+        VendaDTO dto = new VendaDTO(
+                venda.idVenda(),
+                venda.data(),
+                venda.observacao(),
+                usu,
+                venda.itens(),
+                venda.metodoPagamento(),
+                venda.valorRecebido(),
+                venda.troco());
+        return create(dto);
+    }
 
     public VendaDTO create(VendaDTO venda) {
         if (venda.idVenda() != null) {
@@ -167,8 +199,9 @@ public class VendaService {
 
         // Compares the inputed username with the register in the database
         if (!theUsuario.getUsername().equals(usuario.username())) {
-            throw new ConflictException("Username inserido não corresponde ao ID do usuario no banco de dados. ID e Usuario informados: "
-                    + usuario.idUsuario() + " | " + usuario.username());
+            throw new ConflictException(
+                    "Username inserido não corresponde ao ID do usuario no banco de dados. ID e Usuario informados: "
+                            + usuario.idUsuario() + " | " + usuario.username());
         }
     }
 

@@ -13,6 +13,9 @@ import java.util.List;
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByNomeContains(String nome);
     List<Produto> findByDescricaoContains(String descricao);
+    List<Produto> findByCategoria_Nome(String categoria);
+
+    List<Produto> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String nome, Long categoria);
 
     @Query("""
     SELECT 

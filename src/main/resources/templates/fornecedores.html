@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fornecedores</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="container py-4" th:fragment="content" data-page-id="fornecedores">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Fornecedores</h1>
+                <button id="new-fornecedor" class="btn btn-success">+ Novo Fornecedor</button>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+
+                    <form id="search-form" class="d-flex flex-wrap align-items-center" hx-get="/fornecedores"
+                        hx-target="#tabela-fornecedores" hx-push-url="true" hx-select="#tabela-fornecedores">
+
+                        <label for="tipo">Buscar por:</label>
+                        <select id="search-type" name="tipo" class="form-select me-2 w-auto">
+                            <option value="nome">Nome</option>
+                            <option value="id">ID</option>
+                            <option value="cnpj">CNPJ</option>
+                            <option value="email">Email</option>
+                            <option value="telefone">Telefone</option>
+                            <option value="produto">Produto</option>
+                        </select>
+
+                        <div class="position-relative me-2" style="flex: 1; min-width: 250px;">
+                            <input type="text" id="search-product" name="termo" class="form-control"
+                                placeholder="Buscar fornecedor..." autocomplete="off">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="search-btn">Buscar</button>
+                    </form>
+
+                </div>
+            </div>
+
+            <div id="tabela-fornecedores" th:fragment="fornecedores" class="table-responsive">
+                <table class="table table-striped table-hover table-bordered rounded shadow-sm">
+
+                    <thead class="table-primary">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">CNPJ</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Telefone</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr th:each="fornecedor : ${fornecedores}">
+                            <td th:text="${fornecedor.idFornecedor}"></td>
+                            <td th:text="${fornecedor.nome}"></td>
+                            <td th:text="${fornecedor.cnpj}"></td>
+                            <td th:text="${fornecedor.email}"></td>
+                            <td th:text="${fornecedor.telefone}"></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary me-2"
+                                    th:attr="data-id=${fornecedor.idFornecedor}">Editar</button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                    th:attr="data-id=${fornecedor.idFornecedor}">Excluir</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- MODALS -->
+
+            <!-- new/edit -->
+            <div class="modal fade" id="fornecedor-modal" tabindex="-1" aria-labelledby="fornecedorModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Fornecedor</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+
+                        <div class="modal-body">
+
+                            <form autocomplete="off">
+                                <div class="mb-3">
+                                    <label class="form-label">ID</label>
+                                    <input type="text" id="modal-fornecedor-idFornecedor" class="form-control" disabled>
+                                    <input type="hidden" name="is-new" id="is-new">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Nome</label>
+                                    <input type="text" id="modal-fornecedor-nome" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">CNPJ</label>
+                                    <input type="text" id="modal-fornecedor-cnpj" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Telefone</label>
+                                    <input type="text" id="modal-fornecedor-telefone" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="modal-fornecedor-email" class="form-control" required>
+                                </div>
+                            </form>
+
+                            <div class="modal-footer">
+                                <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                                <button class="btn btn-success" id="confirm-register"
+                                    data-action="confirm-modal">Confirmar</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- confirm warning -->
+            <div class="modal fade" id="confirma-modal" tabindex="-1" aria-labelledby="confirmarLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmar-label">Confirmar ação</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <spam id="modal-mensagem">Tem certeza disso?</spam>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="confirmar-acao">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</body>
+
+</html>

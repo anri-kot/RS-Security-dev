@@ -40,7 +40,7 @@ public class CategoriaController {
     }
 
     @PutMapping("/{idCategoria}")
-    public ResponseEntity update(@PathVariable Long idCategoria, @RequestBody CategoriaDTO categoria) {
+    public ResponseEntity<Void> update(@PathVariable Long idCategoria, @RequestBody CategoriaDTO categoria) {
         if (!idCategoria.equals(categoria.idCategoria())) {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }
@@ -49,7 +49,7 @@ public class CategoriaController {
     }
 
     @DeleteMapping("/{idCategoria}")
-    public ResponseEntity deleteById(@PathVariable Long idCategoria) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long idCategoria) {
         service.deleteById(idCategoria);
         return ResponseEntity.noContent().build();
     }

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/bootstrap-icons/bootstrap-icons.css">
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <!-- Inline SVG -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+        <symbol id="home" viewBox="0 0 16 16">
+            <path d="M8 3.293l6 6V13a1 1 0 0 1-1 1h-4V9H7v5H3a1 1 0 0 1-1-1V9.293l6-6z" />
+        </symbol>
+        <symbol id="table" viewBox="0 0 16 16">
+            <path d="M0 3a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2H0zM0 5h16v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V5z" />
+        </symbol>
+        <symbol id="people-circle" viewBox="0 0 16 16">
+            <path
+                d="M13.468 12.37C12.758 11.226 11.11 10.5 8 10.5s-4.758.726-5.468 1.87A6.987 6.987 0 0 0 8 15a6.987 6.987 0 0 0 5.468-2.63z" />
+            <path fill-rule="evenodd" d="M8 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
+            <path fill-rule="evenodd" d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1z" />
+        </symbol>
+        <symbol id="speedometer2" viewBox="0 0 16 16">
+            <path
+                d="M8 4a.5.5 0 0 1 .5.5v4.793l2.15 2.15a.5.5 0 0 1-.708.707l-2.2-2.2a.5.5 0 0 1-.142-.354V4.5A.5.5 0 0 1 8 4z" />
+            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm0-1A7 7 0 1 1 8 1a7 7 0 0 1 0 14z" />
+        </symbol>
+    </svg>
+
+    <main class="d-flex">
+
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar d-flex flex-column p-3">
+            <button id="toggleSidebar" class="btn btn-primary mb-3">☰</button>
+            <ul class="nav nav-pills flex-column mb-auto" id="nav-options">
+                <li class="nav-item">
+                    <a href="/home" data-page="home" class="nav-link link-dark" id="nav-home">
+                        <svg class="bi" width="16" height="16">
+                            <use xlink:href="#home"></use>
+                        </svg>
+                        <span class="ms-2">Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/pdv" data-page="pdv" class="nav-link link-dark" id="nav-pdv">
+                        <svg class="bi" width="16" height="16">
+                            <use xlink:href="#table"></use>
+                        </svg>
+                        <span class="ms-2">PDV</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/produtos" data-page="produtos" class="nav-link link-dark" id="nav-produtos">
+                        <svg class="bi" width="16" height="16">
+                            <use xlink:href="#table"></use>
+                        </svg>
+                        <span class="ms-2">Produtos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/fornecedores" data-page="fornecedores" class="nav-link link-dark" id="nav-fornecedores">
+                        <svg class="bi" width="16" height="16">
+                            <use xlink:href="#people-circle"></use>
+                        </svg>
+                        <span class="ms-2">Fornecedores</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/vendas" data-page="vendas" class="nav-link link-dark" id="vendas">
+                        <svg class="bi" width="16" height="16">
+                            <use xlink:href="#speedometer2"></use>
+                        </svg>
+                        <span class="ms-2">Vendas</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div id="conteudo" class="d-flex" layout:fragment="content">
+            <!-- O conteúdo das páginas vai ser carregado aqui dinamicamente -->
+        </div>
+
+    </main>
+
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/js/main.js"></script>
+
+    <script>
+        
+    </script>
+</body>
+
+</html>

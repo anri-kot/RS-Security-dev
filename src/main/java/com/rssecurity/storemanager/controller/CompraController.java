@@ -76,14 +76,14 @@ public class CompraController {
     }
 
     @PutMapping("/{idCompra}")
-    public ResponseEntity update(@PathVariable Long idCompra, @RequestBody CompraDTO compra) {
+    public ResponseEntity<Void> update(@PathVariable Long idCompra, @RequestBody CompraDTO compra) {
         if (!compra.idCompra().equals(idCompra)) throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         service.update(idCompra, compra);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{idCompra}")
-    public ResponseEntity deleteById(@PathVariable Long idCompra) {
+    public ResponseEntity<Void> deleteById(@PathVariable Long idCompra) {
         service.deleteById(idCompra);
         return ResponseEntity.noContent().build();
     }

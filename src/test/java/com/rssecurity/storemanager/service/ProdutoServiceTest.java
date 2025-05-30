@@ -12,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -34,12 +36,12 @@ class ProdutoServiceTest {
     @Test
     void deveCriarProdutoQuandoIdForNulo() {
         CategoriaDTO inCategoria = new CategoriaDTO(2L, "");
-        ProdutoDTO input = new ProdutoDTO(null, "CAMERA SPX", "Camera de alta definicao", 30, inCategoria);
+        ProdutoDTO input = new ProdutoDTO(null, "CAMERA SPX", new BigDecimal("50.00"), "Camera de alta definicao", 30, inCategoria);
         Produto entity = new Produto(); // preenche se quiser
         Produto saved = new Produto();  // pode simular que foi salvo
 
         CategoriaDTO outCategoria = new CategoriaDTO(2L, "Vigilancia");
-        ProdutoDTO output = new ProdutoDTO(1L, "CAMERA SPX", "Camera de alta definicao", 30, outCategoria);
+        ProdutoDTO output = new ProdutoDTO(1L, "CAMERA SPX", new BigDecimal("50.00"), "Camera de alta definicao", 30, inCategoria);
 
         when(mapper.toEntity(input)).thenReturn(entity);
         when(repository.save(entity)).thenReturn(saved);
@@ -54,7 +56,7 @@ class ProdutoServiceTest {
     @Test
     void deveLancarExcecaoQuandoIdNaoForNulo() {
         CategoriaDTO inCategoria = new CategoriaDTO(2L, "");
-        ProdutoDTO input = new ProdutoDTO(22L, "CAMERA SPX", "Camera de alta definicao", 30, inCategoria);
+        ProdutoDTO input = new ProdutoDTO(22L, "Camera", new BigDecimal("50.00"), "Camera de alta definicao", 30, inCategoria);
 
         BadRequestException ex = assertThrows(BadRequestException.class, () -> service.create(input));
 

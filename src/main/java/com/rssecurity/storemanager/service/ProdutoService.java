@@ -20,6 +20,8 @@ public class ProdutoService {
         this.mapper = mapper;
     }
 
+    // SEARCH
+
     public List<ProdutoDTO> findAll() {
         return repository.findAll().stream()
                 .map(mapper::toDTO)
@@ -27,8 +29,8 @@ public class ProdutoService {
     }
 
     public ProdutoDTO findById(Long id) {
-        Produto produto = repository.findById(id).
-                orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado. ID: " + id));
+        Produto produto = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado. ID: " + id));
         return mapper.toDTO(produto);
     }
 
@@ -43,6 +45,20 @@ public class ProdutoService {
                 .map(mapper::toDTO)
                 .toList();
     }
+
+    public List<ProdutoDTO> findByCategoria_Nome(String categoria) {
+        return repository.findByCategoria_Nome(categoria).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    public List<ProdutoDTO> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String termo, Long categoria) {
+        return repository.findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(termo, categoria).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    // ACTIONS
 
     public ProdutoDTO create(ProdutoDTO produto) {
         if (produto.idProduto() != null) {

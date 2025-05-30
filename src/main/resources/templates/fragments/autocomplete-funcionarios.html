@@ -1,0 +1,8 @@
+<ul th:fragment="options" class="list-group">
+    <li th:each="result : ${results}" class="list-group-item list-group-item-action"
+        th:data-id-usuario="${result.idUsuario}" th:data-username="${result.username}" th:data-nome="${result.nome} + ' ' + ${result.sobrenome}">
+        <small th:text="'ID ' + ${result.idUsuario}"></small>
+        <strong th:text="${result.nome} + ' ' + ${result.sobrenome}">Produto</strong>
+        <small class="text-muted ms-2" th:text="${result.username}"></small>
+    </li>
+</ul>
