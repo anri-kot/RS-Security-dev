@@ -1,5 +1,6 @@
 package com.rssecurity.storemanager.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -142,6 +143,9 @@ public class VendaService {
             throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
         }
         validateUsuario(venda.usuario());
+        if (venda.metodoPagamento().equals("DINHEIRO")) {
+            validateTroco(venda);
+        }
 
         Venda entity = mapper.toEntity(venda);
         List<ItemVenda> itens = getItens(venda, entity, false);
@@ -157,6 +161,9 @@ public class VendaService {
             throw new ResourceNotFoundException("Venda não encontrada. ID: " + idVenda);
         }
         validateUsuario(venda.usuario());
+        if (venda.metodoPagamento().equals("DINHEIRO")) {
+            validateTroco(venda);
+        }
 
         Venda entity = mapper.toEntity(venda);
         List<ItemVenda> itens = getItens(venda, entity, true);
@@ -222,6 +229,14 @@ public class VendaService {
             if (item.getQuantidade() > dto.getEstoque()) {
                 throw new BadRequestException("Estoque insuficiente para o produto: " + item.getProduto().getNome());
             }
+        }
+    }
+
+    private void validateTroco(VendaDTO venda) {
+        BigDecimal total = venda.getTotal();
+        BigDecimal change = venda.valorRecebido().subtract(total);
+        if (venda.troco().compareTo(change) != 0) {
+            throw new BadRequestException("Valor do troco inserido inválido.\nTotal: " + total + "\nValor Recebido: " + venda.valorRecebido() + "\nTroco inserido: " + venda.troco());
         }
     }
 }
