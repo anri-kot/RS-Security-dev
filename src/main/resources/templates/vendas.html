@@ -231,7 +231,8 @@
                                                             hx-include="#item-search-type, #categoria"
                                                             autocomplete="off">
 
-                                                        <div class="dropdown-menu w-100" id="autocomplete-produto-options">
+                                                        <div class="dropdown-menu w-100"
+                                                            id="autocomplete-produto-options">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -272,7 +273,7 @@
                                     </div>
 
                                     <!-- VENDA -->
-                                    <form autocomplete="off">
+                                    <form id="venda-form" autocomplete="off">
 
                                         <div class="mb-2">
                                             <label class="form-label">ID</label>
@@ -312,15 +313,16 @@
                                             <div class="position-relative">
                                                 <label class="form-label">Funcionário</label>
                                                 <input class="form-control" id="modal-venda-funcionario"
-                                                    name="funcionario"
-                                                    placeholder="Digite o nome do funcionário"
-                                                    hx-get="/vendas/autocomplete" hx-target="#autocomplete-funcionario-options"
+                                                    name="funcionario" placeholder="Digite o nome do funcionário"
+                                                    hx-get="/vendas/autocomplete"
+                                                    hx-target="#autocomplete-funcionario-options"
                                                     hx-trigger="keyup changed delay:300ms">
-    
+
                                                 <input type="hidden" id="modal-venda-funcionario-id">
                                                 <input type="hidden" id="modal-venda-funcionario-username">
-    
-                                                <div class="dropdown-menu w-100" id="autocomplete-funcionario-options"></div>
+
+                                                <div class="dropdown-menu w-100" id="autocomplete-funcionario-options">
+                                                </div>
                                             </div>
                                         </div>
 
@@ -352,30 +354,30 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- confirm warning -->
-        <div class="modal fade" id="confirma-modal" tabindex="-1" aria-labelledby="confirmarLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmar-label">Confirmar ação</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                        aria-label="Fechar"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <spam id="confirmar-mensagem">Tem certeza disso?</spam>
+            <!-- confirm warning -->
+            <div class="modal fade" id="confirma-modal" tabindex="-1" aria-labelledby="confirmarLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmar-label">Confirmar ação</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <spam id="confirmar-mensagem">Tem certeza disso?</spam>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="confirmar-acao">Confirmar</button>
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="confirmar-acao">Confirmar</button>
                 </div>
             </div>
         </div>
-    </div>
 
 
     </div>

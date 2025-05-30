@@ -1,11 +1,13 @@
 /*
     TODO:
-    - Send Vendas via POST and PUT
     - Testing
     - Pagination
 */
 
 export function init() {
+
+    let total = 0;
+    let lastSearch = '';
 
     const filterEl = document.getElementById('filter');
     const searchBy = document.getElementById('search-type');
@@ -41,10 +43,17 @@ export function init() {
     const modalConfirmMsgEl = document.getElementById('confirmar-mensagem');
     const modalConfirmOkButtonEl = document.getElementById('confirmar-acao');
 
+    // Keeps track of the current search
+    document.addEventListener('htmx:afterSettle', (e) => {
+        lastSearch = location.search;
+    });
+
+    // Updates inputs when the filter changes
     filterEl.addEventListener('change', () => {
         toggleDateInputs();
     });
 
+    // Updates filters according to the selected search method
     searchBy.addEventListener('change', () => {
         document.getElementById('search-term').name = searchBy.value;
 
@@ -66,6 +75,11 @@ export function init() {
             observacaoEl.removeAttribute('disabled');
         }
     });
+
+    async function refreshVendas() {
+        const url = `/vendas${lastSearch}`;
+        htmx.ajax('GET', url, { target: '#conteudo', selected: '#cards-vendas' });
+    }
 
     function toggleDateInputs() {
         const filter = filterEl.value;
@@ -147,14 +161,30 @@ export function init() {
     // Checks if DINHEIRO is selected
     modalMetodoPagamentoEl.addEventListener('change', (e) => {
         if (e.target.value !== 'DINHEIRO') {
-            modalTrocoEl.setAttribute('disabled', true);
+            modalValorRecebidoEl.value = total.toFixed(2);
+            modalTrocoEl.value = '';
         } else {
-            modalTrocoEl.removeAttribute('disabled');
+            updateTroco(parseFloat(modalValorRecebidoEl.value));
         }
     });
 
+    // Updates troco if valorRecebido > total and parse valorRecebido value
+    modalValorRecebidoEl.addEventListener('change', (e) => {
+        if (modalMetodoPagamentoEl.value === 'DINHEIRO') {
+            updateTroco(parseFloat(e.target.value));
+        }
+        e.target.value = parseFloat(e.target.value).toFixed(2);
+    });
+
+    function updateTroco(receivedMoney) {
+        const receivedMoneyCents = receivedMoney * 100;
+        const totalCents = total * 100;
+        const troco = (receivedMoneyCents - totalCents) / 100;
+        modalTrocoEl.value = troco;
+    }
+
     async function showVendaModal(id) {
-        clearVendaModalFields();        
+        clearVendaModalFields();
 
         if (id || id > 0) {
             let venda;
@@ -171,7 +201,7 @@ export function init() {
 
             itens = venda.itens;
             populateVendaModal(venda);
-        }        
+        }
 
         vendaModal.show();
     }
@@ -193,56 +223,75 @@ export function init() {
     }
 
     function clearVendaModalFields() {
+
+        clearVendaFormFields();
+        clearItemsFormFields();
+        currentItemIndex = null;
+        itens = [];
+    }
+
+    function clearVendaFormFields() {
+        const vendaForm = document.getElementById('venda-form');
         modalTrocoEl.setAttribute('disabled', true);
-        vendaModalEl.querySelectorAll('input').forEach(el => {
+        vendaForm.querySelectorAll('input').forEach(el => {
             el.value = '';
         });
         modalItensEl.innerHTML = '';
         modalValorRecebidoEl.setAttribute('min', '0.05');
         modalItemsTotalEl.innerText = 'R$ 0,00';
-        modalCurrentProdutoEl.innerText = 'Aguardando selecionar produto...';
 
-        currentItemIndex = null;
-        itens = [];
     }
 
     // MODAL ITEMS
+
     let lastQuery;
     const searchType = document.getElementById('item-search-type');
     const searchProduct = document.getElementById('search-product');
-    const searchUser = document.getElementById('modal-venda-funcionario');
     const autocompleteProdutoOptions = document.getElementById('autocomplete-produto-options');
     const autocompleteFuncionarioOptions = document.getElementById('autocomplete-funcionario-options');
 
-    // Listens for ADICIONAR button click
-    addItemBtn.addEventListener('click', () => {
-        addUpdateItem();        
-    });
+    // Cancel submit
+    document.getElementById('items-form').addEventListener('submit', e => e.preventDefault());
 
-    // Validates funcionario
-    searchUser.addEventListener('change', (e) => {
-        const value = e.target.value;
-        if (value !== e.dataset.nome) {
-            searchUser.setAttribute('isvalid', false);
+    // Parse valorUnitarioEl
+    modalValorUnitarioEl.addEventListener('change', (e) => {
+        if (e.target.value.length > 0) {
+            const value = parseFloat(e.target.value);
+
+            modalValorUnitarioEl.value = value.toFixed(2);
         }
     });
 
-    // Cancel submit
-    document.getElementById('items-form').addEventListener('submit', e => e.preventDefault());
+    // Listens for ADICIONAR button click
+    addItemBtn.addEventListener('click', () => {
+        addUpdateItem();
+    });
+
+    // Validates funcionario
+    modalFuncionarioEl.addEventListener('change', (e) => {
+        const value = e.target.value;
+        if (value !== e.target.dataset.nome) {
+            modalFuncionarioEl.setAttribute('isvalid', false);
+        }
+    });
+
+    function clearItemsFormFields() {
+        const itemsForm = document.getElementById('items-form');
+        itemsForm.querySelectorAll('input').forEach(el => el.value = '');
+        modalCurrentProdutoEl.innerText = 'Aguardando selecionar produto...';
+    }
 
     function addUpdateItem() {
         const idProduto = parseInt(selectedProdutoIdEl.value);
         const nome = selectedProdutoNameEl.value;
         const quantidade = parseInt(modalQuantidadeEl.value);
         const valorUnitario = parseFloat(modalValorUnitarioEl.value);
-        let desconto = null;
+        let desconto = parseFloat(modalDescontoEl.value) || null;
 
         if (currentItemIndex != null) {
             itens[currentItemIndex].quantidade = quantidade;
             itens[currentItemIndex].valorUnitario = valorUnitario;
-            if (modalDataEl.value.length !== 0 && parseFloat(modalDescontoEl.value) > 0) {
-                itens[currentItemIndex].desconto = parseFloat(modalDescontoEl.value);
-            }
+            itens[currentItemIndex].desconto = parseFloat(modalDescontoEl.value);
         } else {
             itens.push({
                 quantidade: quantidade,
@@ -253,24 +302,32 @@ export function init() {
                 },
                 desconto: desconto
             });
-        }        
+        }
 
         refreshItems();
+        clearItemsFormFields();
     }
 
     function refreshItems() {
-        let total = 0;
         modalItensEl.innerHTML = '';
+        total = 0;
         itens.forEach(item => {
             modalItensEl.appendChild(renderVendaItem(item));
-            
+
             // calculating total
             const discount = parseFloat(item.desconto || 0);
-            const price = parseFloat(item.valorUnitario - (item.valorUnitario * (discount / 100)));
-            total += price * item.quantidade;
+            const unitPriceCents = item.valorUnitario * 100;
+            const price = parseFloat(unitPriceCents - (unitPriceCents * (discount / 100)));
+            total += (price * item.quantidade) / 100;
         });
 
-        modalValorRecebidoEl.value = total.toFixed(2);
+        const currentValue = parseFloat(modalValorRecebidoEl.value);
+
+        if (currentValue < total) {
+            if (modalMetodoPagamentoEl.value !== 'DINHEIRO') {
+                modalValorRecebidoEl.value = total.toFixed(2);
+            }
+        }
         modalValorRecebidoEl.setAttribute('min', total);
         modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
@@ -334,6 +391,7 @@ export function init() {
         editButton.addEventListener('click', () => {
             const itemIndex = itens.findIndex(item => item.produto.idProduto === parseInt(editButton.dataset.idProduto));
             currentItemIndex = itemIndex;
+            originalPrice = item.valorUnitario;
             populateItemFields(itens[itemIndex]);
         });
         deleteButton.addEventListener('click', () => {
@@ -355,7 +413,7 @@ export function init() {
     }
 
     function populateItemFields(item) {
-        modalCurrentProdutoEl.innerHTML = `Editando <strong>${item.produto.nome}</strong>`;        
+        modalCurrentProdutoEl.innerHTML = `Editando <strong>${item.produto.nome}</strong>`;
 
         modalQuantidadeEl.value = item.quantidade || 1;
         modalValorUnitarioEl.value = parseFloat(item.valorUnitario || item.produto.precoAtual || '0.05').toFixed(2);
@@ -375,7 +433,7 @@ export function init() {
         deleteVenda(e.target.dataset.id);
     });
 
-    function showConfirmModal(id) { 
+    function showConfirmModal(id) {
         if (!id) return;
 
         modalConfirmLabelEl.innerText = 'Confirmar delete';
@@ -412,7 +470,7 @@ export function init() {
     searchProduct.addEventListener('focus', () => {
         updateDropdown('produto');
     });
-    searchUser.addEventListener('focus', () => {
+    modalFuncionarioEl.addEventListener('focus', () => {
         updateDropdown('funcionario');
     });
 
@@ -428,7 +486,7 @@ export function init() {
         if (!searchProduct) return;
 
         if (event.target.id === searchProduct.id) {
-            const value = searchProduct.value.trim();
+            const value = event.target.value.trim();
 
             if (value.length < 1) {
                 event.preventDefault();
@@ -449,26 +507,27 @@ export function init() {
 
     async function clickDropdown(itemEl, source) {
         if (source === 'funcionario') {
-            searchUser.value = itemEl.dataset.nome;
+            modalFuncionarioEl.value = itemEl.dataset.nome;
+            modalFuncionarioEl.setAttribute('data-nome', itemEl.dataset.nome);
             modalFuncionarioIdEl.value = itemEl.dataset.idUsuario;
             modalFuncionarioUsernameEl.value = itemEl.dataset.username;
         } else {
 
             const idProduto = parseInt(itemEl.dataset.idProduto);
             const itemIndex = itens.findIndex(item => item.produto.idProduto === idProduto);
-    
+
             searchProduct.value = itemEl.dataset.nomeProduto;
-    
+
             if (itemIndex !== -1) {
                 populateItemFields(itens[itemIndex]);
                 currentItemIndex = itemIndex;
             } else {
                 const produto = await getProduto(idProduto);
-                populateItemFields({produto})
+                populateItemFields({ produto })
                 modalCurrentProdutoEl.innerHTML = `Inserindo <strong>${itemEl.dataset.nomeProduto}</strong>`
                 currentItemIndex = null;
             };
-    
+
             document.getElementById('add-button').removeAttribute('disabled');
             selectedProdutoIdEl.value = idProduto;
             selectedProdutoNameEl.value = itemEl.dataset.nomeProduto;
@@ -501,7 +560,7 @@ export function init() {
 
             produto = await response.json();
             return produto;
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // ACTIONS CREATE / DELETE / UPDATE
@@ -514,7 +573,7 @@ export function init() {
                 modalFuncionarioEl.dataset.username = opt.dataset.username;
                 return;
             }
-        });        
+        });
 
         sendVenda(id);
     });
@@ -549,6 +608,7 @@ export function init() {
                 return;
             } else {
                 alert('Ação executada com sucesso.');
+                refreshVendas();
                 vendaModal.hide();
             }
         } catch (e) {
@@ -574,12 +634,13 @@ export function init() {
                 return;
             } else {
                 alert('Ação executada com sucesso.');
+                refreshVendas();
             }
         } catch (e) {
             console.error('Erro inesperado:', e);
             alert('Ocorreu um erro inesperado.');
         }
-        
+
     }
 
     function getVendaObj() {
