@@ -11,9 +11,11 @@ export function init() {
 
     const filterEl = document.getElementById('filter');
     const searchBy = document.getElementById('search-type');
+    const searchTerm = document.getElementById('search-term');
     const metodoPagamentoEl = document.getElementById('metodoPagamento');
     const observacaoEl = document.getElementById('observacao');
     const vendaModalEl = document.getElementById('venda-modal');
+    const autocompleteSearchProdutos = document.getElementById('autocompleteProdutosSearch');
 
     let currentItemIndex = null;
 
@@ -55,8 +57,6 @@ export function init() {
 
     // Updates filters according to the selected search method
     searchBy.addEventListener('change', () => {
-        document.getElementById('search-term').name = searchBy.value;
-
         if (searchBy.value === 'idVenda') {
             for (let i = 0; i < filterEl.children.length; i++) {
                 filterEl.children[i].removeAttribute('selected');
@@ -73,6 +73,13 @@ export function init() {
             filterEl.removeAttribute('disabled');
             metodoPagamentoEl.removeAttribute('disabled');
             observacaoEl.removeAttribute('disabled');
+        }
+    });
+
+    searchTerm.addEventListener('htmx:config-request', (e) => {
+
+        if (!searchBy.value.includes('produto')) {
+            e.preventDefault();
         }
     });
 
@@ -445,16 +452,15 @@ export function init() {
 
     /* === DROPDOWNS === */
 
+    const dropdownsIds = [autocompleteFuncionarioOptions.id, autocompleteProdutoOptions.id, autocompleteSearchProdutos.id];
+
     // Listens for DROPDOWN clicks
-    autocompleteProdutoOptions.addEventListener('click', (e) => {
-        const itemEl = e.target.closest('li');
-        autocompleteProdutoOptions.classList.remove('show');
-        clickDropdown(itemEl, 'produto');
-    });
-    autocompleteFuncionarioOptions.addEventListener('click', (e) => {
-        const itemEl = e.target.closest('li');
-        autocompleteFuncionarioOptions.classList.remove('show');
-        clickDropdown(itemEl, 'funcionario');
+    dropdownsIds.forEach((id) => {
+        document.getElementById(id).addEventListener('click', (e) => {            
+            const itemEl = e.target.closest('li');
+            e.target.classList.remove('show');
+            clickDropdown(itemEl, id);
+        });
     });
 
     // Disables categoria if search types === ID
@@ -467,6 +473,11 @@ export function init() {
     });
 
     // Show dropdown on focus
+    searchTerm.addEventListener('focus', () => {
+        if (searchBy.value === 'produtoId' || searchBy.value === 'produtoNome') {
+            updateDropdown('term');
+        }
+    });
     searchProduct.addEventListener('focus', () => {
         updateDropdown('produto');
     });
@@ -474,16 +485,15 @@ export function init() {
         updateDropdown('funcionario');
     });
 
-    // Hide dropdown when user clicks outside the search field
+    // Hide dropdowns when user clicks outside the search field
     document.addEventListener('click', (event) => {
-        if (!autocompleteProdutoOptions.contains(event.target) && event.target !== searchProduct) {
-            autocompleteProdutoOptions.classList.remove('show');
+        if (dropdownsIds.includes(event.target.id) || !event.target.classList.contains('input-dropdown')) {
+            document.querySelectorAll('.dropdown-menu').forEach((el) => { el.classList.remove('show') });
         }
     });
 
     // checks if search field is blank or < 3 before request
     document.body.addEventListener("htmx:beforeRequest", (event) => {
-        if (!searchProduct) return;
 
         if (event.target.id === searchProduct.id) {
             const value = event.target.value.trim();
@@ -505,46 +515,62 @@ export function init() {
         }
     });
 
-    async function clickDropdown(itemEl, source) {
-        if (source === 'funcionario') {
-            modalFuncionarioEl.value = itemEl.dataset.nome;
-            modalFuncionarioEl.setAttribute('data-nome', itemEl.dataset.nome);
-            modalFuncionarioIdEl.value = itemEl.dataset.idUsuario;
-            modalFuncionarioUsernameEl.value = itemEl.dataset.username;
-        } else {
+    async function clickDropdown(itemEl, targetId) {
+        switch (targetId) {
+            case autocompleteFuncionarioOptions.id:
+                modalFuncionarioEl.value = itemEl.dataset.nome;
+                modalFuncionarioEl.setAttribute('data-nome', itemEl.dataset.nome);
+                modalFuncionarioIdEl.value = itemEl.dataset.idUsuario;
+                modalFuncionarioUsernameEl.value = itemEl.dataset.username;
+                break;
+            case autocompleteProdutoOptions.id:
+                const idProduto = parseInt(itemEl.dataset.idProduto);
+                const itemIndex = itens.findIndex(item => item.produto.idProduto === idProduto);
 
-            const idProduto = parseInt(itemEl.dataset.idProduto);
-            const itemIndex = itens.findIndex(item => item.produto.idProduto === idProduto);
+                searchProduct.value = itemEl.dataset.nomeProduto;
 
-            searchProduct.value = itemEl.dataset.nomeProduto;
+                if (itemIndex !== -1) {
+                    populateItemFields(itens[itemIndex]);
+                    currentItemIndex = itemIndex;
+                } else {
+                    const produto = await getProduto(idProduto);
+                    populateItemFields({ produto })
+                    modalCurrentProdutoEl.innerHTML = `Inserindo <strong>${itemEl.dataset.nomeProduto}</strong>`
+                    currentItemIndex = null;
+                };
 
-            if (itemIndex !== -1) {
-                populateItemFields(itens[itemIndex]);
-                currentItemIndex = itemIndex;
-            } else {
-                const produto = await getProduto(idProduto);
-                populateItemFields({ produto })
-                modalCurrentProdutoEl.innerHTML = `Inserindo <strong>${itemEl.dataset.nomeProduto}</strong>`
-                currentItemIndex = null;
-            };
+                document.getElementById('add-button').removeAttribute('disabled');
+                selectedProdutoIdEl.value = idProduto;
+                selectedProdutoNameEl.value = itemEl.dataset.nomeProduto;
+                break;
+            case autocompleteSearchProdutos.id:
+                console.log(itemEl.dataset);
 
-            document.getElementById('add-button').removeAttribute('disabled');
-            selectedProdutoIdEl.value = idProduto;
-            selectedProdutoNameEl.value = itemEl.dataset.nomeProduto;
+                searchTerm.value = itemEl.dataset.nomeProduto;
+                break;
+
+            default:
+                break;
         }
     }
 
     function updateDropdown(source) {
-        if (searchType.value === 'nome' && source === 'produto') {
-            if (searchProduct.value.trim().length >= 3) {
-                autocompleteProdutoOptions.classList.add('show');
-            }
-        } else if (source === 'produto') {
-            if (searchProduct.value.trim().length != 0) {
-                autocompleteProdutoOptions.classList.add('show');
-            }
-        } else {
-            autocompleteFuncionarioOptions.classList.add('show');
+        switch (source) {
+            case 'produto':
+                if (searchType.value === 'nome' && searchProduct.value.trim().length >= 3) {
+                    autocompleteProdutoOptions.classList.add('show');
+                } else if (searchProduct.value.trim().length != 0) {
+                    autocompleteProdutoOptions.classList.add('show');
+                }
+                break;
+            case 'funcionario':
+                autocompleteFuncionarioOptions.classList.add('show');
+                break;
+            case 'term':
+                autocompleteSearchProdutos.classList.add('show');
+                break;
+            default:
+                break;
         }
     }
 
