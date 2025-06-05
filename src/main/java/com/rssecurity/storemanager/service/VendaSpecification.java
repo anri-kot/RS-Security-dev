@@ -21,8 +21,14 @@ public class VendaSpecification {
                 predicates.add(cb.like(cb.lower(root.get("observacao")), "%" + filters.get("observacao").toLowerCase() + "%"));
             }
 
-            if (filters.containsKey("usuario")) {
-                predicates.add(cb.like(root.get("usuario").get("username"), "%" + filters.get("usuario") + "%"));
+            if (filters.containsKey("tipo")) {
+                if (filters.get("tipo").contains("usuario")) {
+                    predicates.add(cb.like(root.get("usuario").get("username"), "%" + filters.get("termo") + "%"));
+                } else if (filters.get("tipo").contains("produtoNome")) {
+                    predicates.add(cb.like(root.get("itens").get("produto").get("nome"), "%" + filters.get("termo") + "%"));
+                } else if (filters.get("tipo").contains("produtoId")) {
+                    predicates.add(cb.equal(root.get("itens").get("produto").get("idProduto"), filters.get("termo")));
+                }
             }
 
             if (filters.containsKey("metodoPagamento")) {
