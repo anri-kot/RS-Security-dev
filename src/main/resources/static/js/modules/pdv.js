@@ -359,8 +359,9 @@ export function init() {
         const json = JSON.stringify({
             itens: cart,
             observacao: obs,
-            metodoPagamento: metodoPagamento
-        });
+            metodoPagamento: metodoPagamento,
+            valorRecebido: valorRecebido
+        });        
 
         try {
             const response = await fetch('/pdv/finalizar', {

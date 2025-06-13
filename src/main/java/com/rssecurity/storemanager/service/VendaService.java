@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,8 @@ import com.rssecurity.storemanager.repository.VendaRepository;
 
 @Service
 public class VendaService {
+    private final Sort SORT_BY_DATE = Sort.by(Sort.Direction.DESC, "data");
+
     private final VendaRepository repository;
     private final VendaMapper mapper;
     private final ProdutoMapper produtoMapper;
@@ -50,7 +53,7 @@ public class VendaService {
     // SEARCH
 
     public List<VendaDTO> findAll() {
-        return repository.findAll().stream()
+        return repository.findAll(SORT_BY_DATE).stream()
                 .map(mapper::toDTO)
                 .toList();
     }
@@ -59,7 +62,7 @@ public class VendaService {
         filter.values().removeIf(String::isBlank);
 
         Specification<Venda> spec = VendaSpecification.withFilters(filter);
-        return repository.findAll(spec).stream()
+        return repository.findAll(spec, SORT_BY_DATE).stream()
                 .map(mapper::toDTO)
                 .toList();
     }
@@ -129,6 +132,11 @@ public class VendaService {
         UsuarioResumoDTO usu = new UsuarioResumoDTO(usuario.getIdUsuario(), usuario.getUsername(), usuario.getNome(),
                 usuario.getSobrenome());
 
+        BigDecimal troco = null;
+        if (venda.metodoPagamento().equals("DINHEIRO")) {
+            troco = venda.valorRecebido().subtract(venda.getTotal());
+        }
+
         VendaDTO dto = new VendaDTO(
                 venda.idVenda(),
                 venda.data(),
@@ -137,7 +145,7 @@ public class VendaService {
                 venda.itens(),
                 venda.metodoPagamento(),
                 venda.valorRecebido(),
-                venda.troco());
+                troco);
         return create(dto);
     }
 
