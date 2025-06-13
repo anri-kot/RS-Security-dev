@@ -64,7 +64,7 @@ export function init() {
         const categoriaId= parseInt(document.getElementById('modal-produto-categoria-id').value);
         const precoAtual = parseFloat(document.getElementById('modal-produto-preco').value);
         const descricao = document.getElementById('modal-produto-descricao').value;
-        const estoqueMin = parseInt(document.getElementById('modal-produto-estoque-min').value);
+        const estoque = parseInt(document.getElementById('modal-produto-estoque').value);
 
         let idProduto;
         let url;
@@ -84,7 +84,7 @@ export function init() {
             nome: nome,
             descricao: descricao,
             precoAtual: precoAtual,
-            estoqueMin: estoqueMin,
+            estoque: estoque,
             categoria: {
                 idCategoria: categoriaId,
             }
@@ -172,7 +172,7 @@ export function init() {
         document.getElementById('modal-produto-categoria-id').value = produto.categoria.idCategoria;
         document.getElementById('modal-produto-preco').value = produto.precoAtual.toFixed(2);
         document.getElementById('modal-produto-descricao').value = produto.descricao;
-        document.getElementById('modal-produto-estoque-min').value = produto.estoqueMin;
+        document.getElementById('modal-produto-estoque').value = produto.estoque;
     }
 
     function clearProdutoModal() {
@@ -182,7 +182,7 @@ export function init() {
         document.getElementById('modal-produto-categoria-id').value = '';
         document.getElementById('modal-produto-preco').value = '00.00';
         document.getElementById('modal-produto-descricao').value = '';
-        document.getElementById('modal-produto-estoque-min').value = '1';
+        document.getElementById('modal-produto-estoque').value = '1';
     }
 
     async function refresh() {

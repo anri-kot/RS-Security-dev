@@ -4,15 +4,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.rssecurity.storemanager.dto.ProdutoEstoqueDTO;
+import com.rssecurity.storemanager.dto.ItemVendaDTO;
 import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
@@ -21,6 +21,7 @@ import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.ProdutoMapper;
 import com.rssecurity.storemanager.mapper.VendaMapper;
 import com.rssecurity.storemanager.model.ItemVenda;
+import com.rssecurity.storemanager.model.Produto;
 import com.rssecurity.storemanager.model.Usuario;
 import com.rssecurity.storemanager.model.Venda;
 import com.rssecurity.storemanager.repository.ProdutoRepository;
@@ -34,14 +35,16 @@ public class VendaService {
     private final ProdutoMapper produtoMapper;
     private final UsuarioRepository usuarioRepository;
     private final ProdutoRepository produtoRepository;
+    private final ProdutoService produtoService;
 
     public VendaService(VendaRepository repository, VendaMapper mapper, ProdutoMapper produtoMapper,
-            UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository) {
+            UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository, ProdutoService produtoService) {
         this.repository = repository;
         this.mapper = mapper;
         this.produtoMapper = produtoMapper;
         this.usuarioRepository = usuarioRepository;
         this.produtoRepository = produtoRepository;
+        this.produtoService = produtoService;
     }
 
     // SEARCH
@@ -138,6 +141,7 @@ public class VendaService {
         return create(dto);
     }
 
+    @Transactional
     public VendaDTO create(VendaDTO venda) {
         if (venda.idVenda() != null) {
             throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
@@ -151,15 +155,17 @@ public class VendaService {
         List<ItemVenda> itens = getItens(venda, entity, false);
 
         entity.setItens(itens);
-        Venda saved = repository.save(entity);
+        VendaDTO saved = mapper.toDTO(repository.save(entity));
 
-        return mapper.toDTO(saved);
+        updateStock(venda);
+
+        return saved;
     }
 
+    @Transactional
     public void update(Long idVenda, VendaDTO venda) {
-        if (!repository.existsById(idVenda)) {
-            throw new ResourceNotFoundException("Venda não encontrada. ID: " + idVenda);
-        }
+        VendaDTO oldVenda = findById(idVenda);
+
         validateUsuario(venda.usuario());
         if (venda.metodoPagamento().equals("DINHEIRO")) {
             validateTroco(venda);
@@ -169,7 +175,9 @@ public class VendaService {
         List<ItemVenda> itens = getItens(venda, entity, true);
         entity.setItens(itens);
 
-        repository.save(entity);
+        VendaDTO saved = mapper.toDTO(repository.save(entity));
+
+        updateStock(oldVenda, saved);
     }
 
     public void deleteById(Long idVenda) {
@@ -178,6 +186,34 @@ public class VendaService {
         }
 
         repository.deleteById(idVenda);
+    }
+
+    private void updateStock(VendaDTO newVenda) {
+        updateStock(null, newVenda);
+    }
+
+    private void updateStock(VendaDTO oldVenda, VendaDTO newVenda) {
+        Map<Long, Integer> oldQuantidades = new HashMap<>();
+
+        // Old quantities (stock reposition, hence the negative value)
+        if (oldVenda != null) {
+            for (ItemVendaDTO item : oldVenda.itens()) {
+                long produtoId = item.produto().idProduto();
+                oldQuantidades.put(produtoId, item.quantidade());
+            }
+        }
+
+        for (ItemVendaDTO item : newVenda.itens()) {
+            long produtoId = item.produto().idProduto();
+            int oldQty = oldQuantidades.getOrDefault(produtoId, 0);
+            int newQty = item.quantidade();
+            int stockDifference = oldQty - newQty; // positive value = refill stock, negative = remove from stock
+
+            Produto produto = produtoMapper.toEntity(item.produto());
+            produto.setEstoque(produto.getEstoque() + stockDifference);
+
+            produtoService.update(produtoId, produtoMapper.toDTO(produto));
+        }
     }
 
     private List<ItemVenda> getItens(VendaDTO venda, Venda entity, boolean isUpdate) {
@@ -212,21 +248,16 @@ public class VendaService {
         }
     }
 
+    // TODO: Assign MIN_STOCK to user preferences
     private void validateProduto(List<ItemVenda> itens) {
-        List<Long> ids = itens.stream()
-                .map(item -> item.getProduto().getIdProduto())
-                .toList();
-
-        Map<Long, ProdutoEstoqueDTO> estoqueMap = produtoRepository.findEstoqueAtualByProdutoIds(ids).stream()
-                .collect(Collectors.toMap(ProdutoEstoqueDTO::getIdProduto, Function.identity()));
+        final int MIN_STOCK = 1;
 
         for (ItemVenda item : itens) {
-            ProdutoEstoqueDTO dto = estoqueMap.get(item.getProduto().getIdProduto());
-            if (dto == null) {
+            if (!produtoRepository.existsById(item.getProduto().getIdProduto())) {
                 throw new ResourceNotFoundException("Produto não encontrado. ID: " + item.getProduto().getIdProduto());
             }
 
-            if (item.getQuantidade() > dto.getEstoque()) {
+            if ((item.getProduto().getEstoque() - item.getQuantidade()) < MIN_STOCK) {
                 throw new BadRequestException("Estoque insuficiente para o produto: " + item.getProduto().getNome());
             }
         }
@@ -236,7 +267,8 @@ public class VendaService {
         BigDecimal total = venda.getTotal();
         BigDecimal change = venda.valorRecebido().subtract(total);
         if (venda.troco().compareTo(change) != 0) {
-            throw new BadRequestException("Valor do troco inserido inválido.\nTotal: " + total + "\nValor Recebido: " + venda.valorRecebido() + "\nTroco inserido: " + venda.troco());
+            throw new BadRequestException("Valor do troco inserido inválido.\nTotal: " + total + "\nValor Recebido: "
+                    + venda.valorRecebido() + "\nTroco inserido: " + venda.troco());
         }
     }
 }

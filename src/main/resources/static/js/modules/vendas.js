@@ -398,7 +398,6 @@ export function init() {
         editButton.addEventListener('click', () => {
             const itemIndex = itens.findIndex(item => item.produto.idProduto === parseInt(editButton.dataset.idProduto));
             currentItemIndex = itemIndex;
-            originalPrice = item.valorUnitario;
             populateItemFields(itens[itemIndex]);
         });
         deleteButton.addEventListener('click', () => {

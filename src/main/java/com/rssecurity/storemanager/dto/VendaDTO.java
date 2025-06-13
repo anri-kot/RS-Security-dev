@@ -1,12 +1,12 @@
 package com.rssecurity.storemanager.dto;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record VendaDTO (
+import jakarta.validation.constraints.NotNull;
+
+public record VendaDTO(
         Long idVenda,
         LocalDateTime data,
         String observacao,
