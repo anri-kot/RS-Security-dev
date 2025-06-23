@@ -1,11 +1,13 @@
 package com.rssecurity.storemanager.view;
 
 import com.rssecurity.storemanager.dto.CategoriaDTO;
+import com.rssecurity.storemanager.dto.CompraDTO;
 import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.service.CategoriaService;
+import com.rssecurity.storemanager.service.CompraService;
 import com.rssecurity.storemanager.service.FornecedorService;
 import com.rssecurity.storemanager.service.ProdutoService;
 import com.rssecurity.storemanager.service.UsuarioService;
@@ -29,14 +31,17 @@ public class ViewController {
     private final CategoriaService categoriaService;
     private final FornecedorService fornecedorService;
     private final VendaService vendaService;
+    private final CompraService compraService;
     private final UsuarioService usuarioService;
 
     public ViewController(ProdutoService produtoService, CategoriaService categoriaService,
-            FornecedorService fornecedorService, VendaService vendaService, UsuarioService usuarioService) {
+            FornecedorService fornecedorService, VendaService vendaService, CompraService compraService,
+            UsuarioService usuarioService) {
         this.produtoService = produtoService;
         this.categoriaService = categoriaService;
         this.fornecedorService = fornecedorService;
         this.vendaService = vendaService;
+        this.compraService = compraService;
         this.usuarioService = usuarioService;
     }
 
@@ -177,6 +182,23 @@ public class ViewController {
         model.addAttribute("categorias", categorias);
 
         return "vendas";
+    }
+
+    @GetMapping("/compras")
+    public String getCompras(HttpServletRequest request, Model model, @RequestParam(required = false) Map<String, String> params) {
+        List<CompraDTO> compras = compraService.findAll();
+        List<FornecedorDTO> fornecedores = fornecedorService.findAll();
+        List<CategoriaDTO> categorias = categoriaService.findAll();
+
+        model.addAttribute("compras", compras);
+        model.addAttribute("categorias", categorias);
+        model.addAttribute("fornecedores", fornecedores);
+
+        if (Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))) {
+            return "vendas :: content";
+        }
+
+        return "compras";
     }
     
 

@@ -130,7 +130,6 @@ export function init() {
 
     // MODALS
 
-    const vendaModal = new bootstrap.Modal(vendaModalEl);
     let itens = [];
 
     // VENDA MODAL
@@ -145,9 +144,9 @@ export function init() {
         if (e.target.closest('button')) {
             const el = e.target.closest('button');
 
-            if (el.dataset.action == 'edit') {
+            if (el.dataset.action == 'edit') {                
                 showVendaModal(el.dataset.id);
-            } else if (el.dataset.action == 'delete') {
+            } else if (el.dataset.action == 'delete') {                
                 showConfirmModal(el.dataset.id);
             }
         }
@@ -209,6 +208,7 @@ export function init() {
             itens = venda.itens;
             populateVendaModal(venda);
         }
+        const vendaModal = new bootstrap.Modal(vendaModalEl);
 
         vendaModal.show();
     }
@@ -433,13 +433,12 @@ export function init() {
 
     // CONFIRM MODAL
 
-    const confirmModal = new bootstrap.Modal(modalConfirmEl);
-
     modalConfirmOkButtonEl.addEventListener('click', (e) => {
         deleteVenda(e.target.dataset.id);
     });
 
     function showConfirmModal(id) {
+        const confirmModal = new bootstrap.Modal(modalConfirmEl);
         if (!id) return;
 
         modalConfirmLabelEl.innerText = 'Confirmar delete';
@@ -625,6 +624,8 @@ export function init() {
                 },
                 body: body
             });
+
+            const vendaModal = bootstrap.Modal.getInstance(vendaModalEl);
 
             if (!response.ok) {
                 const errorData = await response.json();

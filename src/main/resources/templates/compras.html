@@ -3,32 +3,32 @@
     layout:decorate="~{layout}">
 
 <head>
-    <title>Vendas</title>
+    <title>Compras</title>
 </head>
 
 <body>
 
     <div layout:fragment="content">
 
-        <div class="container py-4" th:fragment="content" data-page-id="vendas">
+        <div class="container py-4" th:fragment="content" data-page-id="compras">
+            <!-- start -->
+
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="mb-0">Vendas</h1>
-                <button id="new-venda" class="btn btn-success">+ Registrar Venda</button>
+                <h1 class="mb-0">Compras</h1>
+                <button id="new-compra" class="btn btn-success">+ Registrar Compra</button>
             </div>
 
             <div class="card mb-4">
                 <div class="card-body">
-
                     <form id="search-form" class="d-flex flex-column">
-
                         <div class="row g-3 align-items-end">
 
                             <!-- Tipo de busca -->
                             <div class="col-md-2">
                                 <label for="tipo" class="form-label">Buscar por</label>
                                 <select id="search-type" name="tipo" class="form-select">
-                                    <option value="usuario">Usuário</option>
-                                    <option value="idVenda">ID da Venda</option>
+                                    <option value="fornecedor">Fornecedor</option>
+                                    <option value="idCompra">ID da Compra</option>
                                     <option value="produtoNome">Produto (Nome)</option>
                                     <option value="produtoId">Produto (ID)</option>
                                 </select>
@@ -50,22 +50,11 @@
                                 </div>
                             </div>
 
-                            <!-- Método de pagamento -->
-                            <div class="col-md-2">
-                                <label for="metodoPagamento" class="form-label">Método de Pagamento</label>
-                                <select name="metodoPagamento" id="metodoPagamento" class="form-select">
-                                    <option value="">Todos</option>
-                                    <option value="CARTAO_CREDITO">Cartão de Crédito</option>
-                                    <option value="PIX">PIX</option>
-                                    <option value="DINHEIRO">Dinheiro</option>
-                                </select>
-                            </div>
-
                             <!-- Observação -->
                             <div class="col-md-3">
                                 <label for="observacao" class="form-label">Observação</label>
                                 <input type="text" name="observacao" id="observacao" class="form-control"
-                                    placeholder="Observação da venda">
+                                    placeholder="Observação da compra">
                             </div>
 
                             <!-- Filtro de data -->
@@ -92,45 +81,42 @@
 
                             <!-- Botão de busca -->
                             <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100" hx-get="/vendas"
-                                    hx-target="#cards-vendas" hx-push-url="true"
-                                    hx-select="#cards-vendas">Buscar</button>
+                                <button type="submit" class="btn btn-primary w-100" hx-get="/compras"
+                                    hx-target="#cards-compras" hx-push-url="true"
+                                    hx-select="#cards-compras">Buscar</button>
                             </div>
-
                         </div>
-
                     </form>
-
                 </div>
             </div>
 
-            <!-- VENDAS -->
-            <div id="cards-vendas" th:fragment="vendas">
-                <div class="card mb-4 shadow-sm border-0 venda-card" th:each="venda : ${vendas}">
+            <!-- COMPRAS -->
+            <div id="cards-compras" th:fragment="compras">
+                <div class="card mb-4 shadow-sm border-0 compra-card" th:each="compra : ${compras}">
                     <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3">
 
                         <div>
-                            <strong th:text="'#' + ${venda.idVenda}" class="text-primary"></strong>
+                            <strong th:text="'#' + ${compra.idCompra}" class="text-primary"></strong>
                             <small class="text-muted ms-2"
-                                th:text="${#temporals.format(venda.data, 'dd/MM/yyyy HH:mm')}"></small>
+                                th:text="${#temporals.format(compra.data, 'dd/MM/yyyy HH:mm')}"></small>
                         </div>
 
                         <div class="d-flex align-items-center gap-2">
                             <span class="fw-bold text-success"
-                                th:text="'R$ ' + ${#numbers.formatDecimal(venda.total, 1, 'POINT', 2, 'COMMA')}"></span>
+                                th:text="'R$ ' + ${#numbers.formatDecimal(compra.total, 1, 'POINT', 2, 'COMMA')}"></span>
 
                             <button class="btn btn-sm btn-outline-primary" data-action="edit"
-                                th:attr="data-id=${venda.idVenda}">
+                                th:attr="data-id=${compra.idCompra}">
                                 Editar
                             </button>
                             <button class="btn btn-sm btn-outline-danger" data-action="delete"
-                                th:attr="data-id=${venda.idVenda}">
+                                th:attr="data-id=${compra.idCompra}">
                                 Excluir
                             </button>
 
 
                             <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
-                                th:attr="data-bs-target='#collapse__' + ${venda.idVenda}">
+                                th:attr="data-bs-target='#collapse__' + ${compra.idCompra}">
                                 Detalhes
                             </button>
                         </div>
@@ -139,39 +125,27 @@
 
                     <div class="card-body px-3">
 
-                        <p class="mb-1"><strong>Observação:</strong> <span th:text="${venda.observacao}"></span></p>
-                        <p class="mb-1"><strong>Pagamento:</strong> <span th:text="${venda.metodoPagamento}"></span></p>
-                        <p class="mb-1"><strong>Usuário:</strong> <abbr th:text="${venda.usuario.username}"
-                                class="initialism"
-                                th:title="${venda.usuario.nome} + ' ' + ${venda.usuario.sobrenome}"></abbr></p>
+                        <p class="mb-1"><strong>Observação:</strong> <span th:text="${compra.observacao}"></span></p>
+                        <p class="mb-1"><strong>Fornecedor:</strong> <span th:text="${compra.fornecedor.nome}"></span></p>
 
-                        <div class="collapse" th:id="'collapse__' + ${venda.idVenda}">
-                            <p class="fw-bold mb-1">Valor Recebido: <span class="text-info"
-                                    th:text="'R$ ' + ${#numbers.formatDecimal(venda.valorRecebido, 1, 'POINT', 2, 'COMMA')}"></span>
-                            </p>
-                            <p class="fw-bold mb-1" th:if="${venda.troco != null}">Troco: <span class="text-danger"
-                                    th:text="'R$ ' + ${#numbers.formatDecimal(venda.troco, 1, 'POINT', 2, 'COMMA')}"></span>
-                            </p>
+                        <div class="collapse" th:id="'collapse__' + ${compra.idCompra}">
 
-                            <h6 class="mb-2 text-secondary">Itens da venda</h6>
-                            <ul class="list-group list-group-flush" th:each="item : ${venda.itens}">
+                            <h6 class="mb-2 text-secondary">Itens da compra</h6>
+                            <ul class="list-group list-group-flush" th:each="item : ${compra.itens}">
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
+
                                     <div>
                                         <div class="fw-semibold" th:text="${item.produto.nome}"></div>
                                         <small class="text-muted d-block">
                                             <span
                                                 th:text="'Qtd: ' + ${item.quantidade} + ' × R$ ' + ${#numbers.formatDecimal(item.valorUnitario, 1, 'POINT', 2, 'COMMA')}"></span>
                                         </small>
-                                        <small class="text-danger d-block"
-                                            th:if="${item.desconto != null and item.desconto > 0}">
-                                            <span
-                                                th:text="'Desconto: ' + ${#numbers.formatDecimal(item.desconto, 1, 'POINT', 2, 'COMMA')} + '%'"></span>
-                                        </small>
                                     </div>
                                     <div class="text-end">
                                         <span class="fw-bold text-dark"
-                                            th:text="'R$ ' + ${#numbers.formatDecimal((item.valorUnitario - (item.desconto != null ? ((item.desconto / 100) * item.valorUnitario) : 0)) * item.quantidade, 1, 'POINT', 2, 'COMMA')}"></span>
+                                            th:text="'R$ ' + ${#numbers.formatDecimal(item.valorUnitario * item.quantidade, 1, 'POINT', 2, 'COMMA')}"></span>
                                     </div>
+
                                 </li>
                             </ul>
                         </div>
@@ -205,12 +179,12 @@
             </div>
 
             <!-- new/edit -->
-            <div class="modal fade" id="venda-modal" tabindex="-1" aria-labelledby="vendaModalLabel" aria-hidden="true">
+            <div class="modal fade" id="compra-modal" tabindex="-1" aria-labelledby="compraModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
 
                         <div class="modal-header">
-                            <h5 class="modal-title">Venda</h5>
+                            <h5 class="modal-title">Compra</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="Fechar"></button>
                         </div>
@@ -227,15 +201,15 @@
                                                 <h4 class="mb-0">Itens</h4>
                                                 <button type="button" class="btn btn-outline-secondary btn-sm"
                                                     id="show-items-btn" data-bs-toggle="collapse"
-                                                    data-bs-target="#modal-venda-items-form" aria-expanded="false"
-                                                    aria-controls="item-venda-items-form">
+                                                    data-bs-target="#modal-compra-items-form" aria-expanded="false"
+                                                    aria-controls="item-compra-items-form">
                                                     <i class="bi bi-chevron-down" id="show-items-icon"></i>
                                                 </button>
                                             </div>
 
                                             <hr>
 
-                                            <div class="collapse" id="modal-venda-items-form">
+                                            <div class="collapse" id="modal-compra-items-form">
                                                 <div class="d-flex align-items-center mb-2">
 
                                                     <label for="tipo">Por:</label>
@@ -279,21 +253,15 @@
 
                                                 <div class="mb-2">
                                                     <label for="quantidade" class="form-label">Quantidade</label>
-                                                    <input type="number" name="quantidade" id="modal-venda-quantidade"
+                                                    <input type="number" name="quantidade" id="modal-compra-quantidade"
                                                         class="form-control" min="1" value="1">
                                                 </div>
                                                 <div class="mb-2">
                                                     <label for="valorUnitario" class="form-label">Valor Unitário (R$)
                                                         <small class="text-muted">Ex: 10.00</small></label>
                                                     <input type="number" name="valorUnitario"
-                                                        id="modal-venda-valorUnitario" class="form-control" step="0.01"
+                                                        id="modal-compra-valorUnitario" class="form-control" step="0.01"
                                                         min="0.05" value="0.05">
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label for="desconto" class="form-label">Desconto (%) <small
-                                                            class="text-muted">Ex: 15.00</small></label>
-                                                    <input type="number" name="desconto" id="modal-venda-desconto"
-                                                        class="form-control" min="0" step="0.01" value="0.0" max="99">
                                                 </div>
 
                                                 <div class="d-flex justify-content-center mb-2">
@@ -307,55 +275,36 @@
                                     </div>
 
                                     <!-- VENDA -->
-                                    <form id="venda-form" autocomplete="off">
+                                    <form id="compra-form" autocomplete="off">
 
                                         <div class="mb-2">
                                             <label class="form-label">ID</label>
-                                            <input type="text" id="modal-venda-idVenda" class="form-control" disabled>
+                                            <input type="text" id="modal-compra-idCompra" class="form-control" disabled>
                                         </div>
+
                                         <div class="mb-2">
                                             <label class="form-label">Data <small class="text-muted">mês/dia/ano,
                                                     hora</small></label>
-                                            <input type="datetime-local" id="modal-venda-data" class="form-control"
+                                            <input type="datetime-local" id="modal-compra-data" class="form-control"
                                                 required>
                                         </div>
+
                                         <div class="mb-2">
                                             <label class="form-label">Observação</label>
-                                            <input type="text" id="modal-venda-observacao" class="form-control"
+                                            <input type="text" id="modal-compra-observacao" class="form-control"
                                                 required>
                                         </div>
-                                        <div class="mb-2">
-                                            <label class="form-label">Método de Pagamento</label>
-                                            <select id="modal-venda-metodoPagamento" class="form-select">
-                                                <option value="CARTAO_CREDITO">Cartão de Crédito</option>
-                                                <option value="CARTAO_DEBITO">Cartão de Débito</option>
-                                                <option value="PIX">PIX</option>
-                                                <option value="DINHEIRO">DINHEIRO</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label">Valor Recebido (R$)</label>
-                                            <input type="number" step="0.01" id="modal-venda-valorRecebido"
-                                                class="form-control" required>
-                                        </div>
-                                        <div class="mb-2">
-                                            <label class="form-label">Troco</label>
-                                            <input type="number" step="0.1" id="modal-venda-troco" class="form-control"
-                                                required>
-                                        </div>
+
                                         <div class="mb-2">
                                             <div class="position-relative">
-                                                <label class="form-label">Funcionário</label>
-                                                <input class="form-control input-dropdown" id="modal-venda-funcionario"
-                                                    name="funcionario" placeholder="Digite o nome do funcionário"
-                                                    hx-get="/vendas/autocomplete"
-                                                    hx-target="#autocomplete-funcionario-options"
-                                                    hx-trigger="keyup changed delay:300ms">
+                                                <label class="form-label">Fornecedor</label>
+                                                <input class="form-control input-dropdown" id="modal-compra-fornecedor"
+                                                    name="fornecedor" placeholder="Digite o nome do fornecedor">
 
-                                                <input type="hidden" id="modal-venda-funcionario-id">
-                                                <input type="hidden" id="modal-venda-funcionario-username">
+                                                <input type="hidden" id="modal-compra-fornecedor-id">
+                                                <input type="hidden" id="modal-compra-fornecedor-nome">
 
-                                                <div class="dropdown-menu w-100" id="autocomplete-funcionario-options">
+                                                <div class="dropdown-menu w-100" id="autocomplete-fornecedor-options">
                                                 </div>
                                             </div>
                                         </div>
@@ -372,7 +321,7 @@
 
                                     <hr>
 
-                                    <ul class="list-group list-group-flush" id="modal-venda-itens">
+                                    <ul class="list-group list-group-flush" id="modal-compra-itens">
                                     </ul>
                                 </div>
                             </div>
@@ -389,10 +338,10 @@
                 </div>
             </div>
 
+            <!-- end -->
         </div>
 
     </div>
-
 </body>
 
 </html>
