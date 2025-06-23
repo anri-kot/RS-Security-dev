@@ -21,7 +21,7 @@ public class VendaSpecification {
                 predicates.add(cb.like(cb.lower(root.get("observacao")), "%" + filters.get("observacao").toLowerCase() + "%"));
             }
 
-            if (filters.containsKey("tipo")) {
+            if (filters.containsKey("termo")) {
                 if (filters.get("tipo").contains("usuario")) {
                     predicates.add(cb.like(root.get("usuario").get("username"), "%" + filters.get("termo") + "%"));
                 } else if (filters.get("tipo").contains("produtoNome")) {
