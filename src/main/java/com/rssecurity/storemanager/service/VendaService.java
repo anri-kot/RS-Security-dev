@@ -3,10 +3,12 @@ package com.rssecurity.storemanager.service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -160,12 +162,12 @@ public class VendaService {
         }
 
         Venda entity = mapper.toEntity(venda);
-        List<ItemVenda> itens = getItens(venda, entity, false);
+        List<ItemVenda> itens = buildItemVendaList(venda, entity, false);
 
         entity.setItens(itens);
         VendaDTO saved = mapper.toDTO(repository.save(entity));
 
-        updateStock(venda);
+        updateStock(venda, "CREATE", null);
 
         return saved;
     }
@@ -180,14 +182,15 @@ public class VendaService {
         }
 
         Venda entity = mapper.toEntity(venda);
-        List<ItemVenda> itens = getItens(venda, entity, true);
+
+        List<ItemVenda> itens = buildItemVendaList(venda, entity, true);
         entity.setItens(itens);
 
         VendaDTO saved = mapper.toDTO(repository.save(entity));
-
-        updateStock(oldVenda, saved);
+        updateStock(saved, "UPDATE", oldVenda);
     }
 
+    @Transactional
     public void deleteById(Long idVenda) {
         if (!repository.existsById(idVenda)) {
             throw new ResourceNotFoundException("Venda não encontrada. ID: " + idVenda);
@@ -196,52 +199,138 @@ public class VendaService {
         repository.deleteById(idVenda);
     }
 
-    private void updateStock(VendaDTO newVenda) {
-        updateStock(null, newVenda);
-    }
+    // STOCK UPDATE
 
-    private void updateStock(VendaDTO oldVenda, VendaDTO newVenda) {
-        Map<Long, Integer> oldQuantidades = new HashMap<>();
+    public void updateStock(VendaDTO vendaDTO, String operation, VendaDTO oldVendaDTO) {
+        Map<Long, Integer> ajustesEstoque = new HashMap<>();
 
-        // Old quantities (stock reposition, hence the negative value)
-        if (oldVenda != null) {
-            for (ItemVendaDTO item : oldVenda.itens()) {
-                long produtoId = item.produto().idProduto();
-                oldQuantidades.put(produtoId, item.quantidade());
+        switch (operation) {
+            case "CREATE" -> {
+                // Adds to the stock
+                for (ItemVendaDTO item : vendaDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    ajustesEstoque.merge(idProduto, quantidade, Integer::sum);
+                }
             }
+
+            case "DELETE" -> {
+                // Subtracts from the stock
+                for (ItemVendaDTO item : vendaDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    ajustesEstoque.merge(idProduto, -quantidade, Integer::sum);
+                }
+            }
+
+            case "UPDATE" -> {
+                // Subtracts from the stock
+                for (ItemVendaDTO item : oldVendaDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    ajustesEstoque.merge(idProduto, -quantidade, Integer::sum);
+                }
+                // Aplica os efeitos da nova venda
+                for (ItemVendaDTO item : vendaDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    ajustesEstoque.merge(idProduto, quantidade, Integer::sum);
+                }
+            }
+
+            default -> throw new IllegalArgumentException("Operação inválida para atualização de estoque");
         }
 
-        for (ItemVendaDTO item : newVenda.itens()) {
-            long produtoId = item.produto().idProduto();
-            int oldQty = oldQuantidades.getOrDefault(produtoId, 0);
-            int newQty = item.quantidade();
-            int stockDifference = oldQty - newQty; // positive value = refill stock, negative = remove from stock
+        // Aply update
+        for (Map.Entry<Long, Integer> ajuste : ajustesEstoque.entrySet()) {
+            Long idProduto = ajuste.getKey();
+            Integer delta = ajuste.getValue();
 
-            Produto produto = produtoMapper.toEntity(item.produto());
-            produto.setEstoque(produto.getEstoque() + stockDifference);
+            Produto produto = produtoRepository.findById(idProduto)
+                    .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado: " + idProduto));
 
-            produtoService.update(produtoId, produtoMapper.toDTO(produto));
+            produto.setEstoque(produto.getEstoque() + delta);
+            produtoRepository.save(produto);
         }
+
     }
 
-    private List<ItemVenda> getItens(VendaDTO venda, Venda entity, boolean isUpdate) {
-        List<Long> idProdutos = new ArrayList<>();
-        List<ItemVenda> itens = venda.itens().stream()
+    // private void updateStock(VendaDTO newVenda) {
+    // updateStock(null, newVenda);
+    // }
+
+    // private void updateStock(VendaDTO oldVenda, VendaDTO newVenda) {
+    // Map<Long, Integer> oldQuantidades = new HashMap<>();
+
+    // // Old quantities (stock reposition, hence the negative value)
+    // if (oldVenda != null) {
+    // for (ItemVendaDTO item : oldVenda.itens()) {
+    // long produtoId = item.produto().idProduto();
+    // oldQuantidades.put(produtoId, item.quantidade());
+    // }
+    // }
+
+    // for (ItemVendaDTO item : newVenda.itens()) {
+    // long produtoId = item.produto().idProduto();
+    // int oldQty = oldQuantidades.getOrDefault(produtoId, 0);
+    // int newQty = item.quantidade();
+    // int stockDifference = oldQty - newQty; // positive value = refill stock,
+    // negative = remove from stock
+
+    // Produto produto = produtoMapper.toEntity(item.produto());
+    // produto.setEstoque(produto.getEstoque() + stockDifference);
+
+    // produtoService.update(produtoId, produtoMapper.toDTO(produto));
+    // }
+    // }
+
+    /**
+     * Builds a list of ItemVenda entities from the given VendaDTO.
+     * 
+     * This method maps each ItemVendaDTO to its corresponding entity,
+     * optionally setting the item ID if it's an update, links each item to the
+     * parent Venda,
+     * and ensures the associated Produto entity is correctly referenced.
+     *
+     * @param venda    the VendaDTO containing the list of item DTOs
+     * @param entity   the Venda entity to associate with each item
+     * @param isUpdate true if the operation is an update (to include item IDs),
+     *                 false for creation
+     * @return a list of fully initialized ItemVenda entities ready for persistence
+     * @throws ResourceNotFoundException if any referenced Produto ID does not exist
+     */
+    private List<ItemVenda> buildItemVendaList(VendaDTO venda, Venda entity, boolean isUpdate) {
+        List<Long> ids = venda.itens().stream()
+                .map(item -> item.produto().idProduto())
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<Long, Produto> produtosMap = produtoRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
+
+        return venda.itens().stream()
                 .map(itemDto -> {
+                    Long idProduto = itemDto.produto().idProduto();
+                    Produto produto = produtosMap.get(idProduto);
+                    if (produto == null) {
+                        throw new ResourceNotFoundException("Produto não encontrado: " + idProduto);
+                    }
+
                     ItemVenda item = new ItemVenda();
                     if (isUpdate) {
                         item.setIdItem(itemDto.idItem());
                     }
-                    item.setProduto(produtoMapper.toEntity(itemDto.produto()));
+                    item.setProduto(produto);
                     item.setQuantidade(itemDto.quantidade());
                     item.setValorUnitario(itemDto.valorUnitario());
                     item.setDesconto(itemDto.desconto());
                     item.setVenda(entity);
-                    idProdutos.add(item.getProduto().getIdProduto());
+
+                    validateProduto(produto, item);
+
                     return item;
                 }).toList();
-        validateProduto(itens);
-        return itens;
     }
 
     private void validateUsuario(UsuarioResumoDTO usuario) {
@@ -257,17 +346,10 @@ public class VendaService {
     }
 
     // TODO: Assign MIN_STOCK to user preferences
-    private void validateProduto(List<ItemVenda> itens) {
+    private void validateProduto(Produto produtoInStock, ItemVenda item) {
         final int MIN_STOCK = 1;
-
-        for (ItemVenda item : itens) {
-            if (!produtoRepository.existsById(item.getProduto().getIdProduto())) {
-                throw new ResourceNotFoundException("Produto não encontrado. ID: " + item.getProduto().getIdProduto());
-            }
-
-            if ((item.getProduto().getEstoque() - item.getQuantidade()) < MIN_STOCK) {
-                throw new BadRequestException("Estoque insuficiente para o produto: " + item.getProduto().getNome());
-            }
+        if ((produtoInStock.getEstoque() - item.getQuantidade()) < MIN_STOCK) {
+            throw new BadRequestException("Estoque insuficiente para o produto: " + produtoInStock.getNome());
         }
     }
 
