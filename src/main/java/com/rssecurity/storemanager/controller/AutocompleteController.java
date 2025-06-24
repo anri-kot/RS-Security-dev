@@ -37,7 +37,7 @@ public class AutocompleteController {
             @RequestParam(required = false) Long idCategoria, Model model) {
         List<ProdutoDTO> results;
         
-        if (tipo != null && tipo.toLowerCase().equals("id")) {
+        if (tipo != null && tipo.toLowerCase().contains("id")) {
             results = new ArrayList<>();
             try {
                 Long id = Long.parseLong(termo);

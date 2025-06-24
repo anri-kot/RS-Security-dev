@@ -8,14 +8,20 @@ import com.rssecurity.storemanager.mapper.ProdutoMapper;
 import com.rssecurity.storemanager.model.Compra;
 import com.rssecurity.storemanager.model.ItemCompra;
 import com.rssecurity.storemanager.repository.CompraRepository;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CompraService {
+    private final Sort SORT_BY_DATE = Sort.by(Sort.Direction.DESC, "data");
+
     private final CompraRepository repository;
     private final CompraMapper mapper;
     private final ProdutoMapper produtoMapper;
@@ -29,7 +35,16 @@ public class CompraService {
     // SEARCH
 
     public List<CompraDTO> findAll() {
-        return repository.findAll().stream()
+        return repository.findAll(SORT_BY_DATE).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    public List<CompraDTO> findAllByCustomMatcher(Map<String, String> filter) {
+        filter.values().removeIf(String::isBlank);
+
+        Specification<Compra> spec = CompraSpecification.withFilters(filter);
+        return repository.findAll(spec, SORT_BY_DATE).stream()
                 .map(mapper::toDTO)
                 .toList();
     }

@@ -1,11 +1,12 @@
 package com.rssecurity.storemanager.view;
 
 import com.rssecurity.storemanager.dto.CategoriaDTO;
+import com.rssecurity.storemanager.dto.CompraDTO;
 import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
-import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.service.CategoriaService;
+import com.rssecurity.storemanager.service.CompraService;
 import com.rssecurity.storemanager.service.FornecedorService;
 import com.rssecurity.storemanager.service.ProdutoService;
 import com.rssecurity.storemanager.service.UsuarioService;
@@ -29,15 +30,16 @@ public class ViewController {
     private final CategoriaService categoriaService;
     private final FornecedorService fornecedorService;
     private final VendaService vendaService;
-    private final UsuarioService usuarioService;
+    private final CompraService compraService;
 
     public ViewController(ProdutoService produtoService, CategoriaService categoriaService,
-            FornecedorService fornecedorService, VendaService vendaService, UsuarioService usuarioService) {
+            FornecedorService fornecedorService, VendaService vendaService, CompraService compraService,
+            UsuarioService usuarioService) {
         this.produtoService = produtoService;
         this.categoriaService = categoriaService;
         this.fornecedorService = fornecedorService;
         this.vendaService = vendaService;
-        this.usuarioService = usuarioService;
+        this.compraService = compraService;
     }
 
     @GetMapping("/auth/login")
@@ -150,11 +152,6 @@ public class ViewController {
     public String getVendas(HttpServletRequest request, Model model, @RequestParam(required = false) Map<String, String> params) {
         List<VendaDTO> vendas;
         List<CategoriaDTO> categorias = categoriaService.findAll();
-        List<UsuarioResumoDTO> funcionarios = usuarioService.findAll().stream()
-            .map(funcionario -> {
-                return new UsuarioResumoDTO(funcionario.idUsuario(), funcionario.username(), funcionario.nome(), funcionario.sobrenome());
-            })
-            .toList();
 
         if (params == null || params.isEmpty()) {
             vendas = vendaService.findAll();
@@ -173,10 +170,36 @@ public class ViewController {
             return "vendas :: content";
         }
 
-        model.addAttribute("funcionarios", funcionarios);
         model.addAttribute("categorias", categorias);
 
         return "vendas";
+    }
+
+    @GetMapping("/compras")
+    public String getCompras(HttpServletRequest request, Model model, @RequestParam(required = false) Map<String, String> params) {
+        List<CompraDTO> compras;
+        List<CategoriaDTO> categorias = categoriaService.findAll();
+
+        if (params == null || params.isEmpty()) {
+            compras = compraService.findAll();
+        } else if (params.get("tipo").equals("idCompra")) {
+            compras = new ArrayList<>();
+            try {
+                compras.add(compraService.findById(Long.parseLong(params.get("idCompra"))));
+            } catch (Exception e) {}
+        } else {
+            compras = compraService.findAllByCustomMatcher(params);
+        }
+
+        model.addAttribute("compras", compras);
+
+        if (Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))) {
+            return "compras :: content";
+        }
+
+        model.addAttribute("categorias", categorias);
+
+        return "compras";
     }
     
 

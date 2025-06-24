@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: May 12, 2025 at 09:54 PM
+-- Generation Time: May 30, 2025 at 09:44 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -139,13 +139,12 @@ CREATE TABLE `item_venda` (
 --
 
 INSERT INTO `item_venda` (`id_item`, `quantidade`, `valor_unitario`, `desconto`, `id_venda`, `id_produto`) VALUES
-(3, 9, 75.00, 15.00, 3, 5),
-(4, 2, 180.00, NULL, 3, 10),
-(5, 4, 320.00, NULL, 5, 11),
+(3, 5, 75.00, 0.00, 3, 5),
+(5, 2, 320.00, NULL, 5, 11),
 (6, 6, 275.00, NULL, 6, 4),
 (7, 2, 120.00, NULL, 6, 12),
 (8, 2, 70.00, 0.00, 7, 9),
-(9, 1, 170.00, 10.00, 7, 10),
+(9, 1, 170.00, 15.00, 7, 10),
 (10, 1, 200.00, 0.00, 9, 4),
 (11, 1, 170.00, 0.00, 10, 10),
 (12, 1, 69.99, 0.00, 10, 6),
@@ -162,7 +161,16 @@ INSERT INTO `item_venda` (`id_item`, `quantidade`, `valor_unitario`, `desconto`,
 (23, 1, 310.00, 0.00, 19, 11),
 (24, 1, 170.00, 0.00, 20, 10),
 (25, 1, 170.00, 0.00, 21, 10),
-(26, 1, 200.00, 0.00, 22, 4);
+(26, 1, 200.00, 0.00, 22, 4),
+(27, 1, 200.00, 15.00, 23, 4),
+(28, 1, 310.00, 0.00, 24, 11),
+(29, 3, 500.00, 0.00, 25, 7),
+(30, 1, 310.00, 0.00, 25, 11),
+(33, 1, 200.00, NULL, 27, 4),
+(34, 1, 310.00, NULL, 27, 11),
+(35, 2, 200.00, NULL, 3, 4),
+(36, 1, 200.00, 0.00, 28, 4),
+(37, 1, 310.00, 0.00, 28, 11);
 
 -- --------------------------------------------------------
 
@@ -233,6 +241,9 @@ CREATE TABLE `venda` (
   `id_venda` bigint(20) NOT NULL,
   `data` datetime NOT NULL,
   `observacao` varchar(255) NOT NULL DEFAULT 'VENDA NO BALCÃO',
+  `metodo_pagamento` varchar(20) DEFAULT NULL,
+  `valor_recebido` decimal(10,2) DEFAULT NULL,
+  `troco` decimal(10,2) DEFAULT NULL,
   `id_usuario` bigint(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
@@ -240,26 +251,30 @@ CREATE TABLE `venda` (
 -- Dumping data for table `venda`
 --
 
-INSERT INTO `venda` (`id_venda`, `data`, `observacao`, `id_usuario`) VALUES
-(3, '2025-04-10 16:45:00', 'Venda de acessórios de informática para escritório central', 2),
-(5, '2025-04-15 18:00:00', 'Venda de equipamentos de rede para filial norte', 2),
-(6, '2025-04-20 20:15:00', 'Venda de kit completo para instalação de segurança', 4),
-(7, '2025-04-24 16:45:00', 'VENDA NO BALCÃO', 2),
-(8, '2025-04-24 16:45:00', 'VENDA NO BALCÃO', 2),
-(9, '2025-05-02 18:10:50', '', 3),
-(10, '2025-05-02 15:21:41', 'VENDA NO BALCÃO', 3),
-(11, '2025-05-02 15:27:16', 'VENDA NO BALCÃO', 3),
-(12, '2025-05-02 15:29:19', 'VENDA NO BALCÃO', 3),
-(13, '2025-05-02 15:45:14', 'VENDA NO BALCÃO', 3),
-(14, '2025-05-02 15:47:53', 'VENDA NO BALCÃO', 3),
-(15, '2025-05-02 15:47:59', 'VENDA NO BALCÃO', 3),
-(16, '2025-05-05 16:18:54', 'VENDA NO BALCÃO', 3),
-(17, '2025-05-06 16:52:46', 'VENDA NO BALCÃO', 2),
-(18, '2025-05-06 16:54:26', 'teclado', 2),
-(19, '2025-05-06 16:59:37', 'teste', 2),
-(20, '2025-05-09 15:08:05', 'VENDA NO BALCÃO', 3),
-(21, '2025-05-09 15:08:36', 'dsadsadsa', 3),
-(22, '2025-05-12 16:40:36', 'VENDA NO BALCÃO', 3);
+INSERT INTO `venda` (`id_venda`, `data`, `observacao`, `metodo_pagamento`, `valor_recebido`, `troco`, `id_usuario`) VALUES
+(3, '2025-04-10 16:45:00', 'VENDA NO BALCÃO', 'DINHEIRO', 785.00, 10.00, 3),
+(5, '2025-04-18 18:00:00', 'Venda de equipamentos de rede para filial norte', 'CARTAO_CREDITO', 640.00, NULL, 2),
+(6, '2025-04-20 20:15:00', 'Venda de kit completo para instalação de segurança', 'CARTAO_CREDITO', 1890.00, NULL, 4),
+(7, '2025-04-24 16:45:00', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 284.50, NULL, 2),
+(9, '2025-05-02 18:10:50', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 200.00, NULL, 3),
+(10, '2025-05-02 15:21:41', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 239.99, NULL, 3),
+(11, '2025-05-02 15:27:16', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 1720.00, NULL, 3),
+(12, '2025-05-02 15:29:19', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 569.99, NULL, 3),
+(13, '2025-05-02 15:45:14', 'VENDA NO BALCÃO', 'PIX', 200.00, NULL, 3),
+(14, '2025-05-02 15:47:53', 'VENDA NO BALCÃO', 'PIX', 170.00, NULL, 3),
+(15, '2025-05-02 15:47:59', 'VENDA NO BALCÃO', 'PIX', 170.00, NULL, 3),
+(16, '2025-05-05 16:18:54', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 600.00, NULL, 3),
+(17, '2025-05-06 16:52:46', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 200.00, NULL, 2),
+(18, '2025-05-06 16:54:26', 'teclado', 'PIX', 170.00, NULL, 2),
+(19, '2025-05-06 16:59:37', 'teste', 'CARTAO_CREDITO', 310.00, NULL, 2),
+(20, '2025-05-09 15:08:05', 'VENDA NO BALCÃO', 'DINHEIRO', 180.00, 10.00, 3),
+(21, '2025-05-09 15:08:36', 'dsadsadsa', 'CARTAO_CREDITO', 170.00, NULL, 3),
+(22, '2025-05-12 16:40:36', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 200.00, NULL, 3),
+(23, '2025-05-13 14:41:59', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 170.00, NULL, 3),
+(24, '2025-05-22 16:42:12', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 310.00, NULL, 3),
+(25, '2025-05-26 22:00:23', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 1810.00, NULL, 3),
+(27, '2025-05-27 17:27:00', 'BURY THE LIGHT DEEP WITHIIIN', 'CARTAO_CREDITO', 510.00, NULL, 3),
+(28, '2025-05-27 20:26:42', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 510.00, NULL, 3);
 
 --
 -- Indexes for dumped tables
@@ -361,7 +376,7 @@ ALTER TABLE `item_compra`
 -- AUTO_INCREMENT for table `item_venda`
 --
 ALTER TABLE `item_venda`
-  MODIFY `id_item` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id_item` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `produto`
@@ -379,7 +394,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT for table `venda`
 --
 ALTER TABLE `venda`
-  MODIFY `id_venda` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id_venda` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- Constraints for dumped tables

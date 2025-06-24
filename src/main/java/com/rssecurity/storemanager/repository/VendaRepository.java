@@ -19,5 +19,5 @@ public interface VendaRepository extends JpaRepository<Venda, Long>, JpaSpecific
     List<Venda> findByDataBefore(LocalDateTime data);
 
     List<Venda> findByObservacaoContaining(String observacao);
-    List<Venda> findByMetodoPagamento(String metodoPagemento);
+    List<Venda> findByMetodoPagamento(String metodoPagamento);
 }

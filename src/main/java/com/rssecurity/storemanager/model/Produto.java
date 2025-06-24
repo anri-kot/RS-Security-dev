@@ -13,7 +13,7 @@ public class Produto {
     @NotNull
     private String nome;
     private String descricao;
-    private Integer estoqueMin;
+    private Integer estoque;
     private BigDecimal precoAtual;
     @ManyToOne
     @JoinColumn(name = "id_categoria")
@@ -43,12 +43,12 @@ public class Produto {
         this.descricao = descricao;
     }
 
-    public Integer getEstoqueMin() {
-        return estoqueMin;
+    public Integer getEstoque() {
+        return estoque;
     }
 
-    public void setEstoqueMin(Integer estoqueMin) {
-        this.estoqueMin = estoqueMin;
+    public void setEstoque(Integer estoque) {
+        this.estoque = estoque;
     }
 
     public BigDecimal getPrecoAtual() {

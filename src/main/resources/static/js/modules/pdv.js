@@ -1,17 +1,11 @@
 // js/modules/pdv.js
 export function init() {
-    /* TODO:
-        DISPLAY ERRORS ON THE PAGE
-
-        ISSUE: 
-            Check if you need to reload the module after every htmx request/action.
-            Currently, after refresh() is called, the module is unloaded.*
-    */
 
     let lastQuery = '';
-
+    let total = 0;
     let cart = [];
     let tempProduto = null;
+
     const cartItems = document.getElementById('cart-items');
     let obs = '';
 
@@ -19,6 +13,9 @@ export function init() {
     const autocompleteOptions = document.getElementById('autocomplete-options');
     const modalElement = document.getElementById("produtoModal");
     const searchType = document.getElementById('search-type');
+
+    const dinheiroFields = document.getElementById('dinheiro-fields');
+
 
     /* === DROPDOWN === */
 
@@ -28,7 +25,7 @@ export function init() {
 
         if (event.target.id === searchProduct.id) {
             const searchType = document.getElementById('search-type');
-            const value = searchProduct.value.trim();
+            const value = event.target.value.trim();
 
             if (value.length < 1) {
                 event.preventDefault();
@@ -72,7 +69,7 @@ export function init() {
     });
 
     // Show dropdown on focus
-    searchProduct.addEventListener('focus', () => {        
+    searchProduct.addEventListener('focus', () => {
         updateDropdown();
     });
 
@@ -165,9 +162,9 @@ export function init() {
     function renderCart() {
         cartItems.innerHTML = '';
 
-        let total = 0;
+        total = 0;
         cart.forEach((item, index) => {
-            const discount = item.desconto ?? 0;
+            const discount = item.desconto / 100 ?? 0;
             const priceCents = Math.round(item.valorUnitario * 100);
             const fullPriceCents = item.quantidade * priceCents;
             const discountCents = Math.round(fullPriceCents * discount);
@@ -180,7 +177,7 @@ export function init() {
             <td>${item.produto.nome}</td>
             <td>${item.quantidade}</td>
             <td>R$ ${item.valorUnitario.toFixed(2)}</td>
-            <td>${(discount * 100).toFixed(0)}</td>
+            <td>${discount * 100}</td>
             <td>R$ ${finalPrice.toFixed(2)}</td>
             <td><button class="btn btn-sm btn-danger" data-index="${index}">Remover</button>
             <button class="btn btn-sm btn-secondary" data-index="${index}">Editar</button></td>`;
@@ -188,13 +185,13 @@ export function init() {
             cartItems.appendChild(tr);
         });
 
-        document.getElementById('total').textContent = total.toFixed(2);
+        document.getElementById('total').textContent = total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     }
 
-    /* === MODAL === */    
+    /* === MODAL === */
 
     // Colects modal data
-    modalElement.addEventListener("click", function (event) {        
+    modalElement.addEventListener("click", function (event) {
 
         if (event.target.dataset.action === "confirm-modal") {
 
@@ -274,6 +271,10 @@ export function init() {
     /* === SELL ==*/
 
     const sellModal = new bootstrap.Modal(document.getElementById('confirmarVendaModal'));
+    const valorRecebidoEl = document.getElementById('valorRecebido');
+    const trocoContainer = document.getElementById('troco-container')
+    const trocoEl = document.getElementById('troco-value');
+
     // Show confirm sell modal
     document.getElementById('finalizar-venda').addEventListener('click', () => {
         if (cart.length === 0) {
@@ -281,7 +282,37 @@ export function init() {
             return;
         }
 
+        document.getElementById('total-confirm').innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
         sellModal.show();
+    });
+
+    // Listens to metodoPagamento
+    document.getElementById('metodoPagamento').addEventListener('change', (e) => {
+        if (e.target.value = 'DINHEIRO') {
+            valorRecebidoEl.value = total.toFixed(2);
+            valorRecebidoEl.removeAttribute('disabled');
+
+            dinheiroFields.classList.remove('d-none');
+            trocoContainer.classList.remove('d-none');
+        } else {
+            dinheiroFields.classList.add('d-none');
+            trocoContainer.classList.add('d-none');
+            valorRecebidoEl.setAttribute('disabled', true);
+        }
+    });
+
+    // Listens to valorRecebido and calculates troco
+    valorRecebidoEl.addEventListener('keyup', (e) => {
+        const valorRecebido = valorRecebidoEl.value;
+        trocoEl.innerText = getChange(valorRecebido).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    });
+
+    // Listens to valorRecebido on change
+    // Listens to valorRecebido and calculates troco
+    valorRecebidoEl.addEventListener('change', (e) => {
+        const valorRecebido = valorRecebidoEl.value;
+        trocoEl.innerText = getChange(valorRecebido).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     });
 
     // Confirm
@@ -293,6 +324,14 @@ export function init() {
         renderCart();
     });
 
+    function getChange(valorRecebido) {
+        // to cents
+        const receivedCents = valorRecebido * 100;
+        const totalCents = total * 100;
+
+        return (receivedCents - totalCents) / 100;
+    }
+
     async function sellCart() {
         const observacao = document.getElementById('observacao');
         const metodoPagamento = document.getElementById('metodoPagamento').value;
@@ -300,6 +339,14 @@ export function init() {
         if (!metodoPagamento || metodoPagamento.length == 0) {
             alert('Insira um método de pagamento');
             return;
+        }
+
+        let valorRecebido;
+
+        if (metodoPagamento === 'DINHEIRO') {
+            valorRecebido = parseFloat(valorRecebidoEl.value);
+        } else {
+            valorRecebido = total;
         }
 
         obs = observacao.value;
@@ -312,8 +359,9 @@ export function init() {
         const json = JSON.stringify({
             itens: cart,
             observacao: obs,
-            metodoPagamento: metodoPagamento
-        });
+            metodoPagamento: metodoPagamento,
+            valorRecebido: valorRecebido
+        });        
 
         try {
             const response = await fetch('/pdv/finalizar', {

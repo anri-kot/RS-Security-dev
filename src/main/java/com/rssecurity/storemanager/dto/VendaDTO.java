@@ -1,10 +1,10 @@
 package com.rssecurity.storemanager.dto;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import jakarta.validation.constraints.NotNull;
 
 public record VendaDTO(
         Long idVenda,
@@ -14,8 +14,7 @@ public record VendaDTO(
         @NotNull List<ItemVendaDTO> itens,
         String metodoPagamento,
         BigDecimal valorRecebido,
-        BigDecimal troco
-        ) {
+        BigDecimal troco) {
 
     public VendaDTO {
         if (observacao == null || observacao.trim().equals("")) {
@@ -24,10 +23,6 @@ public record VendaDTO(
 
         if (data == null) {
             data = LocalDateTime.now();
-        }
-
-        if (metodoPagamento.equals("DINHEIRO") && troco == null) {
-            troco = valorRecebido.subtract(getTotal());
         }
     }
 

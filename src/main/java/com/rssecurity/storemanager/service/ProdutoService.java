@@ -1,14 +1,17 @@
 package com.rssecurity.storemanager.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.ProdutoMapper;
 import com.rssecurity.storemanager.model.Produto;
 import com.rssecurity.storemanager.repository.ProdutoRepository;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
+import jakarta.transaction.Transactional;
 
 @Service
 public class ProdutoService {
@@ -60,6 +63,7 @@ public class ProdutoService {
 
     // ACTIONS
 
+    @Transactional
     public ProdutoDTO create(ProdutoDTO produto) {
         if (produto.idProduto() != null) {
             throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
@@ -68,6 +72,7 @@ public class ProdutoService {
         return mapper.toDTO(created);
     }
 
+    @Transactional
     public void update(Long id, ProdutoDTO produto) {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("Produto não encontrado. ID: " + id);

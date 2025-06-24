@@ -39,7 +39,6 @@ function loadModule() {
       .catch(err => console.warn(`Não foi possível carregar módulo para ${pageId}`, err));
 
   }
-
   
   currentModule = pageId;
 }

@@ -9,11 +9,11 @@ import java.util.Map;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.rssecurity.storemanager.model.Venda;
+import com.rssecurity.storemanager.model.Compra;
 
-public class VendaSpecification {
-
-    public static Specification<Venda> withFilters(Map<String, String> filters) {
+public class CompraSpecification {
+    
+    public static Specification<Compra> withFilters(Map<String, String> filters) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -22,17 +22,13 @@ public class VendaSpecification {
             }
 
             if (filters.containsKey("termo")) {
-                if (filters.get("tipo").contains("usuario")) {
-                    predicates.add(cb.like(root.get("usuario").get("username"), "%" + filters.get("termo") + "%"));
+                if (filters.get("tipo").contains("fornecedor")) {
+                    predicates.add(cb.like(root.get("fornecedor").get("nome"), "%" + filters.get("termo") + "%"));
                 } else if (filters.get("tipo").contains("produtoNome")) {
                     predicates.add(cb.like(root.get("itens").get("produto").get("nome"), "%" + filters.get("termo") + "%"));
                 } else if (filters.get("tipo").contains("produtoId")) {
                     predicates.add(cb.equal(root.get("itens").get("produto").get("idProduto"), filters.get("termo")));
                 }
-            }
-
-            if (filters.containsKey("metodoPagamento")) {
-                predicates.add(cb.equal(root.get("metodoPagamento"), filters.get("metodoPagamento")));
             }
 
             if (filters.containsKey("dataInicio") && filters.containsKey("dataFim")) {
@@ -50,4 +46,5 @@ public class VendaSpecification {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
+
 }

@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.math.BigDecimal;
 
-public record ProdutoDTO(Long idProduto, @NotBlank String nome, BigDecimal precoAtual, String descricao, Integer estoqueMin, CategoriaDTO categoria) {
+public record ProdutoDTO(Long idProduto, @NotBlank String nome, BigDecimal precoAtual, String descricao, Integer estoque, CategoriaDTO categoria) {
 }
