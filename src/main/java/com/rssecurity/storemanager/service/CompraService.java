@@ -1,22 +1,31 @@
 package com.rssecurity.storemanager.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
 import com.rssecurity.storemanager.dto.CompraDTO;
+import com.rssecurity.storemanager.dto.ItemCompraDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.CompraMapper;
 import com.rssecurity.storemanager.mapper.ProdutoMapper;
 import com.rssecurity.storemanager.model.Compra;
 import com.rssecurity.storemanager.model.ItemCompra;
+import com.rssecurity.storemanager.model.Produto;
 import com.rssecurity.storemanager.repository.CompraRepository;
+import com.rssecurity.storemanager.repository.ProdutoRepository;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import jakarta.transaction.Transactional;
 
 @Service
 public class CompraService {
@@ -24,12 +33,14 @@ public class CompraService {
 
     private final CompraRepository repository;
     private final CompraMapper mapper;
+    private final ProdutoRepository produtoRepository;
     private final ProdutoMapper produtoMapper;
 
-    public CompraService(CompraRepository repository, CompraMapper mapper, ProdutoMapper produtoMapper) {
+    public CompraService(CompraRepository repository, CompraMapper mapper, ProdutoMapper produtoMapper, ProdutoRepository produtoRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.produtoMapper = produtoMapper;
+        this.produtoRepository = produtoRepository;
     }
 
     // SEARCH
@@ -101,55 +112,148 @@ public class CompraService {
 
     // ACTIONS
 
-    public CompraDTO create(CompraDTO dto) {
-        if (dto.idCompra() != null) {
+    @Transactional
+    public CompraDTO create(CompraDTO compra) {
+        if (compra.idCompra() != null) {
             throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
-        }
-
-        Compra entity = mapper.toEntity(dto);
-
-        List<ItemCompra> itens = getItens(dto, entity, false);
-
-        entity.setItens(itens);
-        Compra saved = repository.save(entity);
-
-        return mapper.toDTO(saved);
-    }
-
-    public void update(Long idCompra, CompraDTO compra) {
-        if (!repository.existsById(idCompra)) {
-            throw new ResourceNotFoundException("Compra não encontrada. ID: " + idCompra);
         }
 
         Compra entity = mapper.toEntity(compra);
 
-        List<ItemCompra> itens = getItens(compra, entity, true);
+        List<ItemCompra> itens = buildItemCompraList(compra, entity, false);
+
         entity.setItens(itens);
+        Compra saved = repository.save(entity);
+        updateStock(compra, "CREATE", null);
+
+        return mapper.toDTO(saved);
+    }
+
+    @Transactional
+    public void update(Long idCompra, CompraDTO compra) {
+        CompraDTO oldCompra = mapper.toDTO(
+            repository.findById(idCompra).orElseThrow(
+                () -> new ResourceNotFoundException("Compra não encontrada. ID: " + idCompra))
+        );
+        
+        Compra entity = mapper.toEntity(compra);
+
+        List<ItemCompra> itens = buildItemCompraList(compra, entity, true);
+        entity.setItens(itens);
+
         repository.save(entity);
+        updateStock(compra, "UPDATE", oldCompra);
     }
 
+    @Transactional
     public void deleteById(Long idCompra) {
-        if (!repository.existsById(idCompra)) {
-            throw new ResourceNotFoundException("Compra não encontrada. ID: " + idCompra);
-        }
+        CompraDTO compra = mapper.toDTO(
+            repository.findById(idCompra).orElseThrow(
+                () -> new ResourceNotFoundException("Compra não encontrada. ID: " + idCompra))
+        );
+
         repository.deleteById(idCompra);
+        updateStock(compra, "DELETE", null);
     }
 
-    private List<ItemCompra> getItens(CompraDTO dto, Compra entity, boolean isUpdate) {
-        List<ItemCompra> itens = dto.itens().stream()
+    /**
+     * Builds a list of ItemCompra entities from the given CompraDTO.
+     * 
+     * This method maps each ItemCompraDTO to its corresponding entity,
+     * optionally setting the item ID if it's an update, links each item to the parent Compra,
+     * and ensures the associated Produto entity is correctly referenced.
+     *
+     * @param compra the CompraDTO containing the list of item DTOs
+     * @param entity the Compra entity to associate with each item
+     * @param isUpdate true if the operation is an update (to include item IDs), false for creation
+     * @return a list of fully initialized ItemCompra entities ready for persistence
+     * @throws ResourceNotFoundException if any referenced Produto ID does not exist
+     */
+    private List<ItemCompra> buildItemCompraList(CompraDTO compra, Compra entity, boolean isUpdate) {
+        List<Long> ids = compra.itens().stream()
+                .map(item -> item.produto().idProduto())
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        Map<Long, Produto> produtosMap = produtoRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
+
+        return compra.itens().stream()
                 .map(itemDto -> {
+                    Long idProduto = itemDto.produto().idProduto();
+                    Produto produto = produtosMap.get(idProduto);
+                    if (produto == null) {
+                        throw new ResourceNotFoundException("Produto não encontrado: " + idProduto);
+                    }
+
                     ItemCompra item = new ItemCompra();
                     if (isUpdate) {
-                        item.setidItem(itemDto.idItem());
+                        item.setIdItem(itemDto.idItem());
                     }
+                    item.setProduto(produto);
                     item.setQuantidade(itemDto.quantidade());
                     item.setValorUnitario(itemDto.valorUnitario());
-                    item.setProduto(produtoMapper.toEntity(itemDto.produto()));
                     item.setCompra(entity);
+                    
                     return item;
                 }).toList();
+    }
 
-        return itens;
+    // STOCK UPDATE
+
+    public void updateStock(CompraDTO compraDTO, String operation, CompraDTO oldCompraDTO) {
+        Map<Long, Integer> ajustesEstoque = new HashMap<>();
+
+        switch (operation) {
+            case "CREATE" -> {
+                // Adds to the stock
+                for (ItemCompraDTO item : compraDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    ajustesEstoque.merge(idProduto, quantidade, Integer::sum);
+                }
+            }
+
+            case "DELETE" -> {
+                // Subtracts from the stock
+                for (ItemCompraDTO item : compraDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    ajustesEstoque.merge(idProduto, -quantidade, Integer::sum);
+                }
+            }
+
+            case "UPDATE" -> {
+                // Subtracts from the stock
+                for (ItemCompraDTO item : oldCompraDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    ajustesEstoque.merge(idProduto, -quantidade, Integer::sum);
+                }
+                // Aplica os efeitos da nova compra
+                for (ItemCompraDTO item : compraDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    ajustesEstoque.merge(idProduto, quantidade, Integer::sum);
+                }
+            }
+
+            default -> throw new IllegalArgumentException("Operação inválida para atualização de estoque");
+        }
+
+        // Aply update
+        for (Map.Entry<Long, Integer> ajuste : ajustesEstoque.entrySet()) {
+            Long idProduto = ajuste.getKey();
+            Integer delta = ajuste.getValue();
+
+            Produto produto = produtoRepository.findById(idProduto)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado: " + idProduto));
+
+            produto.setEstoque(produto.getEstoque() + delta);
+            produtoRepository.save(produto);
+        }
+        
     }
 
 }

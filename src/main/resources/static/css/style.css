@@ -19,11 +19,9 @@
 }
 
 #conteudo {
-    width: 100vw;
-    justify-content: center;
-    height: 100vh;
     margin-left: 250px;
     padding: 1rem;
+    flex-grow: 1;
 }
 
 #conteudo.collapsed {

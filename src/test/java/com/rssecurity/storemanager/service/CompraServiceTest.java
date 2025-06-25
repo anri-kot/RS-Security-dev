@@ -6,6 +6,7 @@ import com.rssecurity.storemanager.mapper.ProdutoMapper;
 import com.rssecurity.storemanager.model.Compra;
 import com.rssecurity.storemanager.repository.CompraRepository;
 import com.rssecurity.storemanager.repository.ItemCompraRepository;
+import com.rssecurity.storemanager.repository.ProdutoRepository;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ class CompraServiceTest {
     private CompraMapper compraMapper;
     private ProdutoMapper produtoMapper;
     private CompraService compraService;
+    private ProdutoRepository produtoRepository;
 
     @BeforeEach
     void setUp() {
@@ -33,7 +35,8 @@ class CompraServiceTest {
         itemRepository = mock(ItemCompraRepository.class);
         compraMapper = mock(CompraMapper.class);
         produtoMapper = mock(ProdutoMapper.class);
-        compraService = new CompraService(compraRepository, compraMapper, produtoMapper);
+        produtoRepository = mock(ProdutoRepository.class);
+        compraService = new CompraService(compraRepository, compraMapper, produtoMapper, produtoRepository);
     }
 
     @Test

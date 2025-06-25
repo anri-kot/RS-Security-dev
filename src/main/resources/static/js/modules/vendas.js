@@ -208,7 +208,7 @@ export function init() {
             itens = venda.itens;
             populateVendaModal(venda);
         }
-        const vendaModal = new bootstrap.Modal(vendaModalEl);
+        const vendaModal = bootstrap.Modal.getOrCreateInstance(vendaModalEl);
 
         vendaModal.show();
     }
@@ -435,10 +435,12 @@ export function init() {
 
     modalConfirmOkButtonEl.addEventListener('click', (e) => {
         deleteVenda(e.target.dataset.id);
+        const modal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
+        modal.hide();
     });
 
     function showConfirmModal(id) {
-        const confirmModal = new bootstrap.Modal(modalConfirmEl);
+        const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
         if (!id) return;
 
         modalConfirmLabelEl.innerText = 'Confirmar delete';

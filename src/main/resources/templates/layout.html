@@ -12,7 +12,7 @@
     </style>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- Inline SVG -->
     <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
         <symbol id="home" viewBox="0 0 16 16">
@@ -34,7 +34,7 @@
         </symbol>
     </svg>
 
-    <main class="d-flex">
+    <main class="d-flex flex-grow-1">
 
         <!-- Sidebar -->
         <div id="sidebar" class="sidebar d-flex flex-column p-3">
@@ -42,50 +42,44 @@
             <ul class="nav nav-pills flex-column mb-auto" id="nav-options">
                 <li class="nav-item">
                     <a href="/home" data-page="home" class="nav-link link-dark" id="nav-home">
-                        <svg class="bi" width="16" height="16">
-                            <use xlink:href="#home"></use>
-                        </svg>
+                        <i class="bi bi-house-door"></i>
                         <span class="ms-2">Home</span>
                     </a>
                 </li>
                 <li>
                     <a href="/pdv" data-page="pdv" class="nav-link link-dark" id="nav-pdv">
-                        <svg class="bi" width="16" height="16">
-                            <use xlink:href="#table"></use>
-                        </svg>
+                        <i class="bi bi-basket"></i>
                         <span class="ms-2">PDV</span>
                     </a>
                 </li>
                 <li>
                     <a href="/produtos" data-page="produtos" class="nav-link link-dark" id="nav-produtos">
-                        <svg class="bi" width="16" height="16">
-                            <use xlink:href="#table"></use>
-                        </svg>
+                        <i class="bi bi-box-seam"></i>
                         <span class="ms-2">Produtos</span>
                     </a>
                 </li>
                 <li>
                     <a href="/fornecedores" data-page="fornecedores" class="nav-link link-dark" id="nav-fornecedores">
-                        <svg class="bi" width="16" height="16">
-                            <use xlink:href="#people-circle"></use>
-                        </svg>
+                        <i class="bi bi-truck"></i>
                         <span class="ms-2">Fornecedores</span>
                     </a>
                 </li>
                 <li>
                     <a href="/vendas" data-page="vendas" class="nav-link link-dark" id="vendas">
-                        <svg class="bi" width="16" height="16">
-                            <use xlink:href="#speedometer2"></use>
-                        </svg>
+                        <i class="bi bi-receipt"></i>
                         <span class="ms-2">Vendas</span>
                     </a>
                 </li>
                 <li>
                     <a href="/compras" data-page="compras" class="nav-link link-dark" id="compras">
-                        <svg class="bi" width="16" height="16">
-                            <use xlink:href="#table"></use>
-                        </svg>
+                        <i class="bi bi-cart-plus"></i>
                         <span class="ms-2">Compras</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/importar" data-page="importar" class="nav-link link-dark" id="importar">
+                        <i class="bi bi-file-earmark-arrow-up"></i>
+                        <span class="ms-2">Importar</span>
                     </a>
                 </li>
             </ul>
@@ -97,12 +91,19 @@
 
     </main>
 
+    <footer class="bg-light border-top text-center text-muted small py-3 mt-auto">
+        <div class="container">
+            <span>&copy; 2025 Seu Sistema de Gestão • Desenvolvido por <a href="#"
+                    class="text-decoration-none text-muted">Sua Empresa</a></span>
+        </div>
+    </footer>
+
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
     <script src="/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="/js/main.js"></script>
 
     <script>
-        
+
     </script>
 </body>
 

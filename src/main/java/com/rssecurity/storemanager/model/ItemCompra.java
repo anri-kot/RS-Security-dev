@@ -22,7 +22,7 @@ public class ItemCompra {
         return idItem;
     }
 
-    public void setidItem(Long idItem) {
+    public void setIdItem(Long idItem) {
         this.idItem = idItem;
     }
 

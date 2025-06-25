@@ -13,12 +13,16 @@ export function init() {
 
     // LISTENS TO EDIT AND DELETE BUTTONS
     table.addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-outline-secondary')) {
-            showFornecedorModal(e.target.dataset.id);
-        } else if (e.target.classList.contains('btn-outline-danger')) {
-            const id = e.target.dataset.id;
-            const nome = e.target.closest('tr').querySelectorAll('td')[1].innerText;
+        const btn = e.target.closest('button');
+        if (!btn) return;
 
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+
+        if (action === 'edit') {
+            showFornecedorModal(id);
+        } else if (action === 'delete') {
+            const nome = btn.closest('tr').querySelectorAll('td')[1]?.innerText;
             triggerDeleteWarning(id, nome);
         }
     });
@@ -185,6 +189,6 @@ export function init() {
 
     async function refresh() {
         const url = `/fornecedores${lastSearch}`;
-        htmx.ajax('GET', url, { target: '#conteudo', selected: '#tabela-fornecedores'});
+        htmx.ajax('GET', url, { target: '#conteudo', selected: '#tabela-fornecedores' });
     }
 }
