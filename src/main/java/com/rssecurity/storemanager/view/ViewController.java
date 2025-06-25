@@ -201,6 +201,10 @@ public class ViewController {
 
         return "compras";
     }
-    
+
+    @GetMapping("/importar")
+    public String getImportar(Model model) {
+        return "importar";
+    }
 
 }
