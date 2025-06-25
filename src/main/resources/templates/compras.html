@@ -300,7 +300,10 @@
                                             <div class="position-relative">
                                                 <label class="form-label">Fornecedor</label>
                                                 <input class="form-control input-dropdown" id="modal-compra-fornecedor"
-                                                    name="fornecedor" placeholder="Digite o nome do fornecedor">
+                                                    name="fornecedor" placeholder="Digite o nome do fornecedor"
+                                                    hx-get="compras/autocomplete"
+                                                    hx-target="#autocomplete-fornecedor-options"
+                                                    hx-trigger="keyup changed delay:300ms">
 
                                                 <input type="hidden" id="modal-compra-fornecedor-id">
                                                 <input type="hidden" id="modal-compra-fornecedor-nome">

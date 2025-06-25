@@ -1,5 +1,7 @@
 export function init() {
 
+    let lastSearch = '';
+
     // ================== ELEMENTS ==================
     // ===== MAIN SEARCH
     const filterEl = document.getElementById('filter');
@@ -9,14 +11,14 @@ export function init() {
     const autocompleteSearchProdutos = document.getElementById('autocompleteProdutosSearch');
 
     // ===== MODALS
+    // Compra
     const compraModalEl = document.getElementById('compra-modal');
-
     const modalIdEl = document.getElementById('modal-compra-idCompra');
     const modalDataEl = document.getElementById('modal-compra-data');
     const modalObservacaoEl = document.getElementById('modal-compra-observacao');
     const modalFornecedorEl = document.getElementById('modal-compra-fornecedor');
     const modalItensEl = document.getElementById('modal-compra-itens');
-
+    // Compra Items
     const modalItemsTotalEl = document.getElementById('modal-items-total');
     const modalQuantidadeEl = document.getElementById('modal-compra-quantidade');
     const modalValorUnitarioEl = document.getElementById('modal-compra-valorUnitario');
@@ -25,12 +27,22 @@ export function init() {
     const selectedProdutoIdEl = document.getElementById('selected-product-id');
     const selectedProdutoNameEl = document.getElementById('selected-product-name')
     const addItemBtn = document.getElementById('add-button');
-
+    // Compra Items Search
     const itemSearchTypeEl = document.getElementById('item-search-type');
     const itemSearchProduct = document.getElementById('search-product');
     const itemAutocompleteProdutoOptions = document.getElementById('autocomplete-produto-options');
     const itemAutocompleteFornecedorOptions = document.getElementById('autocomplete-fornecedor-options');
     const categoriaEl = document.getElementById('categoria');
+    // Confirm Modal
+    const modalConfirmEl = document.getElementById('confirma-modal');
+    const modalConfirmLabelEl = document.getElementById('confirmar-label');
+    const modalConfirmMsgEl = document.getElementById('confirmar-mensagem');
+    const modalConfirmOkButtonEl = document.getElementById('confirmar-acao');
+
+    // Keeps track of the current search
+    document.addEventListener('htmx:afterSettle', (e) => {
+        lastSearch = location.search;
+    });
 
     // ================== MAIN SEARCH ==================
 
@@ -105,6 +117,13 @@ export function init() {
         }
     }
 
+    /* ================== REFRESH REGISTERS ================== */
+
+    async function refreshCompras() {
+        const url = `/compras${lastSearch}`;
+        htmx.ajax('GET', url, { target: '#conteudo', selected: '#cards-vendas' });
+    }
+
     /* ================== COMPRA MODAL ================== */
 
     let itens = [];
@@ -123,7 +142,7 @@ export function init() {
             if (el.dataset.action == 'edit') {
                 showCompraModal(el.dataset.id);
             } else if (el.dataset.action == 'delete') {
-                // showConfirmModal(el.dataset.id);
+                showConfirmModal(el.dataset.id);
             }
         }
     });
@@ -234,7 +253,6 @@ export function init() {
         if (currentItemIndex != null) {
             itens[currentItemIndex].quantidade = quantidade;
             itens[currentItemIndex].valorUnitario = valorUnitario;
-            itens[currentItemIndex].desconto = parseFloat(modalDescontoEl.value);
         } else {
             itens.push({
                 quantidade: quantidade,
@@ -345,7 +363,22 @@ export function init() {
         return li;
     }
 
-    
+    /* ================== CONFIRM MODAL ================== */
+
+    modalConfirmOkButtonEl.addEventListener('click', (e) => {
+        deleteVenda(e.target.dataset.id);
+    });
+
+    function showConfirmModal(id) {
+        const confirmModal = new bootstrap.Modal(modalConfirmEl);
+        if (!id) return;
+
+        modalConfirmLabelEl.innerText = 'Confirmar delete';
+        modalConfirmOkButtonEl.dataset.id = id;
+        modalConfirmMsgEl.innerHTML = `Tem certeza que deseja deletar a venda número <strong>#${id}</strong>?`;
+
+        confirmModal.show();
+    }
 
     /* ================== DROPDOWNS ================== */
 
@@ -392,12 +425,19 @@ export function init() {
 
     // Validates htmx request
     document.body.addEventListener("htmx:beforeRequest", (event) => {
-        if (event.target.id === itemSearchProduct.id) {
-            const value = itemSearchProduct.value.trim();
+        if (event.target.id !== itemSearchProduct.id) return;
 
-            if (value.length < 1 || (itemSearchTypeEl.value !== 'id' && (value.length < 3 || lastQuery === value))) {
-                event.preventDefault();
-            }
+        const value = itemSearchProduct.value.trim();
+        const isIdSearch = itemSearchTypeEl.value === 'id';
+
+        const isTooShort = isIdSearch
+            ? value.length < 1
+            : value.length < 3;
+
+        const isRepeatedQuery = value === lastQuery;
+
+        if (isTooShort || isRepeatedQuery) {
+            event.preventDefault();
         }
     });
 
@@ -472,6 +512,102 @@ export function init() {
         } catch (e) {
             console.error('Erro inesperado ao buscar produto:', e);
             return null;
+        }
+    }
+
+    /* ================== INSERT, UPDATE, DELETE ================== */
+
+    document.getElementById('confirm-register').addEventListener('click', (e) => {
+        const id = parseInt(modalIdEl.value) || 0;
+
+        modalFornecedorEl.querySelectorAll('option').forEach(opt => {
+            if (opt.value === modalFornecedorEl.value) {
+                modalFornecedorEl.dataset.id = opt.dataset.id;
+                return;
+            }
+        });
+
+        sendCompra(id);
+    });
+
+    async function sendCompra(id) {
+        let url;
+        let method;
+        const body = JSON.stringify(getCompraObj());
+
+        if (id > 0) {
+            url = `/api/compra/${id}`;
+            method = 'PUT';
+        } else {
+            url = `/api/compra`;
+            method = 'POST'
+        }
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'HX-Request': 'true'
+                },
+                body: body
+            });
+
+            const compraModal = bootstrap.Modal.getInstance(compraModalEl);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                compraModal.hide();
+                return;
+            } else {
+                alert('Ação executada com sucesso.');
+                refreshCompras();
+                compraModal.hide();
+            }
+        } catch (e) {
+            console.error('Erro inesperado:', e);
+            alert('Ocorreu um erro inesperado.');
+        }
+    }
+
+    async function deleteCompra(id) {
+        try {
+            const response = await fetch(`/api/compra/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Hx-Request': true
+                },
+                body: {}
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                return;
+            } else {
+                alert('Ação executada com sucesso.');
+                refreshCompras();
+            }
+        } catch (e) {
+            console.error('Erro inesperado:', e);
+            alert('Ocorreu um erro inesperado.');
+        }
+    }
+
+    function getCompraObj() {
+        const idCompra = parseInt(modalIdEl.value) || null;
+        const data = modalDataEl.value;
+        const observacao = modalObservacaoEl.value;
+        const idFornecedor = parseInt(modalFornecedorIdEl.value);
+
+        return {
+            idCompra: idCompra,
+            data: data,
+            itens: itens,
+            observacao: observacao,
+            fornecedor: { idFornecedor: idFornecedor }
         }
     }
 }

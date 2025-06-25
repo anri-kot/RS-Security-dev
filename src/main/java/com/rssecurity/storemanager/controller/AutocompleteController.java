@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.dto.VendaDTO;
+import com.rssecurity.storemanager.service.FornecedorService;
 import com.rssecurity.storemanager.service.ProdutoService;
 import com.rssecurity.storemanager.service.UsuarioService;
 import com.rssecurity.storemanager.service.VendaService;
@@ -31,6 +33,8 @@ public class AutocompleteController {
     private VendaService vendaService;
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private FornecedorService fornecedorService;
 
     @GetMapping("/pdv/autocomplete")
     public String pdvAutocomplete(@RequestParam String termo, @RequestParam(required = false) String tipo,
@@ -76,5 +80,13 @@ public class AutocompleteController {
 
         return "fragments/autocomplete-funcionarios";
     }
+
+    @GetMapping("/compras/autocomplete")
+    public String getMethodName(@RequestParam String fornecedor, Model model) {
+        List<FornecedorDTO> results = fornecedorService.findByNomeContains(fornecedor);
+        model.addAttribute("results", results);
+        return "fragments/autocomplete-fornecedores";
+    }
+    
     
 }
