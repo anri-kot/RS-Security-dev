@@ -45,37 +45,46 @@
             </div>
 
             <div id="tabela-fornecedores" th:fragment="fornecedores" class="table-responsive">
-                <table class="table table-striped table-hover table-bordered rounded shadow-sm">
+                <div class="card shadow-sm rounded">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Fornecedores</h5>
+                    </div>
 
-                    <thead class="table-primary">
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col">CNPJ</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Telefone</th>
-                            <th scope="col">Ações</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <tr th:each="fornecedor : ${fornecedores}">
-                            <td th:text="${fornecedor.idFornecedor}"></td>
-                            <td th:text="${fornecedor.nome}"></td>
-                            <td th:text="${fornecedor.cnpj}"></td>
-                            <td th:text="${fornecedor.email}"></td>
-                            <td th:text="${fornecedor.telefone}"></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-secondary me-2"
-                                    th:attr="data-id=${fornecedor.idFornecedor}">Editar</button>
-                                <button class="btn btn-sm btn-outline-danger"
-                                    th:attr="data-id=${fornecedor.idFornecedor}">Excluir</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Nome</th>
+                                    <th scope="col">CNPJ</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Telefone</th>
+                                    <th scope="col" class="text-end">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="fornecedor : ${fornecedores}">
+                                    <td th:text="${fornecedor.idFornecedor}"></td>
+                                    <td th:text="${fornecedor.nome}"></td>
+                                    <td th:text="${fornecedor.cnpj}"></td>
+                                    <td th:text="${fornecedor.email}"></td>
+                                    <td th:text="${fornecedor.telefone}"></td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-primary me-2" th:attr="data-id=${fornecedor.idFornecedor}"
+                                            data-action="edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" th:attr="data-id=${fornecedor.idFornecedor}"
+                                            data-action="delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-
             <!-- MODALS -->
 
             <!-- new/edit -->

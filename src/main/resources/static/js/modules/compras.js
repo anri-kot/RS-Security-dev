@@ -121,7 +121,7 @@ export function init() {
 
     async function refreshCompras() {
         const url = `/compras${lastSearch}`;
-        htmx.ajax('GET', url, { target: '#conteudo', selected: '#cards-vendas' });
+        htmx.ajax('GET', url, { target: '#conteudo', selected: '#cards-compras' });
     }
 
     /* ================== COMPRA MODAL ================== */
@@ -178,7 +178,7 @@ export function init() {
             itens = compra.itens;
             populateCompraModal(compra);
         }
-        const compraModal = new bootstrap.Modal(compraModalEl);
+        const compraModal = bootstrap.Modal.getOrCreateInstance(compraModalEl);
 
         compraModal.show();
     }
@@ -366,16 +366,18 @@ export function init() {
     /* ================== CONFIRM MODAL ================== */
 
     modalConfirmOkButtonEl.addEventListener('click', (e) => {
-        deleteVenda(e.target.dataset.id);
+        deleteCompra(e.target.dataset.id);
+        const modal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
+        modal.hide();
     });
 
     function showConfirmModal(id) {
-        const confirmModal = new bootstrap.Modal(modalConfirmEl);
+        const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
         if (!id) return;
 
         modalConfirmLabelEl.innerText = 'Confirmar delete';
         modalConfirmOkButtonEl.dataset.id = id;
-        modalConfirmMsgEl.innerHTML = `Tem certeza que deseja deletar a venda número <strong>#${id}</strong>?`;
+        modalConfirmMsgEl.innerHTML = `Tem certeza que deseja deletar a compra número <strong>#${id}</strong>?`;
 
         confirmModal.show();
     }
@@ -561,7 +563,7 @@ export function init() {
                 compraModal.hide();
                 return;
             } else {
-                alert('Ação executada com sucesso.');
+                // alert('Ação executada com sucesso.');
                 refreshCompras();
                 compraModal.hide();
             }
@@ -587,7 +589,7 @@ export function init() {
                 alert(`Erro ${errorData.status}: ${errorData.message}`);
                 return;
             } else {
-                alert('Ação executada com sucesso.');
+                // alert('Ação executada com sucesso.');
                 refreshCompras();
             }
         } catch (e) {

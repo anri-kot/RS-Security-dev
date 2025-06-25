@@ -3,6 +3,12 @@ document.addEventListener("DOMContentLoaded", () => {
   loadModule();
 });
 
+document.body.addEventListener("htmx:afterSwap", (e) => {
+  if (e.target.id === "conteudo") {
+    loadModule(); // Reexecuta sua lógica JS para a nova página carregada
+  }
+});
+
 const conteudo = document.getElementById('conteudo');
 const navOptions = document.querySelectorAll('#nav-options li');
 let currentModule = null;
@@ -33,12 +39,9 @@ function loadModule() {
 
   if (!pageId) return;
 
-  if (currentModule === null || currentModule !== pageId) {
-    import(`/js/modules/${pageId}.js`)
-      .then(module => module.init())
-      .catch(err => console.warn(`Não foi possível carregar módulo para ${pageId}`, err));
-
-  }
+  import(`/js/modules/${pageId}.js`)
+    .then(module => module.init())
+    .catch(err => console.warn(`Não foi possível carregar módulo para ${pageId}`, err));
   
   currentModule = pageId;
 }
