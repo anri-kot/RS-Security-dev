@@ -1,6 +1,9 @@
 # msc
 /database
 
+# docker
+docker-compose.yml
+
 # Maven
 target/
 .mvn/wrapper/maven-wrapper.jar
