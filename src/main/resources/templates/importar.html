@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
     layout:decorate="~{layout}">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Importar CSV</title>
 </head>
 
 <body>
-
     <div layout:fragment="content">
         <div class="container py-4" th:fragment="content" data-page-id="importar">
 
@@ -79,23 +79,6 @@
 
         </div>
     </div>
-
-    <script>
-        // Exemplo de validação de formulário com Bootstrap
-        (function () {
-            const form = document.getElementById('csvUploadForm');
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                } else {
-                    document.getElementById('uploadStatus').style.display = 'block';
-                }
-                form.classList.add('was-validated');
-            }, false);
-        })();
-    </script>
-
 </body>
 
 </html>

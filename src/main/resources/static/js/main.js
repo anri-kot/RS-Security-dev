@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
 document.body.addEventListener("htmx:afterSwap", (e) => {
   if (e.target.id === "conteudo") {
     loadModule(); // Reexecuta sua lógica JS para a nova página carregada
+    updateSidebar();
   }
 });
 
@@ -16,6 +17,9 @@ let currentModule = null;
 function updateSidebar() {
   const currentPage = location.pathname.split('/')[1] || 'home';
 
+  console.log(`currentPage: ${currentPage}`);
+  
+
   navOptions.forEach(node => {
     const option = node.querySelector('a');
     if (option.dataset.page === currentPage) {
@@ -25,6 +29,8 @@ function updateSidebar() {
       option.classList.remove('active');
       option.classList.add('link-dark');
     }
+    console.log(`dataset: ${option.dataset.page}`);
+
   });
 }
 
@@ -32,6 +38,7 @@ function navigateTo(page) {
   const url = `/${page === 'home' ? '' : page}`;
   htmx.ajax('GET', url, { target: '#conteudo' });
   history.pushState({}, '', url);
+  updateSidebar();
 }
 
 function loadModule() {

@@ -44,39 +44,51 @@
             </div>
 
             <div id="tabela-produtos" th:fragment="produtos" class="table-responsive">
-                <table class="table table-striped table-hover table-bordered rounded shadow-sm">
-                    <thead class="table-primary">
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col">Preço Atual</th>
-                            <th scope="col">Descrição</th>
-                            <th scope="col">Estoque</th>
-                            <th scope="col">Categoria</th>
-                            <th scope="col">Ações</th>
-                        </tr>
-                    </thead>
+                <div class="card shadow-sm rounded">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Produtos</h5>
+                    </div>
 
-                    <tbody>
-                        <tr th:each="produto : ${produtos}">
-                            <td th:text="${produto.idProduto}"></td>
-                            <td th:text="${produto.nome}"></td>
-                            <td th:text="${produto.precoAtual}"></td>
-                            <td style="max-width: 200px" th:text="${produto.descricao}">
-                            </td>
-                            <td th:text="${produto.estoque}"></td>
-                            <td>
-                                <span class="badge bg-info text-dark" th:text="${produto.categoria.nome}"></span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-secondary me-2"
-                                    th:attr="data-id=${produto.idProduto}">Editar</button>
-                                <button class="btn btn-sm btn-outline-danger"
-                                    th:attr="data-id=${produto.idProduto}">Excluir</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Nome</th>
+                                    <th scope="col">Preço Atual</th>
+                                    <th scope="col">Descrição</th>
+                                    <th scope="col">Estoque</th>
+                                    <th scope="col">Categoria</th>
+                                    <th scope="col">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="produto : ${produtos}">
+                                    <td th:text="${produto.idProduto}"></td>
+                                    <td th:text="${produto.nome}"></td>
+                                    <td th:text="${produto.precoAtual}"></td>
+                                    <td style="max-width: 200px" th:text="${produto.descricao}">
+                                    </td>
+                                    <td th:text="${produto.estoque}"></td>
+                                    <td>
+                                        <span class="badge bg-info text-dark"
+                                            th:text="${produto.categoria.nome}"></span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary me-2" th:attr="data-id=${produto.idProduto}"
+                                            data-action="edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" th:attr="data-id=${produto.idProduto}"
+                                            data-action="delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <div class="modal fade" id="produtoModal" tabindex="-1" aria-labelledby="produtoModalLabel"
@@ -121,7 +133,7 @@
                                 <div class="mb-3">
                                     <label class="form-label">Estoque</label>
                                     <input type="number" id="modal-produto-estoque" class="form-control" value="1"
-                                        min="1">
+                                        min="0">
                                 </div>
                             </form>
                             <div class="modal-footer">

@@ -34,12 +34,10 @@ public class CompraService {
     private final CompraRepository repository;
     private final CompraMapper mapper;
     private final ProdutoRepository produtoRepository;
-    private final ProdutoMapper produtoMapper;
-
+    
     public CompraService(CompraRepository repository, CompraMapper mapper, ProdutoMapper produtoMapper, ProdutoRepository produtoRepository) {
         this.repository = repository;
         this.mapper = mapper;
-        this.produtoMapper = produtoMapper;
         this.produtoRepository = produtoRepository;
     }
 

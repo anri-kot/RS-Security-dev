@@ -37,19 +37,15 @@ public class VendaService {
 
     private final VendaRepository repository;
     private final VendaMapper mapper;
-    private final ProdutoMapper produtoMapper;
     private final UsuarioRepository usuarioRepository;
     private final ProdutoRepository produtoRepository;
-    private final ProdutoService produtoService;
-
+    
     public VendaService(VendaRepository repository, VendaMapper mapper, ProdutoMapper produtoMapper,
             UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository, ProdutoService produtoService) {
         this.repository = repository;
         this.mapper = mapper;
-        this.produtoMapper = produtoMapper;
         this.usuarioRepository = usuarioRepository;
         this.produtoRepository = produtoRepository;
-        this.produtoService = produtoService;
     }
 
     // SEARCH

@@ -5,8 +5,6 @@ import com.rssecurity.storemanager.repository.UsuarioRepository;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class UsuarioServiceTest {
     @InjectMocks
     private UsuarioService service;

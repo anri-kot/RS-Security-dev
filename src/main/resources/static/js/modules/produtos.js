@@ -14,10 +14,6 @@ export function init() {
         event.preventDefault();
     });
 
-    document.addEventListener('htmx:afterSettle', () => {
-        lastSearch = location.search;
-    });
-
     // PRODUTO MODAL
     let isNewField = document.getElementById('is-new');
     const modal = new bootstrap.Modal(produtoModalEl);
@@ -25,14 +21,19 @@ export function init() {
     document.getElementById('new-produto').addEventListener('click', () => {
         showProdutoModal(-1);
     });
-
+    
+    // Listens to edit/delete buttons
     document.getElementById('tabela-produtos').addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-outline-secondary')) {
-            showProdutoModal(e.target.dataset.id);
-        } else if (e.target.classList.contains('btn-outline-danger')) {
-            const id = e.target.dataset.id;
-            const nome = e.target.closest('tr').querySelectorAll('td')[1].innerText;
+        const btn = e.target.closest('button');
+        if (!btn) return;
 
+        const action = btn.dataset.action;
+        const id = btn.dataset.id;
+
+        if (action === 'edit') {
+            showProdutoModal(id);
+        } else if (action === 'delete') {
+            const nome = btn.closest('tr').querySelectorAll('td')[1]?.innerText;
             showConfirmModal(id, nome, 'deletar');
         }
     });
@@ -75,7 +76,7 @@ export function init() {
             method = 'PUT';
         } else {
             idProduto = null;
-            url = `/produto`;
+            url = `/api/produto`;
             method = 'POST';
         }
 
@@ -103,7 +104,7 @@ export function init() {
             if (!response.ok) {
                 const errorData = await response.json();
                 alert(`Erro ${errorData.status}: ${errorData.message}`);
-                produtoModalEl.hide();
+                modal.hide();
                 return;
             } else {
                 alert('Ação executada com sucesso.');
@@ -182,7 +183,7 @@ export function init() {
         document.getElementById('modal-produto-categoria-id').value = '';
         document.getElementById('modal-produto-preco').value = '00.00';
         document.getElementById('modal-produto-descricao').value = '';
-        document.getElementById('modal-produto-estoque').value = '1';
+        document.getElementById('modal-produto-estoque').value = '0';
     }
 
     async function refresh() {
