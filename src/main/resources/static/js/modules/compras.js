@@ -426,9 +426,7 @@ export function init() {
     });
 
     // Validates htmx request
-    document.body.addEventListener("htmx:beforeRequest", (event) => {
-        if (event.target.id !== itemSearchProduct.id) return;
-
+    itemSearchProduct.addEventListener("htmx:beforeRequest", (event) => {
         const value = itemSearchProduct.value.trim();
         const isIdSearch = itemSearchTypeEl.value === 'id';
 

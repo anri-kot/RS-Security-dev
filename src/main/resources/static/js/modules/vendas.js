@@ -544,8 +544,6 @@ export function init() {
                 selectedProdutoNameEl.value = itemEl.dataset.nomeProduto;
                 break;
             case autocompleteSearchProdutos.id:
-                console.log(itemEl.dataset);
-
                 searchTerm.value = itemEl.dataset.nomeProduto;
                 break;
 

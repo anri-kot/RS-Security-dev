@@ -1,24 +1,22 @@
+const conteudo = document.getElementById('conteudo');
+const navOptions = document.querySelectorAll('#nav-options li');
+
+// Load Modules and Sidebar
 document.addEventListener("DOMContentLoaded", () => {
   updateSidebar();
-  loadModule();
+  loadModule();  
 });
 
-document.body.addEventListener("htmx:afterSwap", (e) => {
-  if (e.target.id === "conteudo") {
-    loadModule(); // Reexecuta sua lógica JS para a nova página carregada
+// HTMX: reload module after navigation
+document.addEventListener("htmx:afterSwap", e => {
+  if (e.target.id === conteudo.id) {
+    loadModule();
     updateSidebar();
   }
 });
 
-const conteudo = document.getElementById('conteudo');
-const navOptions = document.querySelectorAll('#nav-options li');
-let currentModule = null;
-
 function updateSidebar() {
-  const currentPage = location.pathname.split('/')[1] || 'home';
-
-  console.log(`currentPage: ${currentPage}`);
-  
+  const currentPage = location.pathname.split('/')[1] || 'home';  
 
   navOptions.forEach(node => {
     const option = node.querySelector('a');
@@ -29,8 +27,6 @@ function updateSidebar() {
       option.classList.remove('active');
       option.classList.add('link-dark');
     }
-    console.log(`dataset: ${option.dataset.page}`);
-
   });
 }
 
@@ -43,14 +39,14 @@ function navigateTo(page) {
 
 function loadModule() {
   const pageId = document.querySelector("[data-page-id]")?.dataset.pageId;
-
   if (!pageId) return;
 
   import(`/js/modules/${pageId}.js`)
     .then(module => module.init())
     .catch(err => console.warn(`Não foi possível carregar módulo para ${pageId}`, err));
+
+  console.log(`current: ${pageId}`);
   
-  currentModule = pageId;
 }
 
 // Click on sidebar
@@ -78,13 +74,4 @@ document.getElementById('toggleSidebar').addEventListener('click', () => {
 
   sidebar.classList.toggle('collapsed');
   content.classList.toggle('collapsed');
-});
-
-// HTMX: reload module after navigation
-document.addEventListener("htmx:afterSettle", e => {
-  if (e.target.id === conteudo.id) {
-    currentModule = null;
-    loadModule();
-    updateSidebar();
-  }
 });

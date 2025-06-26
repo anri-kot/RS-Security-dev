@@ -1,4 +1,3 @@
-// js/modules/pdv.js
 export function init() {
 
     let lastQuery = '';
@@ -19,24 +18,19 @@ export function init() {
 
     /* === DROPDOWN === */
 
-    // checks if search field is blank or < 3 before request
+    // Bloqueia request se campo estiver vazio ou repetido
     document.body.addEventListener("htmx:beforeRequest", (event) => {
-        if (!searchProduct) return;
-
         if (event.target.id === searchProduct.id) {
-            const searchType = document.getElementById('search-type');
             const value = event.target.value.trim();
+            const isIdSearch = searchType.value === 'id';
 
-            if (value.length < 1) {
-                event.preventDefault();
-                return;
-            } else if (searchType.value !== 'id' && (value.length < 3 || lastQuery === value)) {
+            if ((isIdSearch && value.length < 1) || (!isIdSearch && (value.length < 3 || lastQuery === value))) {
                 event.preventDefault();
             }
         }
     });
 
-    // Updated dropdown on htmx requests
+    // Atualiza dropdown após o HTMX responder
     document.body.addEventListener('htmx:afterSwap', (event) => {
         if (event.target.id === autocompleteOptions.id) {
             lastQuery = searchProduct.value.trim();
@@ -44,54 +38,55 @@ export function init() {
         }
     });
 
-    // Listens for click events in the dropdown
-    document.body.addEventListener('click', (event) => {
-        const li = event.target.closest('li.list-group-item');
-        if (li && autocompleteOptions.contains(li)) {
-            const idProduto = li.getAttribute('data-id-produto');
-            const nomeProduto = li.getAttribute('data-nome-produto');
-
-            selectProduto(idProduto, nomeProduto);
-        }
-    });
-
-
-    // on 'enter', select the first element of the dropdown
-    searchProduct.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const first = document.querySelectorAll('#autocomplete-options li')[0];
-            const id = first.dataset.idProduto;
-            const nome = first.dataset.nomeProduto;
-
-            selectProduto(id, nome);
-        }
-    });
-
-    // Show dropdown on focus
-    searchProduct.addEventListener('focus', () => {
-        updateDropdown();
-    });
-
-    // Hide dropdown when user clicks outside the search field
+    // Lida com cliques (seleção OU fechamento)
     document.addEventListener('click', (event) => {
-        if (!autocompleteOptions.contains(event.target) && event.target !== searchProduct) {
+        const li = event.target.closest('li.list-group-item');
+
+        if (li && autocompleteOptions.contains(li)) {
+            const idProduto = li.dataset.idProduto;
+            const nomeProduto = li.dataset.nomeProduto;
+            selectProduto(idProduto, nomeProduto);
+        } else if (!autocompleteOptions.contains(event.target) && event.target !== searchProduct) {
             autocompleteOptions.classList.remove('show');
         }
     });
 
+    // Pressionar "Enter" seleciona primeiro item
+    searchProduct.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const first = autocompleteOptions.querySelector('li');
+            if (!first) return;
+
+            const id = first.dataset.idProduto;
+            const nome = first.dataset.nomeProduto;
+            selectProduto(id, nome);
+        }
+    });
+
+    // Mostra dropdown ao focar
+    searchProduct.addEventListener('focus', () => {
+        updateDropdown();
+    });
+
+    // Atualiza visibilidade do dropdown
     function updateDropdown() {
-        if (searchType.value === 'nome') {
-            if (searchProduct.value.trim().length >= 3) {
+        const value = searchProduct.value.trim();
+        const isIdSearch = searchType.value === 'id';
+        const hasOptions = autocompleteOptions.querySelectorAll('li').length > 0;
+
+        if (
+            (isIdSearch && value.length > 0) ||
+            (!isIdSearch && value.length >= 3)
+        ) {
+            if (hasOptions) {
                 autocompleteOptions.classList.add('show');
             }
         } else {
-            if (searchProduct.value.trim().length != 0) {
-                autocompleteOptions.classList.add('show');
-            }
+            autocompleteOptions.classList.remove('show');
         }
     }
-
+    
     /* === CART === */
 
     // SHOW MODAL
@@ -361,7 +356,7 @@ export function init() {
             observacao: obs,
             metodoPagamento: metodoPagamento,
             valorRecebido: valorRecebido
-        });        
+        });
 
         try {
             const response = await fetch('/pdv/finalizar', {
