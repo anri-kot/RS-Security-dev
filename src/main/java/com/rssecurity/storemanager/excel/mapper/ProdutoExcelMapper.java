@@ -4,7 +4,6 @@ import com.rssecurity.storemanager.dto.CategoriaDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.excel.headers.ProdutoExcelHeader;
 
-import org.apache.coyote.BadRequestException;
 import org.apache.poi.ss.usermodel.*;
 
 import java.math.BigDecimal;
@@ -34,7 +33,7 @@ public class ProdutoExcelMapper {
      * Maps column headers (by name) to their index in the row.
      * This allows flexible column ordering in the Excel file.
      */
-    public void initializeHeader(Row headerRow) {
+    private void initializeHeader(Row headerRow) {
         for (Cell cell : headerRow) {
             String value = formatter.formatCellValue(cell).trim().toLowerCase();
             headerIndexMap.put(value, cell.getColumnIndex());
@@ -50,27 +49,20 @@ public class ProdutoExcelMapper {
             throw new IllegalStateException("Cabeçalho não foi inicializado. Envie um cabeçado válido.");
         }
 
-        Long idProduto = null;
-        String nome = null;
-        String descricao = null;
-        BigDecimal precoAtual = null;
-        Integer estoque = null;
-        CategoriaDTO categoria = null;
+        Long idProduto = tryGetLong(row, ProdutoExcelHeader.ID.getHeaderName());
+        String nome = getCellStringValue(row, ProdutoExcelHeader.NOME.getHeaderName());
+        String descricao = getCellStringValue(row, ProdutoExcelHeader.DESCRICAO.getHeaderName());
+        BigDecimal precoAtual = tryGetBigDecimal(row, ProdutoExcelHeader.PRECO_ATUAL.getHeaderName());
+        Integer estoque = tryGetInteger(row, ProdutoExcelHeader.ESTOQUE.getHeaderName());
+        Long idCategoria = tryGetLong(row, ProdutoExcelHeader.ID_CATEGORIA.getHeaderName());
+        String nomeCategoria = getCellStringValue(row, ProdutoExcelHeader.NOME_CATEGORIA.getHeaderName());
 
-        idProduto = tryGetLong(row, ProdutoExcelHeader.ID.getHeaderName());
-        nome = getCellValue(row, ProdutoExcelHeader.NOME.getHeaderName());
-        descricao = getCellValue(row, ProdutoExcelHeader.DESCRICAO.getHeaderName());
-        precoAtual = tryParseBigDecimal(row, ProdutoExcelHeader.PRECO_ATUAL.getHeaderName());
-        estoque = tryParseInteger(row, ProdutoExcelHeader.ESTOQUE.getHeaderName());
-
-        // TODO: CategoriaDTO not defined, Return ProdutoDTO object
-
-        return null;
+        return new ProdutoDTO(idProduto, nome, precoAtual, descricao, estoque, new CategoriaDTO(idCategoria, nomeCategoria));
     }
 
     /* === UTIL === */
 
-    private String getCellValue(Row row, String headerName) {
+    private String getCellStringValue(Row row, String headerName) {
         Integer index = headerIndexMap.get(headerName.toLowerCase());
 
         // getLastCellNum() == last cell index + 1
@@ -83,7 +75,7 @@ public class ProdutoExcelMapper {
     }
 
     private Long tryGetLong(Row row, String headerName) {
-        String value = getCellValue(row, headerName);
+        String value = getCellStringValue(row, headerName);
 
         try {
             return Long.valueOf(value);
@@ -94,8 +86,8 @@ public class ProdutoExcelMapper {
         }
     }
 
-    private BigDecimal tryParseBigDecimal(Row row, String headerName) {
-        String value = getCellValue(row, headerName);
+    private BigDecimal tryGetBigDecimal(Row row, String headerName) {
+        String value = getCellStringValue(row, headerName);
 
         try {
             return new BigDecimal(value);
@@ -106,8 +98,8 @@ public class ProdutoExcelMapper {
         }
     }
 
-    private Integer tryParseInteger(Row row, String headerName) {
-        String value = getCellValue(row, headerName);
+    private Integer tryGetInteger(Row row, String headerName) {
+        String value = getCellStringValue(row, headerName);
 
         try {
             return Integer.valueOf(value);
