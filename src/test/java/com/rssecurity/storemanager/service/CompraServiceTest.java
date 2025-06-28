@@ -2,6 +2,7 @@ package com.rssecurity.storemanager.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -10,6 +11,8 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.domain.Sort;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,15 +48,27 @@ class CompraServiceTest {
     @Test
     void deveRetornarTodasAsCompras() {
         Compra compra = new Compra();
-        CompraDTO compraDTO = new CompraDTO(1L, LocalDateTime.now(), "obs", null, List.of());
+        compra.setIdCompra(1L);
+        compra.setObservacao("obs");
+        compra.setData(LocalDateTime.now());
 
-        when(compraRepository.findAll()).thenReturn(List.of(compra));
-        when(compraMapper.toDTO(compra)).thenReturn(compraDTO);
+        CompraDTO compraDTO = new CompraDTO(
+                compra.getIdCompra(),
+                compra.getData(),
+                compra.getObservacao(),
+                null,
+                List.of());
+
+        when(compraRepository.findAll(any(Sort.class))).thenReturn(List.of(compra));
+        when(compraMapper.toDTO(any(Compra.class))).thenReturn(compraDTO);
 
         List<CompraDTO> resultado = compraService.findAll();
 
         assertThat(resultado).hasSize(1);
-        verify(compraRepository, times(1)).findAll();
+        assertThat(resultado.get(0).observacao()).isEqualTo("obs");
+
+        verify(compraRepository, times(1)).findAll(any(Sort.class));
+        verify(compraMapper, times(1)).toDTO(any(Compra.class));
     }
 
     @Test
@@ -80,4 +95,3 @@ class CompraServiceTest {
                 .hasMessageContaining("Compra não encontrada");
     }
 }
-
