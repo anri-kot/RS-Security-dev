@@ -5,11 +5,13 @@ import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.excel.headers.ProdutoExcelHeader;
 
 import org.apache.poi.ss.usermodel.*;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class ProdutoExcelMapper {
 
     private final Map<String, Integer> headerIndexMap = new HashMap<>();
@@ -77,6 +79,10 @@ public class ProdutoExcelMapper {
     private Long tryGetLong(Row row, String headerName) {
         String value = getCellStringValue(row, headerName);
 
+        if (value.isBlank()) {
+            return null;
+        }
+
         try {
             return Long.valueOf(value);
         } catch (NumberFormatException e) {
@@ -88,6 +94,10 @@ public class ProdutoExcelMapper {
 
     private BigDecimal tryGetBigDecimal(Row row, String headerName) {
         String value = getCellStringValue(row, headerName);
+
+        if (value.isBlank()) {
+            return new BigDecimal(0);
+        }
 
         try {
             return new BigDecimal(value);

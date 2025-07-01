@@ -3,6 +3,7 @@ package com.rssecurity.storemanager.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,8 +31,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/api/**").permitAll() // ajuste conforme seus endpoints
+                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated())
+                .httpBasic(Customizer.withDefaults()) // habilita HTTP Basic Auth para API
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .defaultSuccessUrl("/home", true)
@@ -45,7 +48,6 @@ public class SecurityConfig {
                             if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With")) ||
                                     "application/json".equals(request.getHeader("Accept")) ||
                                     request.getRequestURI().startsWith("/api")) {
-
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                             } else {
                                 response.sendRedirect("/auth/login");
@@ -57,11 +59,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-
-        AuthenticationManagerBuilder authenticationManagerBuilder = http
-                .getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-
-        return authenticationManagerBuilder.build();
+        AuthenticationManagerBuilder auth = http.getSharedObject(AuthenticationManagerBuilder.class);
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+        return auth.build();
     }
 }

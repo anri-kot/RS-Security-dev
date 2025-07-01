@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
     layout:decorate="~{layout}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,27 +14,26 @@
 
             <!-- Upload Section -->
             <div class="mb-5">
-                <h4 class="mb-3">Enviar Arquivo CSV</h4>
-                <form id="csvUploadForm" method="post" enctype="multipart/form-data" action="#" class="needs-validation"
-                    novalidate>
+                <h4 class="mb-3">Enviar Arquivo Excel</h4>
+                <form id="xlsxUploadForm" class="needs-validation" enctype="multipart/form-data"
+                    hx-post="/api/produto/import" hx-target="#uploadStatus" hx-swap="innerHTML"
+                    hx-encoding="multipart/form-data" novalidate>
+
                     <div class="mb-3">
-                        <label for="csvFile" class="form-label">Escolha um arquivo .csv</label>
-                        <input class="form-control" type="file" id="csvFile" name="file" accept=".csv" required>
+                        <label for="xlsxFile" class="form-label">Escolha um arquivo .xlsx</label>
+                        <input class="form-control" type="file" id="xlsxFile" name="file" accept=".xlsx" required>
                         <div class="invalid-feedback">
-                            Por favor, selecione um arquivo CSV válido.
+                            Por favor, selecione um arquivo XLSX válido.
                         </div>
                     </div>
+
                     <button type="submit" class="btn btn-success">
                         <i class="bi bi-upload me-1"></i> Enviar
                     </button>
                 </form>
 
-                <div id="uploadStatus" class="mt-4" style="display: none;">
-                    <div class="alert alert-info d-flex align-items-center" role="alert">
-                        <i class="bi bi-hourglass-split me-2"></i>
-                        Enviando arquivo...
-                    </div>
-                </div>
+                <div id="uploadStatus" class="mt-4"></div>
+                
             </div>
 
             <hr class="mb-5">
@@ -47,7 +47,7 @@
                     separado.
                     Esses arquivos podem ser abertos e editados em qualquer programa de planilha (como Excel, Google
                     Sheets ou LibreOffice),
-                    mas devem ser salvos no formato <strong>CSV</strong> antes do envio.
+                    mas devem ser salvos no formato <strong>XLSX</strong> antes do envio.
                 </p>
             </section>
 

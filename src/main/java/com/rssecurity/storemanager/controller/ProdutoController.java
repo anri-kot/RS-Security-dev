@@ -2,16 +2,19 @@ package com.rssecurity.storemanager.controller;
 
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.service.ProdutoService;
 import jakarta.validation.Valid;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/api/produto")
@@ -45,13 +48,28 @@ public class ProdutoController {
     @GetMapping("/search/categoria")
     public ResponseEntity<List<ProdutoDTO>> findByCategoria_Nome(@RequestParam String categoria) {
         return ResponseEntity.ok(service.findByCategoria_Nome(categoria));
-    }    
+    }
 
     @PostMapping
     public ResponseEntity<ProdutoDTO> create(@RequestBody @Valid ProdutoDTO produto) {
         ProdutoDTO created = service.create(produto);
         URI location = URI.create("/api/produto/" + created.idProduto());
         return ResponseEntity.created(location).body(created);
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<String> importProdutos(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new BadRequestException("Nenhum arquivo foi enviado.");
+        }
+
+        try (InputStream is = file.getInputStream()) {
+            int created = service.importFromExcel(is);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(created + " produtos inseridos com sucesso.");
+        } catch (IOException e) {
+            throw new BadRequestException("Não foi possível ler o arquivo enviado.");
+        }
     }
 
     @PutMapping("/{idProduto}")

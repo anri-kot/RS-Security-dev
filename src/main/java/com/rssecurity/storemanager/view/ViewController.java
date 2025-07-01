@@ -202,14 +202,4 @@ public class ViewController {
         return "compras";
     }
 
-    @GetMapping("/importar")
-    public String getImportar(HttpServletRequest request, Model model) {
-
-        if (Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))) {
-            return "importar :: content";
-        }
-
-        return "importar";
-    }
-
 }

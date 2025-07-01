@@ -1,10 +1,13 @@
 package com.rssecurity.storemanager.service;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.rssecurity.storemanager.dto.ProdutoDTO;
+import com.rssecurity.storemanager.excel.reader.ProdutoExcelReader;
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.ProdutoMapper;
@@ -17,13 +20,15 @@ import jakarta.transaction.Transactional;
 public class ProdutoService {
     private final ProdutoRepository repository;
     private final ProdutoMapper mapper;
-
-    public ProdutoService(ProdutoRepository repository, ProdutoMapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
-    }
+    private final ProdutoExcelReader excelReader;
 
     // SEARCH
+
+    public ProdutoService(ProdutoRepository repository, ProdutoMapper mapper, ProdutoExcelReader excelReader) {
+        this.repository = repository;
+        this.mapper = mapper;
+        this.excelReader = excelReader;
+    }
 
     public List<ProdutoDTO> findAll() {
         return repository.findAll().stream()
@@ -70,6 +75,32 @@ public class ProdutoService {
         }
         Produto created = repository.save(mapper.toEntity(produto));
         return mapper.toDTO(created);
+    }
+
+    @Transactional
+    public List<ProdutoDTO> createAll(List<ProdutoDTO> produtos) {
+        List<String> produtosComId = produtos.stream()
+                .filter(p -> p.idProduto() != null && p.idProduto() != 0)
+                .map(ProdutoDTO::nome)
+                .toList();
+
+        if (!produtosComId.isEmpty()) {
+            throw new BadRequestException("Alguns produtos têm ID definido: " + produtosComId);
+        }
+
+        List<Produto> entidades = produtos.stream()
+                .map(mapper::toEntity)
+                .toList();
+
+        List<Produto> salvos = repository.saveAll(entidades);
+
+        return salvos.stream().map(mapper::toDTO).toList();
+    }
+
+    @Transactional
+    public int importFromExcel(InputStream inputStream) throws IOException {
+        List<ProdutoDTO> produtos = excelReader.readFromExcelSheet(inputStream);
+        return createAll(produtos).size();
     }
 
     @Transactional

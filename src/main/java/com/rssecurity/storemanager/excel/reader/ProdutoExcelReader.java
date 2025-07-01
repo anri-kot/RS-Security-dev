@@ -9,28 +9,29 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Component;
 
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.excel.mapper.ProdutoExcelMapper;
 
+@Component
 public class ProdutoExcelReader {
 
     public List<ProdutoDTO> readFromExcelSheet(InputStream inputStream) throws IOException {
         List<ProdutoDTO> produtos = new ArrayList<>();
+        Workbook workbook = new XSSFWorkbook(inputStream);
 
-        try (Workbook workbook = new XSSFWorkbook(inputStream)) {
-            Sheet sheet = workbook.getSheetAt(0);
-            ProdutoExcelMapper mapper = ProdutoExcelMapper.fromHeaderRow(sheet.getRow(0));
+        Sheet sheet = workbook.getSheetAt(0);
+        workbook.close();
+        ProdutoExcelMapper mapper = ProdutoExcelMapper.fromHeaderRow(sheet.getRow(0));
 
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row == null) continue;
-                produtos.add(mapper.fromRow(row));
-            }
-
-            return produtos;
-        } catch (IOException e) {
-            throw new IOException("Erro ao tentar ler arquivo excel.");
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            if (row == null)
+                continue;
+            produtos.add(mapper.fromRow(row));
         }
+
+        return produtos;
     }
 }
