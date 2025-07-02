@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: mysql:3306
--- Generation Time: Jul 01, 2025 at 05:13 PM
+-- Generation Time: Jul 02, 2025 at 08:23 PM
 -- Server version: 9.3.0
 -- PHP Version: 8.2.28
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `rssecurity`
 --
+CREATE DATABASE IF NOT EXISTS `rssecurity` DEFAULT CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci;
+USE `rssecurity`;
 
 -- --------------------------------------------------------
 
