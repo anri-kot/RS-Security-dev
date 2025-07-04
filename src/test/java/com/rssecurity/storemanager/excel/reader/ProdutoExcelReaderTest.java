@@ -43,7 +43,7 @@ class ProdutoExcelReaderTest {
 
         // Act
         ProdutoExcelReader reader = new ProdutoExcelReader();
-        List<ProdutoDTO> produtos = reader.readFromExcelSheet(inputStream);
+        List<ProdutoDTO> produtos = reader.readFromExcelSheet(sheet);
 
         // Assert
         assertEquals(1, produtos.size());
