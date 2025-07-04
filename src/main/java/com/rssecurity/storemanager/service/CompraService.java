@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -128,6 +129,41 @@ public class CompraService {
     }
 
     @Transactional
+    public List<CompraDTO> createAll(List<CompraDTO> compras) {
+        List<String> comprasWithId = compras.stream()
+            .filter(c -> c.idCompra() != null && !c.idCompra().equals(0))
+            .map(c -> c.data().toString())
+            .toList();
+        
+            if (!comprasWithId.isEmpty()) {
+                throw new BadRequestException("Algumas compras têm ID definido: " + comprasWithId);
+            }
+
+            Set<Long> allProdutoIds = compras.stream()
+                .flatMap(c -> c.itens().stream())
+                .map(item -> item.produto().idProduto())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+            Map<Long, Produto> produtosMap = produtoRepository.findAllById(allProdutoIds)
+                .stream()
+                .collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
+
+            List<Compra> entities = compras.stream()
+                .map(dto -> {
+                    Compra entity = mapper.toEntity(dto);
+                    List<ItemCompra> itens = buildItemCompraList(dto, entity, produtosMap, false);
+                    entity.setItens(itens);
+                    return entity;
+                })
+                .toList();
+
+            List<Compra> created = repository.saveAll(entities);
+            updateStockAll(compras);
+
+            return created.stream().map(mapper::toDTO).toList();
+    }
+
+    @Transactional
     public void update(Long idCompra, CompraDTO compra) {
         CompraDTO oldCompra = mapper.toDTO(
             repository.findById(idCompra).orElseThrow(
@@ -157,9 +193,11 @@ public class CompraService {
     /**
      * Builds a list of ItemCompra entities from the given CompraDTO.
      * 
-     * This method maps each ItemCompraDTO to its corresponding entity,
-     * optionally setting the item ID if it's an update, links each item to the parent Compra,
-     * and ensures the associated Produto entity is correctly referenced.
+     * This method extracts all unique Produto IDs referenced by the item DTOs,
+     * fetches the corresponding Produto entities from the repository,
+     * and delegates to the overloaded method to complete the mapping.
+     *
+     * Each item will be linked to the given Compra entity, and optionally have its ID set if it's an update.
      *
      * @param compra the CompraDTO containing the list of item DTOs
      * @param entity the Compra entity to associate with each item
@@ -176,7 +214,26 @@ public class CompraService {
 
         Map<Long, Produto> produtosMap = produtoRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
+        
+        return buildItemCompraList(compra, entity, produtosMap, isUpdate);
+    }
 
+    /**
+     * Builds a list of ItemCompra entities from the given CompraDTO, using a preloaded map of Produto entities.
+     * 
+     * This variant avoids querying the database by using the provided Map of Produto IDs to entities.
+     * It is useful for batch operations where Produto entities have already been fetched.
+     *
+     * Each item is linked to the given Compra entity, and optionally has its ID set if it's an update.
+     *
+     * @param compra the CompraDTO containing the list of item DTOs
+     * @param entity the Compra entity to associate with each item
+     * @param produtosMap a Map of Produto IDs to Produto entities to be used for resolving product references
+     * @param isUpdate true if the operation is an update (to include item IDs), false for creation
+     * @return a list of fully initialized ItemCompra entities ready for persistence
+     * @throws ResourceNotFoundException if any referenced Produto ID is not found in the provided map
+     */
+    private List<ItemCompra> buildItemCompraList(CompraDTO compra, Compra entity, Map<Long, Produto> produtosMap, boolean isUpdate) {
         return compra.itens().stream()
                 .map(itemDto -> {
                     Long idProduto = itemDto.produto().idProduto();
@@ -240,6 +297,25 @@ public class CompraService {
             default -> throw new IllegalArgumentException("Operação inválida para atualização de estoque");
         }
 
+        applyUpdateStock(ajustesEstoque);
+    }
+
+    private void updateStockAll(List<CompraDTO> compras) {
+        Map<Long, Integer> ajustesEstoque = new HashMap<>();
+
+        // Adds to the stock
+        compras.forEach(compraDTO -> {
+            for (ItemCompraDTO item : compraDTO.itens()) {
+                Long idProduto = item.produto().idProduto();
+                Integer quantidade = item.quantidade();
+                ajustesEstoque.merge(idProduto, quantidade, Integer::sum);
+            }
+        });
+
+        applyUpdateStock(ajustesEstoque);
+    }
+
+    private void applyUpdateStock(Map<Long, Integer> ajustesEstoque) {
         // Aply update
         for (Map.Entry<Long, Integer> ajuste : ajustesEstoque.entrySet()) {
             Long idProduto = ajuste.getKey();
@@ -251,7 +327,6 @@ public class CompraService {
             produto.setEstoque(produto.getEstoque() + delta);
             produtoRepository.save(produto);
         }
-        
     }
 
 }

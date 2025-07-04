@@ -20,14 +20,12 @@ import jakarta.transaction.Transactional;
 public class ProdutoService {
     private final ProdutoRepository repository;
     private final ProdutoMapper mapper;
-    private final ProdutoExcelReader excelReader;
 
     // SEARCH
 
-    public ProdutoService(ProdutoRepository repository, ProdutoMapper mapper, ProdutoExcelReader excelReader) {
+    public ProdutoService(ProdutoRepository repository, ProdutoMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
-        this.excelReader = excelReader;
     }
 
     public List<ProdutoDTO> findAll() {
@@ -79,28 +77,22 @@ public class ProdutoService {
 
     @Transactional
     public List<ProdutoDTO> createAll(List<ProdutoDTO> produtos) {
-        List<String> produtosComId = produtos.stream()
-                .filter(p -> p.idProduto() != null && p.idProduto() != 0)
+        List<String> produtosWithId = produtos.stream()
+                .filter(p -> p.idProduto() != null && !p.idProduto().equals(0))
                 .map(ProdutoDTO::nome)
                 .toList();
 
-        if (!produtosComId.isEmpty()) {
-            throw new BadRequestException("Alguns produtos têm ID definido: " + produtosComId);
+        if (!produtosWithId.isEmpty()) {
+            throw new BadRequestException("Alguns produtos têm ID definido: " + produtosWithId);
         }
 
-        List<Produto> entidades = produtos.stream()
+        List<Produto> entities = produtos.stream()
                 .map(mapper::toEntity)
                 .toList();
 
-        List<Produto> salvos = repository.saveAll(entidades);
+        List<Produto> created = repository.saveAll(entities);
 
-        return salvos.stream().map(mapper::toDTO).toList();
-    }
-
-    @Transactional
-    public int importFromExcel(InputStream inputStream) throws IOException {
-        List<ProdutoDTO> produtos = excelReader.readFromExcelSheet(inputStream);
-        return createAll(produtos).size();
+        return created.stream().map(mapper::toDTO).toList();
     }
 
     @Transactional
