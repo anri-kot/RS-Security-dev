@@ -57,21 +57,6 @@ public class ProdutoController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @PostMapping("/import")
-    public ResponseEntity<String> importProdutos(@RequestParam("file") MultipartFile file) {
-        if (file.isEmpty()) {
-            throw new BadRequestException("Nenhum arquivo foi enviado.");
-        }
-
-        try (InputStream is = file.getInputStream()) {
-            int created = service.importFromExcel(is);
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(created + " produtos inseridos com sucesso.");
-        } catch (IOException e) {
-            throw new BadRequestException("Não foi possível ler o arquivo enviado.");
-        }
-    }
-
     @PutMapping("/{idProduto}")
     public ResponseEntity<Void> update(@PathVariable Long idProduto, @RequestBody @Valid ProdutoDTO produto) {
         if (!produto.idProduto().equals(idProduto)) {
