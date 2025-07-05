@@ -1,9 +1,7 @@
 package com.rssecurity.storemanager.excel.mapper;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +11,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 
-import com.rssecurity.storemanager.dto.CategoriaDTO;
-import com.rssecurity.storemanager.dto.CompraDTO;
 import com.rssecurity.storemanager.dto.CompraKey;
-import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.dto.ItemCompraDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.excel.headers.CompraExcelHeader;
@@ -83,7 +78,7 @@ public class CompraExcelMapper {
         Integer qtd = excel.tryGetInteger(row, CompraExcelHeader.QUANTIDADE.getHeaderName());
         BigDecimal valor = excel.tryGetBigDecimal(row, CompraExcelHeader.VALOR_UNITARIO.getHeaderName());
 
-        ItemCompraDTO item = new ItemCompraDTO(null, qtd, valor, new ProdutoDTO(idProduto, nomeProduto, null, null, null, null));
+        ItemCompraDTO item = new ItemCompraDTO(null, qtd, valor, new ProdutoDTO(idProduto, nomeProduto, null, null, null, null, null));
 
         return new CompraParsedRow(key, item);
     }

@@ -3,6 +3,7 @@ package com.rssecurity.storemanager.excel.headers;
 public enum ProdutoExcelHeader {
     ID("id"),
     NOME("nome"),
+    CODIGO_BARRAS("codigo barras"),
     PRECO_ATUAL("preco atual"),
     DESCRICAO("descricao"),
     ESTOQUE("estoque"),

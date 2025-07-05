@@ -65,13 +65,14 @@ public class ProdutoExcelMapper {
 
         Long idProduto = excel.tryGetLong(row, ProdutoExcelHeader.ID.getHeaderName());
         String nome = excel.getCellStringValue(row, ProdutoExcelHeader.NOME.getHeaderName());
+        String codigoBarras = excel.getCellStringValue(row, ProdutoExcelHeader.CODIGO_BARRAS.getHeaderName());
         String descricao = excel.getCellStringValue(row, ProdutoExcelHeader.DESCRICAO.getHeaderName());
         BigDecimal precoAtual = excel.tryGetBigDecimal(row, ProdutoExcelHeader.PRECO_ATUAL.getHeaderName());
         Integer estoque = excel.tryGetInteger(row, ProdutoExcelHeader.ESTOQUE.getHeaderName());
         Long idCategoria = excel.tryGetLong(row, ProdutoExcelHeader.ID_CATEGORIA.getHeaderName());
         String nomeCategoria = excel.getCellStringValue(row, ProdutoExcelHeader.NOME_CATEGORIA.getHeaderName());
 
-        return new ProdutoDTO(idProduto, nome, precoAtual, descricao, estoque, new CategoriaDTO(idCategoria, nomeCategoria));
+        return new ProdutoDTO(idProduto, nome, codigoBarras, precoAtual, descricao, estoque, new CategoriaDTO(idCategoria, nomeCategoria));
     }
 
     private void validateRequiredHeaders(Set<ProdutoExcelHeader> requiredHeaders) {

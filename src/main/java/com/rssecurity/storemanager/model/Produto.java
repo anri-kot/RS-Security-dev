@@ -12,6 +12,8 @@ public class Produto {
     private Long idProduto;
     @NotNull
     private String nome;
+    @Column(name = "codigo_barras", unique = true)
+    private String codigoBarras;
     private String descricao;
     private Integer estoque;
     private BigDecimal precoAtual;
@@ -22,47 +24,42 @@ public class Produto {
     public Long getIdProduto() {
         return idProduto;
     }
-
     public void setIdProduto(Long idProduto) {
         this.idProduto = idProduto;
     }
-
     public String getNome() {
         return nome;
     }
-
     public void setNome(String nome) {
         this.nome = nome;
     }
-
+    public String getCodigoBarras() {
+        return codigoBarras;
+    }
+    public void setCodigoBarras(String codigoBarras) {
+        this.codigoBarras = codigoBarras;
+    }
     public String getDescricao() {
         return descricao;
     }
-
     public void setDescricao(String descricao) {
         this.descricao = descricao;
     }
-
     public Integer getEstoque() {
         return estoque;
     }
-
     public void setEstoque(Integer estoque) {
         this.estoque = estoque;
     }
-
     public BigDecimal getPrecoAtual() {
         return precoAtual;
     }
-
     public void setPrecoAtual(BigDecimal precoAtual) {
         this.precoAtual = precoAtual;
     }
-
     public Categoria getCategoria() {
         return categoria;
     }
-
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
     }

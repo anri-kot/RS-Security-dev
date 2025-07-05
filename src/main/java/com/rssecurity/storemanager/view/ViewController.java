@@ -64,19 +64,31 @@ public class ViewController {
         if (termo == null) {
             termo = "";
         }
-        
-        if (tipo != null && tipo.toLowerCase().equals("id")) {
-            produtos = new ArrayList<>();
-            try {
-                Long id = Long.parseLong(termo);
-                produtos.add(produtoService.findById(id));
-            } catch (Exception e) {
+        if (tipo == null) {
+            tipo = "";
+        }
+
+        switch (tipo.trim().toLowerCase()) {
+            case "id" -> {
+                produtos = new ArrayList<>();
+                try {
+                    Long id = Long.parseLong(termo);
+                    produtos.add(produtoService.findById(id));
+                } catch (Exception e) {}
             }
-        } else {
-            if (idCategoria != null) {
+            case "codigo" -> {
+                produtos = new ArrayList<>();
+                try {
+                    String codigo = termo.trim();
+                    produtos.add(produtoService.findByCodigoBarras(codigo));
+                } catch (Exception e) {}
+            }
+            default -> {
+                if (idCategoria != null) {
                 produtos = produtoService.findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(termo, idCategoria);
-            } else {
-                produtos = produtoService.findByNomeContains(termo);
+                } else {
+                    produtos = produtoService.findByNomeContains(termo);
+                }
             }
         }
         
@@ -88,7 +100,7 @@ public class ViewController {
         if (Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))) {
             return "produtos :: content";
         }
-
+        
         return "produtos";
     }
 
