@@ -1,20 +1,24 @@
 package com.rssecurity.storemanager.controller;
 
-import com.rssecurity.storemanager.dto.ProdutoDTO;
-import com.rssecurity.storemanager.exception.ConflictException;
-import com.rssecurity.storemanager.exception.BadRequestException;
-import com.rssecurity.storemanager.service.ProdutoService;
-import jakarta.validation.Valid;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.rssecurity.storemanager.dto.ProdutoDTO;
+import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.service.ProdutoService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/produto")
@@ -38,6 +42,11 @@ public class ProdutoController {
     @GetMapping("/search")
     public ResponseEntity<List<ProdutoDTO>> findByNomeContains(@RequestParam String nome) {
         return ResponseEntity.ok(service.findByNomeContains(nome));
+    }
+
+    @GetMapping("/search/codigoBarras")
+    public ResponseEntity<ProdutoDTO> findByCodigoBarrasContains(@RequestParam String codigoBarras) {
+        return ResponseEntity.ok(service.findByCodigoBarras(codigoBarras));
     }
 
     @GetMapping("/search/descricao")

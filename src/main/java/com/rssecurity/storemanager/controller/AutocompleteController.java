@@ -40,21 +40,39 @@ public class AutocompleteController {
     public String pdvAutocomplete(@RequestParam String termo, @RequestParam(required = false) String tipo,
             @RequestParam(required = false) Long idCategoria, Model model) {
         List<ProdutoDTO> results;
-        
-        if (tipo != null && tipo.toLowerCase().contains("id")) {
-            results = new ArrayList<>();
-            try {
-                Long id = Long.parseLong(termo);
-                results.add(produtoService.findById(id));
-            } catch (Exception e) {
+
+        if (tipo != null) {
+            if (tipo.contains("produto")) {
+                tipo = tipo.trim().toLowerCase().replace("produto", "");
             }
         } else {
-            if (idCategoria != null) {
+            tipo = "";
+        }
+
+        switch (tipo.trim().toLowerCase()) {
+            case "id" -> {
+                results = new ArrayList<>();
+                try {
+                    Long id = Long.parseLong(termo);
+                    results.add(produtoService.findById(id));
+                } catch (Exception e) {}
+            }
+            case "codigo" -> {
+                results = new ArrayList<>();
+                try {
+                    String codigo = termo.trim();
+                    results.add(produtoService.findByCodigoBarras(codigo));
+                } catch (Exception e) {}
+            }
+            default -> {
+                if (idCategoria != null) {
                 results = produtoService.findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(termo, idCategoria);
-            } else {
-                results = produtoService.findByNomeContains(termo);
+                } else {
+                    results = produtoService.findByNomeContains(termo);
+                }
             }
         }
+        
         model.addAttribute("results", results);
 
         return "fragments/autocomplete :: options";
