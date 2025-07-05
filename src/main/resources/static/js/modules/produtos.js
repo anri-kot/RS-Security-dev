@@ -62,6 +62,7 @@ export function init() {
         const isNew = (!isNewField) || isNewField.value === 'true';        
 
         const nome = document.getElementById('modal-produto-nome').value;
+        const codigoBarras = document.getElementById('modal-produto-codigo').value;
         const categoriaId= parseInt(document.getElementById('modal-produto-categoria-id').value);
         const precoAtual = parseFloat(document.getElementById('modal-produto-preco').value);
         const descricao = document.getElementById('modal-produto-descricao').value;
@@ -83,6 +84,7 @@ export function init() {
         const json = JSON.stringify({
             idProduto: idProduto,
             nome: nome,
+            codigoBarras: codigoBarras,
             descricao: descricao,
             precoAtual: precoAtual,
             estoque: estoque,
@@ -170,6 +172,7 @@ export function init() {
         document.getElementById('modal-produto-idProduto').value = id;
         document.getElementById('is-new').value = 'false';
         document.getElementById('modal-produto-nome').value = produto.nome;
+        document.getElementById('modal-produto-codigoBarras').value = produto.codigoBarras;
         document.getElementById('modal-produto-categoria-id').value = produto.categoria.idCategoria;
         document.getElementById('modal-produto-preco').value = produto.precoAtual.toFixed(2);
         document.getElementById('modal-produto-descricao').value = produto.descricao;
@@ -179,6 +182,7 @@ export function init() {
     function clearProdutoModal() {
         document.getElementById('modal-produto-idProduto').value = '';
         document.getElementById('is-new').value = 'true';
+        document.getElementById('modal-produto-nome').value = '';
         document.getElementById('modal-produto-nome').value = '';
         document.getElementById('modal-produto-categoria-id').value = '';
         document.getElementById('modal-produto-preco').value = '00.00';

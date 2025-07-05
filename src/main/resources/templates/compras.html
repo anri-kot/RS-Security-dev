@@ -30,6 +30,7 @@
                                     <option value="fornecedor">Fornecedor</option>
                                     <option value="idCompra">ID da Compra</option>
                                     <option value="produtoNome">Produto (Nome)</option>
+                                    <option value="produtoCodigo">Produto (Código)</option>
                                     <option value="produtoId">Produto (ID)</option>
                                 </select>
                             </div>
@@ -211,18 +212,17 @@
                                             <hr>
 
                                             <div class="collapse" id="modal-compra-items-form">
-                                                <div class="d-flex align-items-center mb-2">
+                                                <div class="d-flex align-items-center justify-content-between mb-2">
 
-                                                    <label for="tipo">Por:</label>
                                                     <select id="item-search-type" name="tipo"
-                                                        class="form-select form-select-sm w-auto">
+                                                        class="form-select form-select-sm w-auto me-1">
                                                         <option value="nome">Nome</option>
+                                                        <option value="codigo">CÓD. BARRAS</option>
                                                         <option value="id">ID</option>
                                                     </select>
 
-                                                    <label for="idCategoria" class="mx-2">Filtrar:</label>
                                                     <select id="categoria" name="idCategoria"
-                                                        class="form-select form-select-sm me-2 w-auto">
+                                                        class="form-select form-select-sm w-auto">
                                                         <option value="">Todas Categorias</option>
                                                         <option th:each="cat : ${categorias}"
                                                             th:value="${cat.idCategoria}" th:text="${cat.nome}">
