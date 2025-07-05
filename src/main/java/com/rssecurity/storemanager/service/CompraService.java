@@ -130,13 +130,13 @@ public class CompraService {
 
     @Transactional
     public List<CompraDTO> createAll(List<CompraDTO> compras) {
-        List<String> comprasWithId = compras.stream()
-            .filter(c -> c.idCompra() != null && !c.idCompra().equals(0))
-            .map(c -> c.data().toString())
+        List<Long> comprasWithId = compras.stream()
+            .filter(c -> c.idCompra() != null && c.idCompra() != 0)
+            .map(c -> c.idCompra())
             .toList();
         
             if (!comprasWithId.isEmpty()) {
-                throw new BadRequestException("Algumas compras têm ID definido: " + comprasWithId);
+                throw new BadRequestException("Compra(s) com ID(s) definidos. ID(s): " + comprasWithId);
             }
 
             Set<Long> allProdutoIds = compras.stream()
@@ -258,7 +258,7 @@ public class CompraService {
     // STOCK UPDATE
 
     public void updateStock(CompraDTO compraDTO, String operation, CompraDTO oldCompraDTO) {
-        Map<Long, Integer> ajustesEstoque = new HashMap<>();
+        Map<Long, Integer> stockArranges = new HashMap<>();
 
         switch (operation) {
             case "CREATE" -> {
@@ -266,7 +266,7 @@ public class CompraService {
                 for (ItemCompraDTO item : compraDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    ajustesEstoque.merge(idProduto, quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, quantidade, Integer::sum);
                 }
             }
 
@@ -275,7 +275,7 @@ public class CompraService {
                 for (ItemCompraDTO item : compraDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    ajustesEstoque.merge(idProduto, -quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
                 }
             }
 
@@ -284,35 +284,35 @@ public class CompraService {
                 for (ItemCompraDTO item : oldCompraDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    ajustesEstoque.merge(idProduto, -quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
                 }
                 // Aplica os efeitos da nova compra
                 for (ItemCompraDTO item : compraDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    ajustesEstoque.merge(idProduto, quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, quantidade, Integer::sum);
                 }
             }
 
             default -> throw new IllegalArgumentException("Operação inválida para atualização de estoque");
         }
 
-        applyUpdateStock(ajustesEstoque);
+        applyUpdateStock(stockArranges);
     }
 
     private void updateStockAll(List<CompraDTO> compras) {
-        Map<Long, Integer> ajustesEstoque = new HashMap<>();
+        Map<Long, Integer> stockArranges = new HashMap<>();
 
         // Adds to the stock
         compras.forEach(compraDTO -> {
             for (ItemCompraDTO item : compraDTO.itens()) {
                 Long idProduto = item.produto().idProduto();
                 Integer quantidade = item.quantidade();
-                ajustesEstoque.merge(idProduto, quantidade, Integer::sum);
+                stockArranges.merge(idProduto, quantidade, Integer::sum);
             }
         });
 
-        applyUpdateStock(ajustesEstoque);
+        applyUpdateStock(stockArranges);
     }
 
     private void applyUpdateStock(Map<Long, Integer> ajustesEstoque) {

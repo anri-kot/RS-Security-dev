@@ -8,10 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByNomeContains(String nome);
+    Optional<Produto> findByCodigoBarras(String codigoBarras);
     List<Produto> findByDescricaoContains(String descricao);
     List<Produto> findByCategoria_Nome(String categoria);
 

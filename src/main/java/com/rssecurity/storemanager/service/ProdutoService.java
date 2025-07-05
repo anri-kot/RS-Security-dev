@@ -1,13 +1,10 @@
 package com.rssecurity.storemanager.service;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.rssecurity.storemanager.dto.ProdutoDTO;
-import com.rssecurity.storemanager.excel.reader.ProdutoExcelReader;
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.ProdutoMapper;
@@ -46,6 +43,12 @@ public class ProdutoService {
                 .toList();
     }
 
+    public ProdutoDTO findByCodigoBarras(String codigoBarras) {
+        Produto produto = repository.findByCodigoBarras(codigoBarras)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado. Código de barras: " + codigoBarras));
+        return mapper.toDTO(produto);
+    }
+
     public List<ProdutoDTO> findByDescricaoContains(String descricao) {
         return repository.findByDescricaoContains(descricao).stream()
                 .map(mapper::toDTO)
@@ -78,7 +81,7 @@ public class ProdutoService {
     @Transactional
     public List<ProdutoDTO> createAll(List<ProdutoDTO> produtos) {
         List<String> produtosWithId = produtos.stream()
-                .filter(p -> p.idProduto() != null && !p.idProduto().equals(0))
+                .filter(p -> p.idProduto() != null && p.idProduto() != 0)
                 .map(ProdutoDTO::nome)
                 .toList();
 

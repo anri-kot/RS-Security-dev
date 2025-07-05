@@ -10,18 +10,27 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
+import com.rssecurity.storemanager.excel.reader.CategoriaExcelReader;
 import com.rssecurity.storemanager.excel.reader.CompraExcelReader;
+import com.rssecurity.storemanager.excel.reader.FornecedorExcelReader;
 import com.rssecurity.storemanager.excel.reader.ProdutoExcelReader;
+import com.rssecurity.storemanager.excel.reader.VendaExcelReader;
 
 @Service
 public class ExcelImportService {
     private final ProdutoService produtoService;
     private final CompraService compraService;
+    private final CategoriaService categoriaService;
+    private final FornecedorService fornecedorService;
+    private final VendaService vendaService;
     private final List<String> sheetOrder = List.of("categorias", "fornecedores", "produtos", "compras", "vendas");
 
-    public ExcelImportService(ProdutoService produtoService, CompraService compraService) {
+    public ExcelImportService(ProdutoService produtoService, CompraService compraService, CategoriaService categoriaService, FornecedorService fornecedorService, VendaService vendaService) {
         this.produtoService = produtoService;
         this.compraService = compraService;
+        this.categoriaService = categoriaService;
+        this.fornecedorService = fornecedorService;
+        this.vendaService = vendaService;
     }
     
     public List<String> importFromExcel(InputStream inputStream) throws IOException {
@@ -40,17 +49,33 @@ public class ExcelImportService {
                     int created = produtoService.createAll(reader.readFromExcelSheet(sheet)).size();
                     successMessages.add(created + " produtos adicionados.");
                 }
-                case "fornecedores" -> {}
-                case "categorias" -> {}
+                case "fornecedores" -> {
+                    FornecedorExcelReader reader = new FornecedorExcelReader();
+                    int created = fornecedorService.createAll(reader.readFromExcelSheet(sheet)).size();
+                    successMessages.add(created + " fornecedores adicionados.");
+                }
+                case "categorias" -> {
+                    CategoriaExcelReader reader = new CategoriaExcelReader();
+                    int created = categoriaService.createAll(reader.readFromExcelSheet(sheet)).size();
+                    successMessages.add(created + " categorias adicionados");
+                }
                 case "compras" -> {
                     CompraExcelReader reader = new CompraExcelReader();
                     int created = compraService.createAll(reader.readFromExcelSheet(sheet)).size();
                     successMessages.add(created + " compras adicionadas");
                 }
-                case "vendas" -> {}
-                default -> {}
+                case "vendas" -> {
+                    VendaExcelReader reader = new VendaExcelReader();
+                    int created = vendaService.createAll(reader.readFromExcelSheet(sheet)).size();
+                    successMessages.add(created + " vendas adicionadas.");
+                }
+                default -> {
+                    return List.of("Nome de página inválido. Nome: " + sheetName);
+                }
             }
         }
+        workbook.close();
+        
         return successMessages;
     }
 

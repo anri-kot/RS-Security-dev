@@ -7,6 +7,9 @@ import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.FornecedorMapper;
 import com.rssecurity.storemanager.model.Fornecedor;
 import com.rssecurity.storemanager.repository.FornecedorRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -92,6 +95,26 @@ public class FornecedorService {
         validateCreate(fornecedor);
         Fornecedor entity = mapper.toEntity(fornecedor);
         return mapper.toDTO(repository.save(entity));
+    }
+
+    @Transactional
+    public List<FornecedorDTO> createAll(List<FornecedorDTO> fornecedores) {
+        List<Long> fornecedoresWithId = fornecedores.stream()
+                .filter(f -> f.idFornecedor() != null && f.idFornecedor() != 0)
+                .map(f -> f.idFornecedor())
+                .toList();
+
+        if (!fornecedoresWithId.isEmpty()) {
+            throw new BadRequestException("Compra(s) com ID(s) definidos. ID(s): " + fornecedoresWithId);
+        }
+
+        List<Fornecedor> created = repository.saveAll(fornecedores.stream()
+                .map(mapper::toEntity)
+                .toList());
+
+        return created.stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
     public void update(Long id, FornecedorDTO fornecedor) {

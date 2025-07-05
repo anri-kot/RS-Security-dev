@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -169,6 +170,50 @@ public class VendaService {
     }
 
     @Transactional
+    public List<VendaDTO> createAll(List<VendaDTO> vendas) {
+        // Checking if IDs are not null
+        List<Long> vendasWithId = vendas.stream()
+                .filter(v -> v.idVenda() != null && v.idVenda() != 0)
+                .map(v -> v.idVenda())
+                .toList();
+
+        if (!vendasWithId.isEmpty()) {
+            throw new BadRequestException("Categoria(s) com ID(s) definido(s). ID(s): " + vendasWithId);
+        }
+
+        // Validating users
+        validateAllUsuarios(vendas.stream()
+                .map(v -> v.usuario())
+                .toList());
+
+        Set<Long> allProdutoIds = vendas.stream()
+                .flatMap(v -> v.itens().stream())
+                .map(item -> item.produto().idProduto())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<Long, Produto> produtosMap = produtoRepository.findAllById(allProdutoIds)
+            .stream()
+            .collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
+
+        List<Venda> entities = vendas.stream()
+                .map(dto -> {
+                        Venda entity = mapper.toEntity(dto);
+                        List<ItemVenda> itens = buildItemVendaList(dto, entity, produtosMap, false);
+                        entity.setItens(itens);
+                        return entity;
+                    })
+                    .toList();
+
+        List<Venda> created = repository.saveAll(entities);
+        updateStockAll(vendas);
+
+        return created.stream()
+                .map(mapper::toDTO)
+                .toList();
+
+    }
+
+    @Transactional
     public void update(Long idVenda, VendaDTO venda) {
         VendaDTO oldVenda = findById(idVenda);
 
@@ -198,7 +243,7 @@ public class VendaService {
     // STOCK UPDATE
 
     public void updateStock(VendaDTO vendaDTO, String operation, VendaDTO oldVendaDTO) {
-        Map<Long, Integer> ajustesEstoque = new HashMap<>();
+        Map<Long, Integer> stockArranges = new HashMap<>();
 
         switch (operation) {
             case "CREATE" -> {
@@ -206,7 +251,7 @@ public class VendaService {
                 for (ItemVendaDTO item : vendaDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    ajustesEstoque.merge(idProduto, quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, quantidade, Integer::sum);
                 }
             }
 
@@ -215,7 +260,7 @@ public class VendaService {
                 for (ItemVendaDTO item : vendaDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    ajustesEstoque.merge(idProduto, -quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
                 }
             }
 
@@ -224,21 +269,39 @@ public class VendaService {
                 for (ItemVendaDTO item : oldVendaDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    ajustesEstoque.merge(idProduto, -quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
                 }
                 // Aplica os efeitos da nova venda
                 for (ItemVendaDTO item : vendaDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    ajustesEstoque.merge(idProduto, quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, quantidade, Integer::sum);
                 }
             }
 
             default -> throw new IllegalArgumentException("Operação inválida para atualização de estoque");
         }
 
-        // Aply update
-        for (Map.Entry<Long, Integer> ajuste : ajustesEstoque.entrySet()) {
+        applyUpdateStock(stockArranges);
+    }
+
+    private void updateStockAll(List<VendaDTO> vendas) {
+        Map<Long, Integer> stockArranges = new HashMap<>();
+
+        // Adds to the stock
+        vendas.forEach(vendaDTO -> {
+            for (ItemVendaDTO item : vendaDTO.itens()) {
+                Long idProduto = item.produto().idProduto();
+                Integer quantidade = item.quantidade();
+                stockArranges.merge(idProduto, quantidade, Integer::sum);
+            }
+        });
+
+        applyUpdateStock(stockArranges);
+    }
+
+    private void applyUpdateStock(Map<Long, Integer> stockArranges) {
+        for (Map.Entry<Long, Integer> ajuste : stockArranges.entrySet()) {
             Long idProduto = ajuste.getKey();
             Integer delta = ajuste.getValue();
 
@@ -248,7 +311,6 @@ public class VendaService {
             produto.setEstoque(produto.getEstoque() + delta);
             produtoRepository.save(produto);
         }
-
     }
 
     // private void updateStock(VendaDTO newVenda) {
@@ -283,16 +345,16 @@ public class VendaService {
     /**
      * Builds a list of ItemVenda entities from the given VendaDTO.
      * 
-     * This method maps each ItemVendaDTO to its corresponding entity,
-     * optionally setting the item ID if it's an update, links each item to the
-     * parent Venda,
-     * and ensures the associated Produto entity is correctly referenced.
+     * This method extracts all unique Produto IDs referenced by the item DTOs,
+     * fetches the corresponding Produto entities from the repository,
+     * and delegates to the overloaded method to complete the mapping.
      *
-     * @param venda    the VendaDTO containing the list of item DTOs
-     * @param entity   the Venda entity to associate with each item
-     * @param isUpdate true if the operation is an update (to include item IDs),
-     *                 false for creation
-     * @return a list of fully initialized ItemVenda entities ready for persistence
+     * Each item will be linked to the given Venda entity, and optionally have its ID set if it's an update.
+     *
+     * @param venda the VendaDTO containing the list of item DTOs
+     * @param entity the Compra entity to associate with each item
+     * @param isUpdate true if the operation is an update (to include item IDs), false for creation
+     * @return a list of fully initialized ItemCompra entities ready for persistence
      * @throws ResourceNotFoundException if any referenced Produto ID does not exist
      */
     private List<ItemVenda> buildItemVendaList(VendaDTO venda, Venda entity, boolean isUpdate) {
@@ -301,10 +363,29 @@ public class VendaService {
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
-
+        
         Map<Long, Produto> produtosMap = produtoRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
+        
+        return buildItemVendaList(venda, entity, produtosMap, isUpdate);
+    }
 
+    /**
+     * Builds a list of ItemVenda entities from the given VendaDTO, using a preloaded map of Produto entities.
+     * 
+     * This variant avoids querying the database by using the provided Map of Produto IDs to entities.
+     * It is useful for batch operations where Produto entities have already been fetched.
+     *
+     * Each item is linked to the given Venda entity, and optionally has its ID set if it's an update.
+     *
+     * @param venda    the VendaDTO containing the list of item DTOs
+     * @param entity   the Venda entity to associate with each item
+     * @param produtosMap a Map of Produto IDs to Produto entities to be used for resolving product references
+     * @param isUpdate true if the operation is an update (to include item IDs), false for creation
+     * @return a list of fully initialized ItemVenda entities ready for persistence
+     * @throws ResourceNotFoundException if any referenced Produto ID does not exist
+     */
+    private List<ItemVenda> buildItemVendaList(VendaDTO venda, Venda entity, Map<Long, Produto> produtosMap, boolean isUpdate) {
         return venda.itens().stream()
                 .map(itemDto -> {
                     Long idProduto = itemDto.produto().idProduto();
@@ -329,9 +410,28 @@ public class VendaService {
                 }).toList();
     }
 
+    private void validateAllUsuarios(List<UsuarioResumoDTO> usuarios) {
+        List<String> usernames = usuarios.stream()
+            .map(UsuarioResumoDTO::username)
+            .toList();
+
+        List<Usuario> encontrados = repository.findAllByUsernameIn(usernames);
+        Set<String> encontradosSet = encontrados.stream()
+                .map(Usuario::getUsername)
+                .collect(Collectors.toSet());
+
+        List<String> notFound = usernames.stream()
+                .filter(username -> !encontradosSet.contains(username))
+                .toList();
+
+        if (!notFound.isEmpty()) {
+            throw new BadRequestException("Usuários não encontrados: " + notFound);
+        }
+    }
+
     private void validateUsuario(UsuarioResumoDTO usuario) {
         Usuario theUsuario = usuarioRepository.findById(usuario.idUsuario())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. ID: " + usuario.idUsuario()));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. ID: " + usuario.idUsuario()));;
 
         // Compares the inputed username with the register in the database
         if (!theUsuario.getUsername().equals(usuario.username())) {

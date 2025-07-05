@@ -6,6 +6,9 @@ import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.CategoriaMapper;
 import com.rssecurity.storemanager.model.Categoria;
 import com.rssecurity.storemanager.repository.CategoriaRepository;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +51,24 @@ public class CategoriaService {
         }
         Categoria created = repository.save(mapper.toEntity(categoria));
         return mapper.toDTO(created);
+    }
+
+    @Transactional
+    public List<CategoriaDTO> createAll(List<CategoriaDTO> categorias) {
+        List<Long> categoriasWithId = categorias.stream()
+                .filter(c -> c.idCategoria() != null && c.idCategoria() != 0)
+                .map(c -> c.idCategoria())
+                .toList();
+        
+        if (!categoriasWithId.isEmpty()) {
+        }
+
+        List<Categoria> created = repository.saveAll(categorias.stream()
+                .map(mapper::toEntity)
+                .toList());
+        return created.stream()
+                .map(mapper::toDTO)
+                .toList();
     }
 
     public void update(Long idCategoria, CategoriaDTO categoria) {
