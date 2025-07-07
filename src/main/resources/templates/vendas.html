@@ -30,7 +30,7 @@
                                     <option value="usuario">Usuário</option>
                                     <option value="idVenda">ID da Venda</option>
                                     <option value="produtoNome">Produto (Nome)</option>
-                                    <option value="produtoCodigo">Produto (Código)</option>
+                                    <option value="codigo">Produto (Código)</option>
                                     <option value="produtoId">Produto (ID)</option>
                                 </select>
                             </div>
@@ -95,7 +95,7 @@
                             <div class="col-md-2">
                                 <button type="submit" class="btn btn-primary w-100" hx-get="/vendas"
                                     hx-target="#cards-vendas" hx-push-url="true"
-                                    hx-select="#cards-vendas">Buscar</button>
+                                    hx-select="#cards-vendas" hx-include="#search-form">Buscar</button>
                             </div>
 
                         </div>
@@ -142,7 +142,7 @@
 
                         <p class="mb-1"><strong>Observação:</strong> <span th:text="${venda.observacao}"></span></p>
                         <p class="mb-1"><strong>Pagamento:</strong> <span th:text="${venda.metodoPagamento}"></span></p>
-                        <p class="mb-1"><strong>Usuário:</strong> <abbr th:text="${venda.usuario.username}"
+                        <p class="mb-1"><strong>Usuário:</strong> <abbr th:if="${venda.usuario != null}" th:text="${venda.usuario.username}"
                                 class="initialism"
                                 th:title="${venda.usuario.nome} + ' ' + ${venda.usuario.sobrenome}"></abbr></p>
 

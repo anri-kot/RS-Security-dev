@@ -415,7 +415,7 @@ public class VendaService {
             .map(UsuarioResumoDTO::username)
             .toList();
 
-        List<Usuario> encontrados = repository.findAllByUsernameIn(usernames);
+        List<Usuario> encontrados = usuarioRepository.findAllByUsernameIn(usernames);
         Set<String> encontradosSet = encontrados.stream()
                 .map(Usuario::getUsername)
                 .collect(Collectors.toSet());

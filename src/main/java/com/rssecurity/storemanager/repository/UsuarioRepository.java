@@ -14,6 +14,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     List<Usuario> findByNomeContainingOrSobrenomeContaining(String nome, String sobrenome);
     List<Usuario> findByNomeContainingOrSobrenomeContainingOrUsernameContaining(String nome, String sobrenome, String username);
 
+    List<Usuario> findAllByUsernameIn(List<String> usernames);
+
     boolean existsByCpf(String cpf);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);

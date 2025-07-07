@@ -34,7 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults()) // habilita HTTP Basic Auth para API
+                .httpBasic(Customizer.withDefaults())
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .defaultSuccessUrl("/home", true)
@@ -45,11 +45,19 @@ public class SecurityConfig {
                         .permitAll())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
-                            if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With")) ||
+                            String hxRequest = request.getHeader("HX-Request");
+
+                            if ("true".equals(hxRequest)) {
+                                // HTMX request: trigger client-side redirect on session expiration
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                response.setHeader("HX-Redirect", "/auth/login");
+                            } else if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With")) ||
                                     "application/json".equals(request.getHeader("Accept")) ||
                                     request.getRequestURI().startsWith("/api")) {
+                                // API or generic AJAX request: respond with HTTP 401 Unauthorized
                                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
                             } else {
+                                // Standard browser request: perform redirect to login page
                                 response.sendRedirect("/auth/login");
                             }
                         }));

@@ -23,6 +23,4 @@ public interface VendaRepository extends JpaRepository<Venda, Long>, JpaSpecific
 
     List<Venda> findByObservacaoContaining(String observacao);
     List<Venda> findByMetodoPagamento(String metodoPagamento);
-
-    List<Usuario> findAllByUsernameIn(Collection<String> usernames);
 }

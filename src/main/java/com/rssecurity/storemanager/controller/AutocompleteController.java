@@ -27,14 +27,18 @@ import com.rssecurity.storemanager.service.VendaService;
 @Controller
 public class AutocompleteController {
 
-    @Autowired
     private ProdutoService produtoService;
-    @Autowired
     private VendaService vendaService;
-    @Autowired
     private UsuarioService usuarioService;
-    @Autowired
     private FornecedorService fornecedorService;
+
+    public AutocompleteController(ProdutoService produtoService, VendaService vendaService,
+            UsuarioService usuarioService, FornecedorService fornecedorService) {
+        this.produtoService = produtoService;
+        this.vendaService = vendaService;
+        this.usuarioService = usuarioService;
+        this.fornecedorService = fornecedorService;
+    }
 
     @GetMapping("/pdv/autocomplete")
     public String pdvAutocomplete(@RequestParam String termo, @RequestParam(required = false) String tipo,
