@@ -5,6 +5,8 @@ export function init() {
     */
 
     const searchForm = document.getElementById('search-form');
+    const searchType = document.getElementById('search-type');
+    const categoria = document.getElementById('categoria');
     const produtoModalEl = document.getElementById('produtoModal');
     const confirmModalEl = document.getElementById('confirma-modal');
 
@@ -12,6 +14,16 @@ export function init() {
 
     searchForm.addEventListener('submit', (event) => {
         event.preventDefault();
+    });
+
+    // Disables filter when NOME type is not selected
+    searchType.addEventListener('change', e => {
+        const type = e.target.value;
+        if (type !== 'nome') {
+            categoria.setAttribute('disabled', true);
+        } else {
+            categoria.removeAttribute('disabled');
+        }
     });
 
     // PRODUTO MODAL
@@ -191,6 +203,7 @@ export function init() {
     }
 
     async function refresh() {
+        lastSearch = location.search;
         const url = `/produtos${lastSearch}`
         htmx.ajax('GET', url, { target: '#conteudo', selected: '#tabela-produtos'});
     }

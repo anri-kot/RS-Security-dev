@@ -120,6 +120,7 @@ export function init() {
     /* ================== REFRESH REGISTERS ================== */
 
     async function refreshCompras() {
+        lastSearch = location.search;
         const url = `/compras${lastSearch}`;
         htmx.ajax('GET', url, { target: '#conteudo', selected: '#cards-compras' });
     }

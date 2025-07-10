@@ -1,5 +1,14 @@
 package com.rssecurity.storemanager.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
 import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ConflictException;
@@ -9,12 +18,6 @@ import com.rssecurity.storemanager.model.Fornecedor;
 import com.rssecurity.storemanager.repository.FornecedorRepository;
 
 import jakarta.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FornecedorService {
@@ -84,6 +87,33 @@ public class FornecedorService {
         Fornecedor fornecedor = repository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Fornecedor não encontrado. Email: " + email));
         return mapper.toDTO(fornecedor);
+    }
+
+    // Pages
+
+    public Page<FornecedorDTO> findAll(int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findAll(p).map(mapper::toDTO);
+    }
+
+    public Page<FornecedorDTO> findByNomeContains(String nome, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByNomeContains(nome, p).map(mapper::toDTO);
+    }
+
+    public Page<FornecedorDTO> findByCnpjContains(String cnpj, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByCnpjContains(cnpj, p).map(mapper::toDTO);
+    }
+
+    public Page<FornecedorDTO> findByTelefoneContains(String telefone, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByTelefoneContains(telefone, p).map(mapper::toDTO);
+    }
+
+    public Page<FornecedorDTO> findByEmailContains(String email, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByEmailContains(email, p).map(mapper::toDTO);
     }
 
     // ACTION

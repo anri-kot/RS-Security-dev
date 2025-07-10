@@ -2,6 +2,9 @@ package com.rssecurity.storemanager.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.rssecurity.storemanager.dto.ProdutoDTO;
@@ -65,6 +68,33 @@ public class ProdutoService {
         return repository.findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(termo, categoria).stream()
                 .map(mapper::toDTO)
                 .toList();
+    }
+
+    // PAGES
+
+    public Page<ProdutoDTO> findAll(int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findAll(p).map(mapper::toDTO);
+    }
+
+    public Page<ProdutoDTO> findByNomeContains(String nome, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByNomeContains(nome, p).map(mapper::toDTO);
+    }
+
+    public Page<ProdutoDTO> findByDescricaoContains(String descricao, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByDescricaoContains(descricao, p).map(mapper::toDTO);
+    }
+
+    public Page<ProdutoDTO> findByCategoria_Nome(String categoria, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByCategoria_Nome(categoria, p).map(mapper::toDTO);
+    }
+
+    public Page<ProdutoDTO> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String termo, Long categoria, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(termo, categoria, p).map(mapper::toDTO);
     }
 
     // ACTIONS

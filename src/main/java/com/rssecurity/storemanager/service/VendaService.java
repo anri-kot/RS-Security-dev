@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -64,6 +67,19 @@ public class VendaService {
         return repository.findAll(spec, SORT_BY_DATE).stream()
                 .map(mapper::toDTO)
                 .toList();
+    }
+
+    public Page<VendaDTO> findAll(int pageNumber, int pageSize) {
+        Pageable p = PageRequest.of(pageNumber, pageSize, SORT_BY_DATE);
+        return repository.findAll(p).map(mapper::toDTO);
+    }
+
+    public Page<VendaDTO> findAllByCustomMatcher(int pageNumber, int pageSize, Map<String, String> filter) {
+        filter.values().removeIf((String::isBlank));
+
+        Specification<Venda> spec = VendaSpecification.withFilters(filter);
+        Pageable p = PageRequest.of(pageNumber, pageSize, SORT_BY_DATE);
+        return repository.findAll(spec, p).map(mapper::toDTO);
     }
 
     public VendaDTO findById(Long idVenda) {

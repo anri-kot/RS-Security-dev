@@ -22,9 +22,9 @@ export function init() {
     document.body.addEventListener("htmx:beforeRequest", (event) => {
         if (event.target.id === searchProduct.id) {
             const value = event.target.value.trim();
-            const isIdSearch = searchType.value === 'id';
+            const isNomeSearch = searchType.value === 'nome';
 
-            if ((isIdSearch && value.length < 1) || (!isIdSearch && (value.length < 3 || lastQuery === value))) {
+            if ((isNomeSearch && value.length < 1) || (isNomeSearch && (value.length < 3 || lastQuery === value))) {
                 event.preventDefault();
             }
         }

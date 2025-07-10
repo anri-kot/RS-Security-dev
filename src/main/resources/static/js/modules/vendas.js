@@ -84,6 +84,7 @@ export function init() {
     });
 
     async function refreshVendas() {
+        lastSearch = location.search;
         const url = `/vendas${lastSearch}`;
         htmx.ajax('GET', url, { target: '#conteudo', selected: '#cards-vendas' });
     }

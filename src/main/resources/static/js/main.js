@@ -44,8 +44,6 @@ function loadModule() {
   import(`/js/modules/${pageId}.js`)
     .then(module => module.init())
     .catch(err => console.warn(`Não foi possível carregar módulo para ${pageId}`, err));
-
-  console.log(`current: ${pageId}`);
   
 }
 
