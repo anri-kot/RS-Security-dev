@@ -19,19 +19,19 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping("/produtos")
-public class ProdutosViewController {
+public class ProdutoViewController {
     private final ProdutoService service;
     private final CategoriaService categoriaService;
 
     private final int DEFAULT_PAGE_SIZE = 15;
 
-    public ProdutosViewController(ProdutoService service, CategoriaService categoriaService) {
+    public ProdutoViewController(ProdutoService service, CategoriaService categoriaService) {
         this.service = service;
         this.categoriaService = categoriaService;
     }
     
     @GetMapping()
-    public String getProdutos(HttpServletRequest request,
+    public String getPage(HttpServletRequest request,
             @RequestParam(name = "page", defaultValue = "1") int currentPage,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String termo,

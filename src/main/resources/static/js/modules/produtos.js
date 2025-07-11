@@ -1,9 +1,4 @@
 export function init() {
-
-    /* 
-        TODO: Show modal on edit
-    */
-
     const searchForm = document.getElementById('search-form');
     const searchType = document.getElementById('search-type');
     const categoria = document.getElementById('categoria');
