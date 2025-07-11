@@ -9,7 +9,6 @@ public record UsuarioDTO(
         Long idUsuario,
         @NotBlank
         String username,
-        @NotBlank
         String senha,
         @NotBlank
         String nome,
