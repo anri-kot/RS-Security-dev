@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importar CSV</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container py-4" th:fragment="content" data-page-id="importar">
+
+            <!-- Upload Section -->
+            <div class="mb-5">
+                <h4 class="mb-3">Enviar Arquivo Excel</h4>
+                <form id="xlsxUploadForm" class="needs-validation" enctype="multipart/form-data"
+                    hx-post="/api/importar" hx-target="#uploadStatus" hx-swap="innerHTML"
+                    hx-encoding="multipart/form-data">
+
+                    <div class="mb-3">
+                        <label for="xlsxFile" class="form-label">Escolha um arquivo .xlsx</label>
+                        <input class="form-control" type="file" id="xlsxFile" name="file" accept=".xlsx" required>
+                        <div class="invalid-feedback">
+                            Por favor, selecione um arquivo XLSX válido.
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-upload me-1"></i> Enviar
+                    </button>
+                </form>
+
+                <div id="uploadStatus" class="mt-4"></div>
+                
+            </div>
+
+            <hr class="mb-5">
+
+            <!-- Instructions & Downloads -->
+            <section>
+                <h5 class="mb-3">Instruções para preenchimento</h5>
+                <p>
+                    Para importar dados corretamente no sistema, utilize os arquivos de modelo abaixo.
+                    Cada tipo de informação (como produtos, compras ou fornecedores) deve ser preenchida em um arquivo
+                    separado.
+                    Esses arquivos podem ser abertos e editados em qualquer programa de planilha (como Excel, Google
+                    Sheets ou LibreOffice),
+                    mas devem ser salvos no formato <strong>XLSX</strong> antes do envio.
+                </p>
+            </section>
+
+            <section class="mt-4">
+                <h5 class="mb-3">Baixar modelo de dados</h5>
+                <form class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label for="modeloSelect" class="form-label">Selecionar tipo de dado</label>
+                        <select id="modeloSelect" class="form-select">
+                            <option value="produtos">Produtos</option>
+                            <option value="compras">Compras</option>
+                            <option value="fornecedores">Fornecedores</option>
+                            <option value="usuarios">Funcionários</option>
+                            <option value="categorias">Categorias</option>
+                        </select>
+                    </div>
+                    <div class="col-md-auto">
+                        <button type="button" class="btn btn-outline-secondary" id="downloadModeloBtn">
+                            <i class="bi bi-download me-1"></i> Baixar modelo
+                        </button>
+                    </div>
+                    <div class="col-md-auto">
+                        <a href="/modelos/modelos-csv.zip" class="btn btn-outline-primary">
+                            <i class="bi bi-folder-symlink me-1"></i> Baixar todos (.zip)
+                        </a>
+                    </div>
+                </form>
+            </section>
+
+        </div>
+    </div>
+</body>
+
+</html>

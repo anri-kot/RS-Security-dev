@@ -1,14 +1,11 @@
 package com.rssecurity.storemanager.service;
 
-import com.rssecurity.storemanager.dto.UsuarioDTO;
-import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
-import com.rssecurity.storemanager.exception.BadRequestException;
-import com.rssecurity.storemanager.exception.ConflictException;
-import com.rssecurity.storemanager.exception.ResourceNotFoundException;
-import com.rssecurity.storemanager.mapper.UsuarioMapper;
-import com.rssecurity.storemanager.model.Usuario;
-import com.rssecurity.storemanager.repository.UsuarioRepository;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,8 +14,14 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.rssecurity.storemanager.dto.UsuarioDTO;
+import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
+import com.rssecurity.storemanager.exception.BadRequestException;
+import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.exception.ResourceNotFoundException;
+import com.rssecurity.storemanager.mapper.UsuarioMapper;
+import com.rssecurity.storemanager.model.Usuario;
+import com.rssecurity.storemanager.repository.UsuarioRepository;
 
 @Service
 public class UsuarioService implements UserDetailsService {
@@ -92,6 +95,51 @@ public class UsuarioService implements UserDetailsService {
                 .toList();
     }
 
+    public List<UsuarioDTO> findByCpfContaining(String cpf) {
+        return repository.findByCpfContaining(cpf).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    // PAGES
+
+    public Page<UsuarioDTO> findAll(int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findAll(p).map(mapper::toDTO);
+    }
+
+    public Page<UsuarioDTO> findByNomeContainingOrSobrenomeContaining(String nomeOrSobrenome, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByNomeContainingOrSobrenomeContaining(nomeOrSobrenome, nomeOrSobrenome, p).map(mapper::toDTO);
+    }
+
+    public Page<UsuarioDTO> findByUsernameContaining(String username, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByUsernameContains(username, p).map(mapper::toDTO);
+    }
+
+    public Page<UsuarioDTO> findByEnderecoContaining(String endereco, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByEnderecoContaining(endereco, p).map(mapper::toDTO);
+    }
+
+    public Page<UsuarioDTO> findByTelefoneContaining(String telefone, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByTelefoneContaining(telefone, p).map(mapper::toDTO);
+    }
+
+    public Page<UsuarioDTO> findByCpfContaining(String cpf, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByCpfContaining(cpf, p).map(mapper::toDTO);
+    }
+
+    public Page<UsuarioDTO> findByEmailContaining(String email, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByEmailContaining(email, p).map(mapper::toDTO);
+    }
+
+    // CREATE / UPDATE / DELETE
+
     public UsuarioDTO create(UsuarioDTO usuario) {
         if (usuario.idUsuario() != null) {
             throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
@@ -107,6 +155,15 @@ public class UsuarioService implements UserDetailsService {
             throw new ResourceNotFoundException("Usuario não encontrado. ID: " + id);
         }
         Usuario toUpdate = setPassword(usuario);
+        repository.save(toUpdate);
+    }
+
+    public void updateWithoutPassword(Long id, UsuarioDTO usuario) {
+        Usuario oldUsuario = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. ID: " + id));
+        
+        Usuario toUpdate = mapper.toEntity(usuario);
+        toUpdate.setSenha(oldUsuario.getSenha());
         repository.save(toUpdate);
     }
 

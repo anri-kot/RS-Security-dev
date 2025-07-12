@@ -1,32 +1,28 @@
 package com.rssecurity.storemanager.repository;
 
-import com.rssecurity.storemanager.dto.ProdutoEstoqueDTO;
-import com.rssecurity.storemanager.model.Produto;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+// import com.rssecurity.storemanager.dto.ProdutoEstoqueDTO;
+import com.rssecurity.storemanager.model.Produto;
 
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     List<Produto> findByNomeContains(String nome);
+    Optional<Produto> findByCodigoBarras(String codigoBarras);
     List<Produto> findByDescricaoContains(String descricao);
     List<Produto> findByCategoria_Nome(String categoria);
 
     List<Produto> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String nome, Long categoria);
 
-    @Query("""
-    SELECT 
-        p.idProduto AS idProduto,
-        COALESCE(SUM(ic.quantidade), 0) - COALESCE(SUM(iv.quantidade), 0) AS estoque
-    FROM Produto p
-    LEFT JOIN ItemCompra ic ON ic.produto = p
-    LEFT JOIN ItemVenda iv ON iv.produto = p
-    WHERE p.idProduto IN :ids
-    GROUP BY p.idProduto
-    """)
-    List<ProdutoEstoqueDTO> findEstoqueAtualByProdutoIds(@Param("ids") List<Long> ids);
+    Page<Produto> findByNomeContains(String nome, Pageable p);
+    Page<Produto> findByDescricaoContains(String descricao, Pageable p);
+    Page<Produto> findByCategoria_Nome(String categoria, Pageable p);
 
+    Page<Produto> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String nome, Long categoria, Pageable p);
 }

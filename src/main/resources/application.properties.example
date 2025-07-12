@@ -1,4 +1,8 @@
 spring.application.name=storemanager
+server.port=8888
+
+server.error.whitelabel.enabled=false
+server.error.path=/error
 
 spring.datasource.url=
 spring.datasource.username=

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Usuarios</title>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+
+        <div class="container py-4" th:fragment="content" data-page-id="usuarios">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">      
+                <h1 class="mb-0">Usuarios</h1>
+                <button id="new-usuario" class="btn btn-success">+ Novo Usuario</button>
+            </div>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form id="search-form" class="d-flex flex-wrap align-items-center" hx-get="/usuarios"
+                        hx-target="#tabela-usuarios" hx-push-url="true" hx-select="#tabela-usuarios">
+                        <label for="tipo">Buscar por:</label>
+                        <select id="search-type" name="tipo" class="form-select me-2 w-auto">
+                            <option value="nome">Nome</option>
+                            <option value="username">Username</option>
+                            <option value="id">ID</option>
+                            <option value="cpf">CPF</option>
+                            <option value="telefone">Telefone</option>
+                            <option value="endereco">Endereco</option>
+                            <option value="email">Email</option>
+                        </select>
+
+                        <div class="position-relative me-2" style="flex: 1; min-width: 250px;">
+                            <input type="text" id="search-user" name="termo" class="form-control"
+                                placeholder="Buscar usuario..." autocomplete="off">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="search-btn">Buscar</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="error-container"></div>
+
+            <div id="tabela-usuarios" th:fragment="usuarios">
+
+                <div class="table-responsive">
+                    <div class="card shadow-sm rounded">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Usuarios</h5>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">ID</th>
+                                        <th scope="col">Nome</th>
+                                        <th scope="col">Username</th>
+                                        <th scope="col" class="d-none d-md-table-cell">Sobrenome</th>
+                                        <th scope="col">CPF</th>
+                                        <th scope="col" class="d-none d-lg-table-cell">Endereço</th>
+                                        <th scope="col" class="d-none d-md-table-cell">Email</th>
+                                        <th scope="col">Telefone</th>
+                                        <th scope="col" class="d-none d-lg-table-cell">Salário</th>
+                                        <th scope="col">Permissões</th>
+                                        <th scope="col">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="usuario : ${usuarios}">
+                                        <td th:text="${usuario.idUsuario}"></td>
+                                        <td th:text="${usuario.username}"></td>
+                                        <td th:text="${usuario.nome}"></td>
+
+                                        <td class="d-none d-md-table-cell"
+                                            th:text="${#strings.abbreviate(usuario.sobrenome, 15)}"
+                                            th:title="${usuario.sobrenome}"></td>
+
+                                        <td th:text="${usuario.cpf}"></td>
+
+                                        <td class="d-none d-lg-table-cell"
+                                            th:text="${#strings.abbreviate(usuario.endereco, 20)}"
+                                            th:title="${usuario.endereco}"></td>
+
+                                        <td class="d-none d-md-table-cell"
+                                            th:text="${#strings.abbreviate(usuario.email, 20)}"
+                                            th:title="${usuario.email}"></td>
+
+                                        <td th:text="${usuario.telefone}"></td>
+
+                                        <td class="d-none d-lg-table-cell"
+                                            th:text="${usuario.salario}"></td>
+
+                                        <td>
+                                            <span th:if="${usuario.admin}" title="Administrador">
+                                                <i class="bi bi-shield-lock text-primary"></i>
+                                            </span>
+                                            <span th:if="${!usuario.admin}" title="Usuário comum">
+                                                <i class="bi bi-person"></i>
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-2"
+                                                    th:attr="data-id=${usuario.idUsuario}"
+                                                    data-action="edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    th:attr="data-id=${usuario.idUsuario}"
+                                                    data-action="delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="d-flex justify-content-center mt-4">
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a th:if="${size}" class="page-link" th:href="@{/usuarios(page=${currentPage - 1}, size=${size})}">Anterior</a>
+                        <a th:unless="${size}" class="page-link" th:href="@{/usuarios(page=${currentPage - 1})}">Anterior</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                            th:classappend="${currentPage == i} ? 'active'">
+                        <a th:if="${size}" class="page-link" th:href="@{/usuarios(page=${i}, size=${size})}" th:text="${i}">1</a>
+                        <a th:unless="${size}" class="page-link" th:href="@{/usuarios(page=${i})}" th:text="${i}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{/usuarios(page=${currentPage + 1}, size=${size})}">Próximo</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <div class="modal fade" id="modal-usuario" tabindex="-1" aria-labelledby="modal-usuarioLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Usuario</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <form id="usuario-form">
+                                <div class="mb-3">
+                                    <label class="form-label">ID</label>
+                                    <input type="text" id="modal-usuario-idUsuario" class="form-control" disabled required>
+                                    <input type="hidden" name="is-new" id="is-new">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Username</label>
+                                    <input type="text" id="modal-usuario-username" class="form-control" maxlength="20" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Nome</label>
+                                    <input type="text" id="modal-usuario-nome" class="form-control" maxlength="100" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Sobrenome</label>
+                                    <input type="text" id="modal-usuario-sobrenome" class="form-control" maxlength="200" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">CPF</label>
+                                    <input type="text" id="modal-usuario-cpf" class="form-control" maxlength="14" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Endereço</label>
+                                    <input type="text" id="modal-usuario-endereco" class="form-control" maxlength="250" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" id="modal-usuario-email" class="form-control" maxlength="255" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Telefone</label>
+                                    <input type="text" id="modal-usuario-telefone" class="form-control" maxlength="14" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Salário</label>
+                                    <input type="number" id="modal-usuario-salario" step="0.1" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Permissões</label>
+                                    <select class="form-select" id="modal-usuario-admin">
+                                        <option value="false">Comum</option>
+                                        <option value="true">Administrador</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3" id="update-senha-container">
+                                    <label class="form-label">Alterar senha</label>
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" name="modal-usuario-changePw" value="true" id="change-pw-true">
+                                        <label class="form-check-label" for="change-pw-true">Sim</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" name="modal-usuario-changePw" id="change-pw-false" value="false" checked>
+                                        <label class="form-check-label" for="change-pw-false">Não</label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 d-none" id="senha-container">
+                                    <label class="form-label" for="modal-usuario-senha" id="modal-usuario-senha-label">Nova Senha</label>
+                                    <input type="password" id="modal-usuario-senha" class="form-control" disabled required>
+                                    <div class="invalid-feedback">
+                                        A senha deve ter pelo menos 6 caracteres.
+                                    </div>
+
+                                    <label class="form-label mt-3" for="modal-usuario-confirmSenha" id="modal-usuario-confirmSenha-label">Confirmar Nova Senha</label>
+                                    <input type="password" id="modal-usuario-confirmSenha" class="form-control" disabled required>
+                                    <div class="invalid-feedback">
+                                        As senhas não coincidem.
+                                    </div>
+                                </div>
+                                
+                            </form>
+                            <div class="modal-footer">
+                                <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                                <button class="btn btn-success" id="confirm-register"
+                                    data-action="confirm-modal">Confirmar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="confirm-modal" tabindex="-1" aria-labelledby="confirmLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmarVendaLabel">Confirmar ação</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <spam id="modal-mensagem">Tem certeza disso?</spam>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" data-action="none" class="btn btn-primary" id="confirmar-acao">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</body>
+
+</html>

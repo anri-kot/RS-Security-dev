@@ -1,17 +1,24 @@
 package com.rssecurity.storemanager.controller;
 
+import java.net.URI;
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.service.ProdutoService;
+
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/api/produto")
@@ -37,6 +44,11 @@ public class ProdutoController {
         return ResponseEntity.ok(service.findByNomeContains(nome));
     }
 
+    @GetMapping("/search/codigoBarras")
+    public ResponseEntity<ProdutoDTO> findByCodigoBarrasContains(@RequestParam String codigoBarras) {
+        return ResponseEntity.ok(service.findByCodigoBarras(codigoBarras));
+    }
+
     @GetMapping("/search/descricao")
     public ResponseEntity<List<ProdutoDTO>> findByDescricaoContains(@RequestParam String descricao) {
         return ResponseEntity.ok(service.findByDescricaoContains(descricao));
@@ -45,7 +57,7 @@ public class ProdutoController {
     @GetMapping("/search/categoria")
     public ResponseEntity<List<ProdutoDTO>> findByCategoria_Nome(@RequestParam String categoria) {
         return ResponseEntity.ok(service.findByCategoria_Nome(categoria));
-    }    
+    }
 
     @PostMapping
     public ResponseEntity<ProdutoDTO> create(@RequestBody @Valid ProdutoDTO produto) {

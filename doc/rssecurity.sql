@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: May 12, 2025 at 09:54 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: mysql:3306
+-- Generation Time: Jul 02, 2025 at 08:23 PM
+-- Server version: 9.3.0
+-- PHP Version: 8.2.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -20,7 +20,7 @@ SET time_zone = "+00:00";
 --
 -- Database: `rssecurity`
 --
-CREATE DATABASE IF NOT EXISTS `rssecurity` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE DATABASE IF NOT EXISTS `rssecurity` DEFAULT CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci;
 USE `rssecurity`;
 
 -- --------------------------------------------------------
@@ -30,18 +30,22 @@ USE `rssecurity`;
 --
 
 CREATE TABLE `categoria` (
-  `id_categoria` bigint(20) NOT NULL,
+  `id_categoria` bigint NOT NULL,
   `nome` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `categoria`
 --
 
 INSERT INTO `categoria` (`id_categoria`, `nome`) VALUES
+(7, 'alarme'),
+(8, 'aparelho eletronico'),
+(6, 'cabos e fios'),
 (1, 'Camera'),
-(3, 'Periféricos'),
+(3, 'Perifericos'),
 (4, 'Redes'),
+(5, 'sensor'),
 (2, 'Vigilancia');
 
 -- --------------------------------------------------------
@@ -51,11 +55,11 @@ INSERT INTO `categoria` (`id_categoria`, `nome`) VALUES
 --
 
 CREATE TABLE `compra` (
-  `id_compra` bigint(20) NOT NULL,
+  `id_compra` bigint NOT NULL,
   `data` datetime NOT NULL,
   `observacao` varchar(255) DEFAULT NULL,
-  `id_fornecedor` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  `id_fornecedor` bigint DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `compra`
@@ -65,7 +69,8 @@ INSERT INTO `compra` (`id_compra`, `data`, `observacao`, `id_fornecedor`) VALUES
 (5, '2025-04-17 14:30:00', 'Compra de câmeras para novo lote de segurança', 2),
 (6, '2025-04-16 10:15:00', 'Reposição mensal de produtos de vigilância', 3),
 (7, '2025-04-15 17:45:00', 'Compra emergencial para novo cliente', 4),
-(8, '2025-04-24 12:00:00', NULL, 2);
+(8, '2025-04-24 12:00:00', NULL, 2),
+(9, '2025-06-27 12:00:00', 'Estoque Mensal', 3);
 
 -- --------------------------------------------------------
 
@@ -74,12 +79,12 @@ INSERT INTO `compra` (`id_compra`, `data`, `observacao`, `id_fornecedor`) VALUES
 --
 
 CREATE TABLE `fornecedor` (
-  `id_fornecedor` bigint(20) NOT NULL,
+  `id_fornecedor` bigint NOT NULL,
   `nome` varchar(255) NOT NULL,
   `cnpj` varchar(14) NOT NULL,
   `telefone` varchar(14) NOT NULL,
   `email` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `fornecedor`
@@ -98,12 +103,12 @@ INSERT INTO `fornecedor` (`id_fornecedor`, `nome`, `cnpj`, `telefone`, `email`) 
 --
 
 CREATE TABLE `item_compra` (
-  `id_item` bigint(20) NOT NULL,
-  `quantidade` smallint(6) NOT NULL,
+  `id_item` bigint NOT NULL,
+  `quantidade` smallint NOT NULL,
   `valor_unitario` decimal(10,2) NOT NULL,
-  `id_compra` bigint(20) NOT NULL,
-  `id_produto` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  `id_compra` bigint NOT NULL,
+  `id_produto` bigint DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `item_compra`
@@ -117,7 +122,8 @@ INSERT INTO `item_compra` (`id_item`, `quantidade`, `valor_unitario`, `id_compra
 (7, 100, 300.00, 7, 7),
 (8, 100, 70.00, 8, 9),
 (9, 100, 170.00, 8, 10),
-(10, 100, 310.00, 8, 11);
+(10, 100, 310.00, 8, 11),
+(11, 50, 70.00, 9, 9);
 
 -- --------------------------------------------------------
 
@@ -126,26 +132,25 @@ INSERT INTO `item_compra` (`id_item`, `quantidade`, `valor_unitario`, `id_compra
 --
 
 CREATE TABLE `item_venda` (
-  `id_item` bigint(20) NOT NULL,
-  `quantidade` int(11) NOT NULL,
+  `id_item` bigint NOT NULL,
+  `quantidade` int NOT NULL,
   `valor_unitario` decimal(10,2) NOT NULL,
   `desconto` decimal(5,2) DEFAULT NULL,
-  `id_venda` bigint(20) NOT NULL,
-  `id_produto` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  `id_venda` bigint NOT NULL,
+  `id_produto` bigint DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `item_venda`
 --
 
 INSERT INTO `item_venda` (`id_item`, `quantidade`, `valor_unitario`, `desconto`, `id_venda`, `id_produto`) VALUES
-(3, 9, 75.00, 15.00, 3, 5),
-(4, 2, 180.00, NULL, 3, 10),
-(5, 4, 320.00, NULL, 5, 11),
-(6, 6, 275.00, NULL, 6, 4),
-(7, 2, 120.00, NULL, 6, 12),
+(3, 5, 75.00, 0.00, 3, 5),
+(5, 2, 320.00, 0.00, 5, 11),
+(6, 6, 275.00, 0.00, 6, 4),
+(7, 2, 120.00, 0.00, 6, 12),
 (8, 2, 70.00, 0.00, 7, 9),
-(9, 1, 170.00, 10.00, 7, 10),
+(9, 1, 170.00, 15.00, 7, 10),
 (10, 1, 200.00, 0.00, 9, 4),
 (11, 1, 170.00, 0.00, 10, 10),
 (12, 1, 69.99, 0.00, 10, 6),
@@ -162,7 +167,16 @@ INSERT INTO `item_venda` (`id_item`, `quantidade`, `valor_unitario`, `desconto`,
 (23, 1, 310.00, 0.00, 19, 11),
 (24, 1, 170.00, 0.00, 20, 10),
 (25, 1, 170.00, 0.00, 21, 10),
-(26, 1, 200.00, 0.00, 22, 4);
+(26, 1, 200.00, 0.00, 22, 4),
+(27, 1, 200.00, 15.00, 23, 4),
+(28, 1, 310.00, 0.00, 24, 11),
+(29, 3, 500.00, 0.00, 25, 7),
+(30, 1, 310.00, 0.00, 25, 11),
+(33, 1, 200.00, 0.00, 27, 4),
+(34, 1, 310.00, 0.00, 27, 11),
+(35, 2, 200.00, 0.00, 3, 4),
+(36, 1, 200.00, 0.00, 28, 4),
+(37, 1, 310.00, 0.00, 28, 11);
 
 -- --------------------------------------------------------
 
@@ -171,28 +185,38 @@ INSERT INTO `item_venda` (`id_item`, `quantidade`, `valor_unitario`, `desconto`,
 --
 
 CREATE TABLE `produto` (
-  `id_produto` bigint(20) NOT NULL,
+  `id_produto` bigint NOT NULL,
   `nome` varchar(255) NOT NULL,
   `preco_atual` decimal(10,2) DEFAULT NULL,
   `descricao` varchar(150) DEFAULT NULL,
-  `estoque_min` smallint(6) DEFAULT NULL,
-  `id_categoria` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  `estoque` int NOT NULL DEFAULT '0',
+  `id_categoria` bigint DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `produto`
 --
 
-INSERT INTO `produto` (`id_produto`, `nome`, `preco_atual`, `descricao`, `estoque_min`, `id_categoria`) VALUES
-(4, 'Camera SPX', 200.00, 'Camera Profissional', 30, 1),
-(5, 'Produto Vigilancia', 200.00, 'Monitoramento', 20, 1),
-(6, 'Camera 33', 69.99, 'Camera de baixa qualidade', 11, 2),
-(7, 'Camera DSA', 500.00, 'Camera de alta qualidade', 12, 2),
-(8, 'Camera Super HD', 200.00, 'Camera de media qualidade', 14, 1),
-(9, 'Mouse sem fio', 70.00, 'Mouse silencioso com sensor óptico', 15, 3),
-(10, 'Teclado Mecânico Redragon', 170.00, 'Teclado RGB com switches silenciosos', 10, 3),
-(11, 'Roteador AX3600', 310.00, 'Roteador Wi-Fi 6 de alta performance', 8, 4),
-(12, 'Gravador DVR', 110.00, 'Gravador digital para câmeras analógicas', 5, 2);
+INSERT INTO `produto` (`id_produto`, `nome`, `preco_atual`, `descricao`, `estoque`, `id_categoria`) VALUES
+(4, 'Camera SPX', 200.00, 'Camera Profissional', 200, 1),
+(5, 'Produto Vigilancia', 200.00, 'Monitoramento', 200, 1),
+(6, 'Camera 33', 69.99, 'Camera de baixa qualidade', 200, 2),
+(7, 'Camera DSA', 500.00, 'Camera de alta qualidade', 200, 2),
+(8, 'Camera Super HD', 200.00, 'Camera de media qualidade', 200, 1),
+(9, 'Mouse sem fio', 70.00, 'Mouse silencioso com sensor óptico', 250, 3),
+(10, 'Teclado Mecânico Redragon', 170.00, 'Teclado RGB com switches silenciosos', 200, 3),
+(11, 'Roteador AX3600', 310.00, 'Roteador Wi-Fi 6 de alta performance', 200, 4),
+(12, 'Gravador DVR', 110.00, 'Gravador digital para câmeras analógicas', 200, 2),
+(85, 'Câmera de Segurança IP Wi-Fi', 0.00, 'Câmera IP com visão noturna e detecção de movimento', 50, 1),
+(86, 'Notebook Dell Inspiron 15', 0.00, 'Notebook com processador Intel i5 8GB RAM e SSD de 256GB', 20, 8),
+(87, '5 de Presença Infravermelho', 0.00, '5 para automação de iluminação com ajuste de sensibilidade', 100, 5),
+(88, 'Fone de Ouvido Bluetooth JBL', 0.00, 'Fone sem fio com até 20h de bateria e microfone embutido', 35, 3),
+(89, 'Cabo HDMI 2.0 2 Metros', 0.00, 'Cabo HDMI de alta velocidade com suporte a 4K', 200, 6),
+(90, '7 Residencial Intelbras', 0.00, 'Central de 7 com teclado e controle remoto', 15, 7),
+(91, 'Smartphone Samsung Galaxy A15', 0.00, 'Smartphone com 128GB de armazenamento e câmera tripla', 25, 8),
+(92, 'Tomada Inteligente Wi-Fi', 0.00, 'Controle de energia via app com integração Alexa e Google', 60, 3),
+(93, 'HD Externo 1TB Seagate', 0.00, 'Armazenamento portátil com conexão USB 3.0', 40, 3),
+(94, 'Kit Vídeo Porteiro com Câmera', 0.00, 'Kit com câmera externa e monitor interno para interfone', 10, 1);
 
 -- --------------------------------------------------------
 
@@ -201,7 +225,7 @@ INSERT INTO `produto` (`id_produto`, `nome`, `preco_atual`, `descricao`, `estoqu
 --
 
 CREATE TABLE `usuario` (
-  `id_usuario` bigint(20) NOT NULL,
+  `id_usuario` bigint NOT NULL,
   `username` varchar(20) NOT NULL,
   `senha` varchar(255) NOT NULL,
   `nome` varchar(255) NOT NULL,
@@ -212,7 +236,7 @@ CREATE TABLE `usuario` (
   `telefone` varchar(14) DEFAULT NULL,
   `salario` decimal(10,0) NOT NULL,
   `admin` tinyint(1) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `usuario`
@@ -230,36 +254,43 @@ INSERT INTO `usuario` (`id_usuario`, `username`, `senha`, `nome`, `sobrenome`, `
 --
 
 CREATE TABLE `venda` (
-  `id_venda` bigint(20) NOT NULL,
+  `id_venda` bigint NOT NULL,
   `data` datetime NOT NULL,
   `observacao` varchar(255) NOT NULL DEFAULT 'VENDA NO BALCÃO',
-  `id_usuario` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+  `metodo_pagamento` varchar(20) DEFAULT NULL,
+  `valor_recebido` decimal(10,2) DEFAULT NULL,
+  `troco` decimal(10,2) DEFAULT NULL,
+  `id_usuario` bigint DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
 -- Dumping data for table `venda`
 --
 
-INSERT INTO `venda` (`id_venda`, `data`, `observacao`, `id_usuario`) VALUES
-(3, '2025-04-10 16:45:00', 'Venda de acessórios de informática para escritório central', 2),
-(5, '2025-04-15 18:00:00', 'Venda de equipamentos de rede para filial norte', 2),
-(6, '2025-04-20 20:15:00', 'Venda de kit completo para instalação de segurança', 4),
-(7, '2025-04-24 16:45:00', 'VENDA NO BALCÃO', 2),
-(8, '2025-04-24 16:45:00', 'VENDA NO BALCÃO', 2),
-(9, '2025-05-02 18:10:50', '', 3),
-(10, '2025-05-02 15:21:41', 'VENDA NO BALCÃO', 3),
-(11, '2025-05-02 15:27:16', 'VENDA NO BALCÃO', 3),
-(12, '2025-05-02 15:29:19', 'VENDA NO BALCÃO', 3),
-(13, '2025-05-02 15:45:14', 'VENDA NO BALCÃO', 3),
-(14, '2025-05-02 15:47:53', 'VENDA NO BALCÃO', 3),
-(15, '2025-05-02 15:47:59', 'VENDA NO BALCÃO', 3),
-(16, '2025-05-05 16:18:54', 'VENDA NO BALCÃO', 3),
-(17, '2025-05-06 16:52:46', 'VENDA NO BALCÃO', 2),
-(18, '2025-05-06 16:54:26', 'teclado', 2),
-(19, '2025-05-06 16:59:37', 'teste', 2),
-(20, '2025-05-09 15:08:05', 'VENDA NO BALCÃO', 3),
-(21, '2025-05-09 15:08:36', 'dsadsadsa', 3),
-(22, '2025-05-12 16:40:36', 'VENDA NO BALCÃO', 3);
+INSERT INTO `venda` (`id_venda`, `data`, `observacao`, `metodo_pagamento`, `valor_recebido`, `troco`, `id_usuario`) VALUES
+(3, '2025-04-10 16:45:00', 'VENDA NO BALCÃO', 'DINHEIRO', 785.00, 10.00, 3),
+(5, '2025-04-18 18:00:00', 'Venda de equipamentos de rede para filial norte', 'CARTAO_CREDITO', 640.00, NULL, 2),
+(6, '2025-04-20 20:15:00', 'Venda de kit completo para instalação de segurança', 'CARTAO_CREDITO', 1890.00, NULL, 4),
+(7, '2025-04-24 16:45:00', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 284.50, NULL, 2),
+(9, '2025-05-02 18:10:50', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 200.00, NULL, 3),
+(10, '2025-05-02 15:21:41', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 239.99, NULL, 3),
+(11, '2025-05-02 15:27:16', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 1720.00, NULL, 3),
+(12, '2025-05-02 15:29:19', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 569.99, NULL, 3),
+(13, '2025-05-02 15:45:14', 'VENDA NO BALCÃO', 'PIX', 200.00, NULL, 3),
+(14, '2025-05-02 15:47:53', 'VENDA NO BALCÃO', 'PIX', 170.00, NULL, 3),
+(15, '2025-05-02 15:47:59', 'VENDA NO BALCÃO', 'PIX', 170.00, NULL, 3),
+(16, '2025-05-05 16:18:54', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 600.00, NULL, 3),
+(17, '2025-05-06 16:52:46', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 200.00, NULL, 2),
+(18, '2025-05-06 16:54:26', 'teclado', 'PIX', 170.00, NULL, 2),
+(19, '2025-05-06 16:59:37', 'teste', 'CARTAO_CREDITO', 310.00, NULL, 2),
+(20, '2025-05-09 15:08:05', 'VENDA NO BALCÃO', 'DINHEIRO', 180.00, 10.00, 3),
+(21, '2025-05-09 15:08:36', 'dsadsadsa', 'CARTAO_CREDITO', 170.00, NULL, 3),
+(22, '2025-05-12 16:40:36', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 200.00, NULL, 3),
+(23, '2025-05-13 14:41:59', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 170.00, NULL, 3),
+(24, '2025-05-22 16:42:12', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 310.00, NULL, 3),
+(25, '2025-05-26 22:00:23', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 1810.00, NULL, 3),
+(27, '2025-05-27 17:27:00', 'BURY THE LIGHT DEEP WITHIIIN', 'CARTAO_CREDITO', 510.00, NULL, 3),
+(28, '2025-05-27 20:26:42', 'VENDA NO BALCÃO', 'CARTAO_CREDITO', 510.00, NULL, 3);
 
 --
 -- Indexes for dumped tables
@@ -337,49 +368,49 @@ ALTER TABLE `venda`
 -- AUTO_INCREMENT for table `categoria`
 --
 ALTER TABLE `categoria`
-  MODIFY `id_categoria` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_categoria` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `compra`
 --
 ALTER TABLE `compra`
-  MODIFY `id_compra` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_compra` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `fornecedor`
 --
 ALTER TABLE `fornecedor`
-  MODIFY `id_fornecedor` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id_fornecedor` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `item_compra`
 --
 ALTER TABLE `item_compra`
-  MODIFY `id_item` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id_item` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `item_venda`
 --
 ALTER TABLE `item_venda`
-  MODIFY `id_item` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id_item` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `produto`
 --
 ALTER TABLE `produto`
-  MODIFY `id_produto` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id_produto` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
 
 --
 -- AUTO_INCREMENT for table `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `id_usuario` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id_usuario` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `venda`
 --
 ALTER TABLE `venda`
-  MODIFY `id_venda` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id_venda` bigint NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- Constraints for dumped tables

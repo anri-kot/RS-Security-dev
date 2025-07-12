@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Compras</title>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+
+        <div class="container py-4" th:fragment="content" data-page-id="compras">
+            <!-- start -->
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Compras</h1>
+                <button id="new-compra" class="btn btn-success">+ Registrar Compra</button>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form id="search-form" class="d-flex flex-column">
+                        <div class="row g-3 align-items-end">
+
+                            <!-- Tipo de busca -->
+                            <div class="col-md-2">
+                                <label for="tipo" class="form-label">Buscar por</label>
+                                <select id="search-type" name="tipo" class="form-select">
+                                    <option value="fornecedor">Fornecedor</option>
+                                    <option value="idCompra">ID da Compra</option>
+                                    <option value="produtoNome">Produto (Nome)</option>
+                                    <option value="codigo">Produto (Código)</option>
+                                    <option value="produtoId">Produto (ID)</option>
+                                </select>
+                            </div>
+
+                            <!-- Campo de texto -->
+                            <div class="col-md-3">
+                                <label for="termo" class="form-label">Termo</label>
+                                <div class="position-relative" style="flex: 1;">
+                                    <input type="text" name="termo" id="search-term" class="form-control input-dropdown"
+                                        placeholder="Digite o termo de busca..." autocomplete="off"
+                                        hx-get="/pdv/autocomplete" hx-push-url="false"
+                                        hx-trigger="keyup changed delay:300ms" hx-target="#autocompleteProdutosSearch"
+                                        hx-include="#search-type">
+
+                                    <!-- Dropdown -->
+                                    <div class="dropdown-menu w-100" id="autocompleteProdutosSearch">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Observação -->
+                            <div class="col-md-3">
+                                <label for="observacao" class="form-label">Observação</label>
+                                <input type="text" name="observacao" id="observacao" class="form-control"
+                                    placeholder="Observação da compra">
+                            </div>
+
+                            <!-- Filtro de data -->
+                            <div class="col-md-2">
+                                <label for="filtro" class="form-label">Filtrar por data</label>
+                                <select name="filtro" id="filter" class="form-select">
+                                    <option value="">Nenhum</option>
+                                    <option value="antes">Antes de</option>
+                                    <option value="depois">Depois de</option>
+                                    <option value="entre">Entre</option>
+                                </select>
+                            </div>
+
+                            <!-- Datas -->
+                            <div class="col-md-3" id="data-inicio-container" style="display: none;">
+                                <label for="dataInicio" class="form-label">Data inicial</label>
+                                <input type="date" id="dataInicio" name="dataInicio" class="form-control" disabled>
+                            </div>
+
+                            <div class="col-md-3" id="data-fim-container" style="display: none;">
+                                <label for="dataFim" class="form-label">Data final</label>
+                                <input type="date" id="dataFim" name="dataFim" class="form-control" disabled>
+                            </div>
+
+                            <!-- Botão de busca -->
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100" hx-get="/compras"
+                                    hx-target="#cards-compras" hx-push-url="true"
+                                    hx-select="#cards-compras"
+                                    hx-include="#search-form">Buscar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="error-container"></div>
+
+            <!-- COMPRAS -->
+            <div id="cards-compras" th:fragment="compras">
+                <div class="card mb-4 shadow-sm border-0 compra-card" th:each="compra : ${compras}">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3">
+
+                        <div>
+                            <strong th:text="'#' + ${compra.idCompra}" class="text-primary"></strong>
+                            <small class="text-muted ms-2"
+                                th:text="${#temporals.format(compra.data, 'dd/MM/yyyy HH:mm')}"></small>
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="fw-bold text-success"
+                                th:text="'R$ ' + ${#numbers.formatDecimal(compra.total, 1, 'POINT', 2, 'COMMA')}"></span>
+
+                            <button class="btn btn-sm btn-outline-primary" data-action="edit"
+                                th:attr="data-id=${compra.idCompra}">
+                                Editar
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" data-action="delete"
+                                th:attr="data-id=${compra.idCompra}">
+                                Excluir
+                            </button>
+
+
+                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                                th:attr="data-bs-target='#collapse__' + ${compra.idCompra}">
+                                Detalhes
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div class="card-body px-3">
+
+                        <p class="mb-1"><strong>Observação:</strong> <span th:text="${compra.observacao}"></span></p>
+                        <p class="mb-1"><strong>Fornecedor:</strong> <span th:text="${compra.fornecedor.nome}"></span></p>
+
+                        <div class="collapse" th:id="'collapse__' + ${compra.idCompra}">
+
+                            <h6 class="mb-2 text-secondary">Itens da compra</h6>
+                            <ul class="list-group list-group-flush" th:each="item : ${compra.itens}">
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+
+                                    <div>
+                                        <div class="fw-semibold" th:text="${item.produto.nome}"></div>
+                                        <small class="text-muted d-block">
+                                            <span
+                                                th:text="'Qtd: ' + ${item.quantidade} + ' × R$ ' + ${#numbers.formatDecimal(item.valorUnitario, 1, 'POINT', 2, 'COMMA')}"></span>
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="fw-bold text-dark"
+                                            th:text="'R$ ' + ${#numbers.formatDecimal(item.valorUnitario * item.quantidade, 1, 'POINT', 2, 'COMMA')}"></span>
+                                    </div>
+
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page Navigation -->
+                <nav class="d-flex justify-content-center mt-4">
+                    <ul class="pagination">
+                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a th:if="${size}" class="page-link" th:href="@{/compras(page=${currentPage - 1}, size=${size})}">Anterior</a>
+                        <a th:unless="${size}" class="page-link" th:href="@{/compras(page=${currentPage - 1})}">Anterior</a>
+                        </li>
+                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                            th:classappend="${currentPage == i} ? 'active'">
+                        <a th:if="${size}" class="page-link" th:href="@{/compras(page=${i}, size=${size})}" th:text="${i}">1</a>
+                        <a th:unless="${size}" class="page-link" th:href="@{/compras(page=${i})}" th:text="${i}">1</a>
+                        </li>
+                        <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                        <a class="page-link" th:href="@{/compras(page=${currentPage + 1}, size=${size})}">Próximo</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- MODALS -->
+
+            <!-- confirm warning -->
+            <div class="modal fade" id="confirma-modal" tabindex="-1" aria-labelledby="confirmarLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="confirmar-label">Confirmar ação</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <spam id="confirmar-mensagem">Tem certeza disso?</spam>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="confirmar-acao">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- new/edit -->
+            <div class="modal fade" id="compra-modal" tabindex="-1" aria-labelledby="compraModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Compra</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-6 border-end mb-2">
+
+                                        <!-- ITENS -->
+
+                                        <form id="items-form" autocomplete="off">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h4 class="mb-0">Itens</h4>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                    id="show-items-btn" data-bs-toggle="collapse"
+                                                    data-bs-target="#modal-compra-items-form" aria-expanded="false"
+                                                    aria-controls="item-compra-items-form">
+                                                    <i class="bi bi-chevron-down" id="show-items-icon"></i>
+                                                </button>
+                                            </div>
+
+                                            <hr>
+
+                                            <div class="collapse" id="modal-compra-items-form">
+                                                <div class="d-flex align-items-center justify-content-between mb-2">
+
+                                                    <select id="item-search-type" name="tipo"
+                                                        class="form-select form-select-sm w-auto me-1">
+                                                        <option value="nome">Nome</option>
+                                                        <option value="codigo">CÓD. BARRAS</option>
+                                                        <option value="id">ID</option>
+                                                    </select>
+
+                                                    <select id="categoria" name="idCategoria"
+                                                        class="form-select form-select-sm w-auto">
+                                                        <option value="">Todas Categorias</option>
+                                                        <option th:each="cat : ${categorias}"
+                                                            th:value="${cat.idCategoria}" th:text="${cat.nome}">
+                                                        </option>
+                                                    </select>
+
+                                                </div>
+                                                <div class="d-flex mb-2">
+                                                    <div class="position-relative" style="flex: 1; min-width: 250px;">
+                                                        <input type="text" id="search-product" name="termo"
+                                                            class="form-control input-dropdown"
+                                                            placeholder="Buscar produto..." hx-get="/pdv/autocomplete"
+                                                            hx-trigger="keyup changed delay:300ms"
+                                                            hx-target="#autocomplete-produto-options"
+                                                            hx-include="#item-search-type, #categoria"
+                                                            autocomplete="off">
+
+                                                        <div class="dropdown-menu w-100"
+                                                            id="autocomplete-produto-options">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="alert alert-primary mb-2" role="alert" id="current-product">
+                                                    Aguardando selecionar produto...
+                                                </div>
+                                                <input type="hidden" id="selected-product-id" value="" disabled>
+                                                <input type="hidden" id="selected-product-name" value="" disabled>
+
+                                                <div class="mb-2">
+                                                    <label for="quantidade" class="form-label">Quantidade</label>
+                                                    <input type="number" name="quantidade" id="modal-compra-quantidade"
+                                                        class="form-control" min="1" value="1">
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label for="valorUnitario" class="form-label">Valor Unitário (R$)
+                                                        <small class="text-muted">Ex: 10.00</small></label>
+                                                    <input type="number" name="valorUnitario"
+                                                        id="modal-compra-valorUnitario" class="form-control" step="0.01"
+                                                        min="0.05" value="0.05">
+                                                </div>
+
+                                                <div class="d-flex justify-content-center mb-2">
+                                                    <button type="submit" class="btn btn-primary btn-sm" id="add-button"
+                                                        disabled>Adicionar</button>
+                                                </div>
+                                        </form>
+
+                                        <hr>
+
+                                    </div>
+
+                                    <!-- VENDA -->
+                                    <form id="compra-form" autocomplete="off">
+
+                                        <div class="mb-2">
+                                            <label class="form-label">ID</label>
+                                            <input type="text" id="modal-compra-idCompra" class="form-control" disabled>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label class="form-label">Data <small class="text-muted">mês/dia/ano,
+                                                    hora</small></label>
+                                            <input type="datetime-local" id="modal-compra-data" class="form-control"
+                                                required>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label class="form-label">Observação</label>
+                                            <input type="text" id="modal-compra-observacao" class="form-control"
+                                                required>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <div class="position-relative">
+                                                <label class="form-label">Fornecedor</label>
+                                                <input class="form-control input-dropdown" id="modal-compra-fornecedor"
+                                                    name="fornecedor" placeholder="Digite o nome do fornecedor"
+                                                    hx-get="compras/autocomplete"
+                                                    hx-target="#autocomplete-fornecedor-options"
+                                                    hx-trigger="keyup changed delay:300ms">
+
+                                                <input type="hidden" id="modal-compra-fornecedor-id">
+                                                <input type="hidden" id="modal-compra-fornecedor-nome">
+
+                                                <div class="dropdown-menu w-100" id="autocomplete-fornecedor-options">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+
+                                <div class="col-6 mb-2">
+                                    <!-- items edit/remove tab -->
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h4 class="mb-0">Itens Adicionados</h4>
+                                        <span class="fw-bold text-success" id="modal-items-total"></span>
+                                    </div>
+
+                                    <hr>
+
+                                    <ul class="list-group list-group-flush" id="modal-compra-itens">
+                                    </ul>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                            <button class="btn btn-success" id="confirm-register"
+                                data-action="confirm-modal">Confirmar</button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- end -->
+
+    </div>
+</body>
+
+</html>

@@ -57,11 +57,17 @@ public class UsuarioController {
     }
 
     @PutMapping("/{idUsuario}")
-    public ResponseEntity<Void> update(@PathVariable Long idUsuario, @RequestBody UsuarioDTO usuario) {
+    public ResponseEntity<Void> update(@PathVariable Long idUsuario, @RequestBody UsuarioDTO usuario, @RequestParam(defaultValue = "false") boolean changePw) {
         if (!usuario.idUsuario().equals(idUsuario)) {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }
-        service.update(idUsuario, usuario);
+
+        if (changePw) {
+            service.updateWithoutPassword(idUsuario, usuario);
+        } else {
+            service.update(idUsuario, usuario);
+        }
+
         return ResponseEntity.noContent().build();
     }
 

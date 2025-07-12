@@ -9,7 +9,7 @@ public class ItemVenda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idItem;
-    private int quantidade;
+    private Integer quantidade;
     private BigDecimal valorUnitario;
     private BigDecimal desconto;
     @ManyToOne
@@ -27,11 +27,11 @@ public class ItemVenda {
         this.idItem = idItem;
     }
 
-    public int getQuantidade() {
+    public Integer getQuantidade() {
         return quantidade;
     }
 
-    public void setQuantidade(int quantidade) {
+    public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
 

@@ -1,12 +1,13 @@
 package com.rssecurity.storemanager.repository;
 
-import com.rssecurity.storemanager.model.Venda;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.rssecurity.storemanager.model.Venda;
 
 @Repository
 public interface VendaRepository extends JpaRepository<Venda, Long>, JpaSpecificationExecutor<Venda> {
@@ -19,5 +20,7 @@ public interface VendaRepository extends JpaRepository<Venda, Long>, JpaSpecific
     List<Venda> findByDataBefore(LocalDateTime data);
 
     List<Venda> findByObservacaoContaining(String observacao);
-    List<Venda> findByMetodoPagamento(String metodoPagemento);
+    List<Venda> findByMetodoPagamento(String metodoPagamento);
+
+    // Pages
 }

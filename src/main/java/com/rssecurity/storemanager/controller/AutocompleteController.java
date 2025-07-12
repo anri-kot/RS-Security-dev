@@ -3,7 +3,6 @@ package com.rssecurity.storemanager.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.dto.VendaDTO;
+import com.rssecurity.storemanager.service.FornecedorService;
 import com.rssecurity.storemanager.service.ProdutoService;
 import com.rssecurity.storemanager.service.UsuarioService;
 import com.rssecurity.storemanager.service.VendaService;
@@ -25,32 +26,56 @@ import com.rssecurity.storemanager.service.VendaService;
 @Controller
 public class AutocompleteController {
 
-    @Autowired
     private ProdutoService produtoService;
-    @Autowired
     private VendaService vendaService;
-    @Autowired
     private UsuarioService usuarioService;
+    private FornecedorService fornecedorService;
+
+    public AutocompleteController(ProdutoService produtoService, VendaService vendaService,
+            UsuarioService usuarioService, FornecedorService fornecedorService) {
+        this.produtoService = produtoService;
+        this.vendaService = vendaService;
+        this.usuarioService = usuarioService;
+        this.fornecedorService = fornecedorService;
+    }
 
     @GetMapping("/pdv/autocomplete")
     public String pdvAutocomplete(@RequestParam String termo, @RequestParam(required = false) String tipo,
             @RequestParam(required = false) Long idCategoria, Model model) {
         List<ProdutoDTO> results;
-        
-        if (tipo != null && tipo.toLowerCase().equals("id")) {
-            results = new ArrayList<>();
-            try {
-                Long id = Long.parseLong(termo);
-                results.add(produtoService.findById(id));
-            } catch (Exception e) {
+
+        if (tipo != null) {
+            if (tipo.contains("produto")) {
+                tipo = tipo.trim().toLowerCase().replace("produto", "");
             }
         } else {
-            if (idCategoria != null) {
+            tipo = "";
+        }
+
+        switch (tipo.trim().toLowerCase()) {
+            case "id" -> {
+                results = new ArrayList<>();
+                try {
+                    Long id = Long.parseLong(termo);
+                    results.add(produtoService.findById(id));
+                } catch (Exception e) {}
+            }
+            case "codigo" -> {
+                results = new ArrayList<>();
+                try {
+                    String codigo = termo.trim();
+                    results.add(produtoService.findByCodigoBarras(codigo));
+                } catch (Exception e) {}
+            }
+            default -> {
+                if (idCategoria != null) {
                 results = produtoService.findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(termo, idCategoria);
-            } else {
-                results = produtoService.findByNomeContains(termo);
+                } else {
+                    results = produtoService.findByNomeContains(termo);
+                }
             }
         }
+        
         model.addAttribute("results", results);
 
         return "fragments/autocomplete :: options";
@@ -76,5 +101,13 @@ public class AutocompleteController {
 
         return "fragments/autocomplete-funcionarios";
     }
+
+    @GetMapping("/compras/autocomplete")
+    public String getMethodName(@RequestParam String fornecedor, Model model) {
+        List<FornecedorDTO> results = fornecedorService.findByNomeContains(fornecedor);
+        model.addAttribute("results", results);
+        return "fragments/autocomplete-fornecedores";
+    }
+    
     
 }

@@ -1,23 +1,30 @@
 package com.rssecurity.storemanager.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.domain.Sort;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import com.rssecurity.storemanager.dto.CompraDTO;
+import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.CompraMapper;
 import com.rssecurity.storemanager.mapper.ProdutoMapper;
 import com.rssecurity.storemanager.model.Compra;
 import com.rssecurity.storemanager.repository.CompraRepository;
 import com.rssecurity.storemanager.repository.ItemCompraRepository;
-import com.rssecurity.storemanager.exception.ResourceNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.rssecurity.storemanager.repository.ProdutoRepository;
 
 class CompraServiceTest {
 
@@ -26,6 +33,7 @@ class CompraServiceTest {
     private CompraMapper compraMapper;
     private ProdutoMapper produtoMapper;
     private CompraService compraService;
+    private ProdutoRepository produtoRepository;
 
     @BeforeEach
     void setUp() {
@@ -33,21 +41,34 @@ class CompraServiceTest {
         itemRepository = mock(ItemCompraRepository.class);
         compraMapper = mock(CompraMapper.class);
         produtoMapper = mock(ProdutoMapper.class);
-        compraService = new CompraService(compraRepository, compraMapper, produtoMapper);
+        produtoRepository = mock(ProdutoRepository.class);
+        compraService = new CompraService(compraRepository, compraMapper, produtoMapper, produtoRepository);
     }
 
     @Test
     void deveRetornarTodasAsCompras() {
         Compra compra = new Compra();
-        CompraDTO compraDTO = new CompraDTO(1L, LocalDateTime.now(), "obs", null, List.of());
+        compra.setIdCompra(1L);
+        compra.setObservacao("obs");
+        compra.setData(LocalDateTime.now());
 
-        when(compraRepository.findAll()).thenReturn(List.of(compra));
-        when(compraMapper.toDTO(compra)).thenReturn(compraDTO);
+        CompraDTO compraDTO = new CompraDTO(
+                compra.getIdCompra(),
+                compra.getData(),
+                compra.getObservacao(),
+                null,
+                List.of());
+
+        when(compraRepository.findAll(any(Sort.class))).thenReturn(List.of(compra));
+        when(compraMapper.toDTO(any(Compra.class))).thenReturn(compraDTO);
 
         List<CompraDTO> resultado = compraService.findAll();
 
         assertThat(resultado).hasSize(1);
-        verify(compraRepository, times(1)).findAll();
+        assertThat(resultado.get(0).observacao()).isEqualTo("obs");
+
+        verify(compraRepository, times(1)).findAll(any(Sort.class));
+        verify(compraMapper, times(1)).toDTO(any(Compra.class));
     }
 
     @Test
@@ -74,4 +95,3 @@ class CompraServiceTest {
                 .hasMessageContaining("Compra não encontrada");
     }
 }
-

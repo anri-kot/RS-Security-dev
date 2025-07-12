@@ -1,17 +1,25 @@
 package com.rssecurity.storemanager.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.rssecurity.storemanager.dto.ProdutoEstoqueDTO;
+import com.rssecurity.storemanager.dto.ItemVendaDTO;
 import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
@@ -20,6 +28,7 @@ import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.mapper.ProdutoMapper;
 import com.rssecurity.storemanager.mapper.VendaMapper;
 import com.rssecurity.storemanager.model.ItemVenda;
+import com.rssecurity.storemanager.model.Produto;
 import com.rssecurity.storemanager.model.Usuario;
 import com.rssecurity.storemanager.model.Venda;
 import com.rssecurity.storemanager.repository.ProdutoRepository;
@@ -28,17 +37,17 @@ import com.rssecurity.storemanager.repository.VendaRepository;
 
 @Service
 public class VendaService {
+    private final Sort SORT_BY_DATE = Sort.by(Sort.Direction.DESC, "data");
+
     private final VendaRepository repository;
     private final VendaMapper mapper;
-    private final ProdutoMapper produtoMapper;
     private final UsuarioRepository usuarioRepository;
     private final ProdutoRepository produtoRepository;
-
+    
     public VendaService(VendaRepository repository, VendaMapper mapper, ProdutoMapper produtoMapper,
-            UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository) {
+            UsuarioRepository usuarioRepository, ProdutoRepository produtoRepository, ProdutoService produtoService) {
         this.repository = repository;
         this.mapper = mapper;
-        this.produtoMapper = produtoMapper;
         this.usuarioRepository = usuarioRepository;
         this.produtoRepository = produtoRepository;
     }
@@ -46,7 +55,7 @@ public class VendaService {
     // SEARCH
 
     public List<VendaDTO> findAll() {
-        return repository.findAll().stream()
+        return repository.findAll(SORT_BY_DATE).stream()
                 .map(mapper::toDTO)
                 .toList();
     }
@@ -55,9 +64,22 @@ public class VendaService {
         filter.values().removeIf(String::isBlank);
 
         Specification<Venda> spec = VendaSpecification.withFilters(filter);
-        return repository.findAll(spec).stream()
+        return repository.findAll(spec, SORT_BY_DATE).stream()
                 .map(mapper::toDTO)
                 .toList();
+    }
+
+    public Page<VendaDTO> findAll(int pageNumber, int pageSize) {
+        Pageable p = PageRequest.of(pageNumber, pageSize, SORT_BY_DATE);
+        return repository.findAll(p).map(mapper::toDTO);
+    }
+
+    public Page<VendaDTO> findAllByCustomMatcher(int pageNumber, int pageSize, Map<String, String> filter) {
+        filter.values().removeIf((String::isBlank));
+
+        Specification<Venda> spec = VendaSpecification.withFilters(filter);
+        Pageable p = PageRequest.of(pageNumber, pageSize, SORT_BY_DATE);
+        return repository.findAll(spec, p).map(mapper::toDTO);
     }
 
     public VendaDTO findById(Long idVenda) {
@@ -125,6 +147,11 @@ public class VendaService {
         UsuarioResumoDTO usu = new UsuarioResumoDTO(usuario.getIdUsuario(), usuario.getUsername(), usuario.getNome(),
                 usuario.getSobrenome());
 
+        BigDecimal troco = null;
+        if (venda.metodoPagamento().equals("DINHEIRO")) {
+            troco = venda.valorRecebido().subtract(venda.getTotal());
+        }
+
         VendaDTO dto = new VendaDTO(
                 venda.idVenda(),
                 venda.data(),
@@ -133,38 +160,94 @@ public class VendaService {
                 venda.itens(),
                 venda.metodoPagamento(),
                 venda.valorRecebido(),
-                venda.troco());
+                troco);
         return create(dto);
     }
 
+    @Transactional
     public VendaDTO create(VendaDTO venda) {
         if (venda.idVenda() != null) {
             throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
         }
         validateUsuario(venda.usuario());
-
-        Venda entity = mapper.toEntity(venda);
-        List<ItemVenda> itens = getItens(venda, entity, false);
-
-        entity.setItens(itens);
-        Venda saved = repository.save(entity);
-
-        return mapper.toDTO(saved);
-    }
-
-    public void update(Long idVenda, VendaDTO venda) {
-        if (!repository.existsById(idVenda)) {
-            throw new ResourceNotFoundException("Venda não encontrada. ID: " + idVenda);
+        if (venda.metodoPagamento().equals("DINHEIRO")) {
+            validateTroco(venda);
         }
-        validateUsuario(venda.usuario());
 
         Venda entity = mapper.toEntity(venda);
-        List<ItemVenda> itens = getItens(venda, entity, true);
-        entity.setItens(itens);
+        List<ItemVenda> itens = buildItemVendaList(venda, entity, false);
 
-        repository.save(entity);
+        entity.setItens(itens);
+        VendaDTO saved = mapper.toDTO(repository.save(entity));
+
+        updateStock(venda, "CREATE", null);
+
+        return saved;
     }
 
+    @Transactional
+    public List<VendaDTO> createAll(List<VendaDTO> vendas) {
+        // Checking if IDs are not null
+        List<Long> vendasWithId = vendas.stream()
+                .filter(v -> v.idVenda() != null && v.idVenda() != 0)
+                .map(v -> v.idVenda())
+                .toList();
+
+        if (!vendasWithId.isEmpty()) {
+            throw new BadRequestException("Categoria(s) com ID(s) definido(s). ID(s): " + vendasWithId);
+        }
+
+        // Validating users
+        validateAllUsuarios(vendas.stream()
+                .map(v -> v.usuario())
+                .toList());
+
+        Set<Long> allProdutoIds = vendas.stream()
+                .flatMap(v -> v.itens().stream())
+                .map(item -> item.produto().idProduto())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<Long, Produto> produtosMap = produtoRepository.findAllById(allProdutoIds)
+            .stream()
+            .collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
+
+        List<Venda> entities = vendas.stream()
+                .map(dto -> {
+                        Venda entity = mapper.toEntity(dto);
+                        List<ItemVenda> itens = buildItemVendaList(dto, entity, produtosMap, false);
+                        entity.setItens(itens);
+                        return entity;
+                    })
+                    .toList();
+
+        List<Venda> created = repository.saveAll(entities);
+        updateStockAll(vendas);
+
+        return created.stream()
+                .map(mapper::toDTO)
+                .toList();
+
+    }
+
+    @Transactional
+    public void update(Long idVenda, VendaDTO venda) {
+        VendaDTO oldVenda = findById(idVenda);
+
+        validateUsuario(venda.usuario());
+        if (venda.metodoPagamento().equals("DINHEIRO")) {
+            validateTroco(venda);
+        }
+
+        Venda entity = mapper.toEntity(venda);
+
+        List<ItemVenda> itens = buildItemVendaList(venda, entity, true);
+        entity.setItens(itens);
+
+        VendaDTO saved = mapper.toDTO(repository.save(entity));
+        updateStock(saved, "UPDATE", oldVenda);
+    }
+
+    @Transactional
     public void deleteById(Long idVenda) {
         if (!repository.existsById(idVenda)) {
             throw new ResourceNotFoundException("Venda não encontrada. ID: " + idVenda);
@@ -173,29 +256,198 @@ public class VendaService {
         repository.deleteById(idVenda);
     }
 
-    private List<ItemVenda> getItens(VendaDTO venda, Venda entity, boolean isUpdate) {
-        List<Long> idProdutos = new ArrayList<>();
-        List<ItemVenda> itens = venda.itens().stream()
+    // STOCK UPDATE
+
+    public void updateStock(VendaDTO vendaDTO, String operation, VendaDTO oldVendaDTO) {
+        Map<Long, Integer> stockArranges = new HashMap<>();
+
+        switch (operation) {
+            case "CREATE" -> {
+                // Adds to the stock
+                for (ItemVendaDTO item : vendaDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    stockArranges.merge(idProduto, quantidade, Integer::sum);
+                }
+            }
+
+            case "DELETE" -> {
+                // Subtracts from the stock
+                for (ItemVendaDTO item : vendaDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
+                }
+            }
+
+            case "UPDATE" -> {
+                // Subtracts from the stock
+                for (ItemVendaDTO item : oldVendaDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
+                }
+                // Aplica os efeitos da nova venda
+                for (ItemVendaDTO item : vendaDTO.itens()) {
+                    Long idProduto = item.produto().idProduto();
+                    Integer quantidade = item.quantidade();
+                    stockArranges.merge(idProduto, quantidade, Integer::sum);
+                }
+            }
+
+            default -> throw new IllegalArgumentException("Operação inválida para atualização de estoque");
+        }
+
+        applyUpdateStock(stockArranges);
+    }
+
+    private void updateStockAll(List<VendaDTO> vendas) {
+        Map<Long, Integer> stockArranges = new HashMap<>();
+
+        // Adds to the stock
+        vendas.forEach(vendaDTO -> {
+            for (ItemVendaDTO item : vendaDTO.itens()) {
+                Long idProduto = item.produto().idProduto();
+                Integer quantidade = item.quantidade();
+                stockArranges.merge(idProduto, quantidade, Integer::sum);
+            }
+        });
+
+        applyUpdateStock(stockArranges);
+    }
+
+    private void applyUpdateStock(Map<Long, Integer> stockArranges) {
+        for (Map.Entry<Long, Integer> ajuste : stockArranges.entrySet()) {
+            Long idProduto = ajuste.getKey();
+            Integer delta = ajuste.getValue();
+
+            Produto produto = produtoRepository.findById(idProduto)
+                    .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado: " + idProduto));
+
+            produto.setEstoque(produto.getEstoque() + delta);
+            produtoRepository.save(produto);
+        }
+    }
+
+    // private void updateStock(VendaDTO newVenda) {
+    // updateStock(null, newVenda);
+    // }
+
+    // private void updateStock(VendaDTO oldVenda, VendaDTO newVenda) {
+    // Map<Long, Integer> oldQuantidades = new HashMap<>();
+
+    // // Old quantities (stock reposition, hence the negative value)
+    // if (oldVenda != null) {
+    // for (ItemVendaDTO item : oldVenda.itens()) {
+    // long produtoId = item.produto().idProduto();
+    // oldQuantidades.put(produtoId, item.quantidade());
+    // }
+    // }
+
+    // for (ItemVendaDTO item : newVenda.itens()) {
+    // long produtoId = item.produto().idProduto();
+    // int oldQty = oldQuantidades.getOrDefault(produtoId, 0);
+    // int newQty = item.quantidade();
+    // int stockDifference = oldQty - newQty; // positive value = refill stock,
+    // negative = remove from stock
+
+    // Produto produto = produtoMapper.toEntity(item.produto());
+    // produto.setEstoque(produto.getEstoque() + stockDifference);
+
+    // produtoService.update(produtoId, produtoMapper.toDTO(produto));
+    // }
+    // }
+
+    /**
+     * Builds a list of ItemVenda entities from the given VendaDTO.
+     * 
+     * This method extracts all unique Produto IDs referenced by the item DTOs,
+     * fetches the corresponding Produto entities from the repository,
+     * and delegates to the overloaded method to complete the mapping.
+     *
+     * Each item will be linked to the given Venda entity, and optionally have its ID set if it's an update.
+     *
+     * @param venda the VendaDTO containing the list of item DTOs
+     * @param entity the Compra entity to associate with each item
+     * @param isUpdate true if the operation is an update (to include item IDs), false for creation
+     * @return a list of fully initialized ItemCompra entities ready for persistence
+     * @throws ResourceNotFoundException if any referenced Produto ID does not exist
+     */
+    private List<ItemVenda> buildItemVendaList(VendaDTO venda, Venda entity, boolean isUpdate) {
+        List<Long> ids = venda.itens().stream()
+                .map(item -> item.produto().idProduto())
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+        
+        Map<Long, Produto> produtosMap = produtoRepository.findAllById(ids).stream()
+                .collect(Collectors.toMap(Produto::getIdProduto, Function.identity()));
+        
+        return buildItemVendaList(venda, entity, produtosMap, isUpdate);
+    }
+
+    /**
+     * Builds a list of ItemVenda entities from the given VendaDTO, using a preloaded map of Produto entities.
+     * 
+     * This variant avoids querying the database by using the provided Map of Produto IDs to entities.
+     * It is useful for batch operations where Produto entities have already been fetched.
+     *
+     * Each item is linked to the given Venda entity, and optionally has its ID set if it's an update.
+     *
+     * @param venda    the VendaDTO containing the list of item DTOs
+     * @param entity   the Venda entity to associate with each item
+     * @param produtosMap a Map of Produto IDs to Produto entities to be used for resolving product references
+     * @param isUpdate true if the operation is an update (to include item IDs), false for creation
+     * @return a list of fully initialized ItemVenda entities ready for persistence
+     * @throws ResourceNotFoundException if any referenced Produto ID does not exist
+     */
+    private List<ItemVenda> buildItemVendaList(VendaDTO venda, Venda entity, Map<Long, Produto> produtosMap, boolean isUpdate) {
+        return venda.itens().stream()
                 .map(itemDto -> {
+                    Long idProduto = itemDto.produto().idProduto();
+                    Produto produto = produtosMap.get(idProduto);
+                    if (produto == null) {
+                        throw new ResourceNotFoundException("Produto não encontrado: " + idProduto);
+                    }
+
                     ItemVenda item = new ItemVenda();
                     if (isUpdate) {
                         item.setIdItem(itemDto.idItem());
                     }
-                    item.setProduto(produtoMapper.toEntity(itemDto.produto()));
+                    item.setProduto(produto);
                     item.setQuantidade(itemDto.quantidade());
                     item.setValorUnitario(itemDto.valorUnitario());
                     item.setDesconto(itemDto.desconto());
                     item.setVenda(entity);
-                    idProdutos.add(item.getProduto().getIdProduto());
+
+                    validateProduto(produto, item);
+
                     return item;
                 }).toList();
-        validateProduto(itens);
-        return itens;
+    }
+
+    private void validateAllUsuarios(List<UsuarioResumoDTO> usuarios) {
+        List<String> usernames = usuarios.stream()
+            .map(UsuarioResumoDTO::username)
+            .toList();
+
+        List<Usuario> encontrados = usuarioRepository.findAllByUsernameIn(usernames);
+        Set<String> encontradosSet = encontrados.stream()
+                .map(Usuario::getUsername)
+                .collect(Collectors.toSet());
+
+        List<String> notFound = usernames.stream()
+                .filter(username -> !encontradosSet.contains(username))
+                .toList();
+
+        if (!notFound.isEmpty()) {
+            throw new BadRequestException("Usuários não encontrados: " + notFound);
+        }
     }
 
     private void validateUsuario(UsuarioResumoDTO usuario) {
         Usuario theUsuario = usuarioRepository.findById(usuario.idUsuario())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. ID: " + usuario.idUsuario()));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. ID: " + usuario.idUsuario()));;
 
         // Compares the inputed username with the register in the database
         if (!theUsuario.getUsername().equals(usuario.username())) {
@@ -205,23 +457,20 @@ public class VendaService {
         }
     }
 
-    private void validateProduto(List<ItemVenda> itens) {
-        List<Long> ids = itens.stream()
-                .map(item -> item.getProduto().getIdProduto())
-                .toList();
+    // TODO: Assign MIN_STOCK to user preferences
+    private void validateProduto(Produto produtoInStock, ItemVenda item) {
+        final int MIN_STOCK = 1;
+        if ((produtoInStock.getEstoque() - item.getQuantidade()) < MIN_STOCK) {
+            throw new BadRequestException("Estoque insuficiente para o produto: " + produtoInStock.getNome());
+        }
+    }
 
-        Map<Long, ProdutoEstoqueDTO> estoqueMap = produtoRepository.findEstoqueAtualByProdutoIds(ids).stream()
-                .collect(Collectors.toMap(ProdutoEstoqueDTO::getIdProduto, Function.identity()));
-
-        for (ItemVenda item : itens) {
-            ProdutoEstoqueDTO dto = estoqueMap.get(item.getProduto().getIdProduto());
-            if (dto == null) {
-                throw new ResourceNotFoundException("Produto não encontrado. ID: " + item.getProduto().getIdProduto());
-            }
-
-            if (item.getQuantidade() > dto.getEstoque()) {
-                throw new BadRequestException("Estoque insuficiente para o produto: " + item.getProduto().getNome());
-            }
+    private void validateTroco(VendaDTO venda) {
+        BigDecimal total = venda.getTotal();
+        BigDecimal change = venda.valorRecebido().subtract(total);
+        if (venda.troco().compareTo(change) != 0) {
+            throw new BadRequestException("Valor do troco inserido inválido.\nTotal: " + total + "\nValor Recebido: "
+                    + venda.valorRecebido() + "\nTroco inserido: " + venda.troco());
         }
     }
 }
