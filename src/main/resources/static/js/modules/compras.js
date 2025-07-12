@@ -557,8 +557,8 @@ export function init() {
             const compraModal = bootstrap.Modal.getInstance(compraModalEl);
 
             if (!response.ok) {
-                const errorData = await response.json();
-                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                const errorData = await response.text();
+                document.getElementById('error-container').innerHTML = errorData;
                 compraModal.hide();
                 return;
             } else {
@@ -585,7 +585,7 @@ export function init() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                document.getElementById('error-container').innerHTML = errorData;
                 return;
             } else {
                 // alert('Ação executada com sucesso.');

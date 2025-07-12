@@ -1,5 +1,6 @@
 package com.rssecurity.storemanager.controller;
 
+import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.service.ExcelImportService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,12 @@ public class ImportarController {
     }
 
     @PostMapping
-    public ResponseEntity<List<String>> importFromExcel(@RequestPart MultipartFile file) throws IOException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
+    public ResponseEntity<List<String>> importFromExcel(@RequestPart MultipartFile file) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED).body(
                 excelImportService.importFromExcel(file.getInputStream()));
+        } catch (IOException e) {
+            throw new BadRequestException("Arquivo XLSX não pôde ser lido.");
+        }
     }
 }

@@ -112,7 +112,9 @@ export function init() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                const errorMsg = errorData.message;
+                console.error(`Erro ${errorData.status}: ${errorMsg}`);
+                document.getElementById('error-container').innerHTML = `Erro ao salvar produto: ${errorMsg}`;
                 modal.hide();
                 return;
             } else {
@@ -163,7 +165,7 @@ export function init() {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                document.getElementById('error-container').innerHTML = errorData;
                 return;
             } else {
                 alert('Ação executada com sucesso.');

@@ -379,7 +379,9 @@ export function init() {
                 sellModal.hide();
             } else {
                 const errorData = await response.json();
-                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                const errorMsg = errorData.message;
+                console.error(`Erro ${errorData.status}: ${errorMsg}`);
+                document.getElementById('error-container').innerHTML = `Erro ao salvar produto: ${errorMsg}`;
                 observacao.value = '';
                 sellModal.hide();
                 return;

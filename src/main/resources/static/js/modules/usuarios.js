@@ -284,7 +284,6 @@ export function init() {
                     const errorData = await response.json();
                     console.error('Erro da API:', errorData);
 
-                    // Mensagem para o desenvolvedor no console, e simplificada para o usuário
                     errorMsg = errorData.message || 'Erro ao processar requisição.';
                     if (errorData.details) {
                         console.warn('Detalhes técnicos:', errorData.details);
@@ -293,7 +292,7 @@ export function init() {
                     console.warn('Resposta não era JSON.');
                 }
 
-                alert(`Erro ao salvar usuário: ${errorMsg}`);
+                document.getElementById('error-container').innerHTML = `Erro ao salvar usuário: ${errorMsg}`;
             } else {
                 refreshUsuarios();
                 bootstrap.Modal.getOrCreateInstance(usuarioModalEl).hide();
@@ -331,7 +330,7 @@ export function init() {
                     console.warn('Resposta não era JSON.');
                 }
 
-                alert(`Erro ao deletar usuário: ${errorMsg}`);
+                document.getElementById('error-container').innerHTML = errorMsg;
             } else {
                 refreshUsuarios();
             }

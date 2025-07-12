@@ -22,9 +22,9 @@
                         hx-target="#tabela-usuarios" hx-push-url="true" hx-select="#tabela-usuarios">
                         <label for="tipo">Buscar por:</label>
                         <select id="search-type" name="tipo" class="form-select me-2 w-auto">
-                            <option value="id">ID</option>
                             <option value="nome">Nome</option>
                             <option value="username">Username</option>
+                            <option value="id">ID</option>
                             <option value="cpf">CPF</option>
                             <option value="telefone">Telefone</option>
                             <option value="endereco">Endereco</option>
@@ -41,6 +41,8 @@
                 </div>
             </div>
 
+            <div id="error-container"></div>
+
             <div id="tabela-usuarios" th:fragment="usuarios">
 
                 <div class="table-responsive">
@@ -54,8 +56,8 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col">ID</th>
-                                        <th scope="col">Username</th>
                                         <th scope="col">Nome</th>
+                                        <th scope="col">Username</th>
                                         <th scope="col" class="d-none d-md-table-cell">Sobrenome</th>
                                         <th scope="col">CPF</th>
                                         <th scope="col" class="d-none d-lg-table-cell">Endereço</th>
@@ -158,31 +160,31 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Username</label>
-                                    <input type="text" id="modal-usuario-username" class="form-control" required>
+                                    <input type="text" id="modal-usuario-username" class="form-control" maxlength="20" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Nome</label>
-                                    <input type="text" id="modal-usuario-nome" class="form-control" required>
+                                    <input type="text" id="modal-usuario-nome" class="form-control" maxlength="100" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Sobrenome</label>
-                                    <input type="text" id="modal-usuario-sobrenome" class="form-control" required>
+                                    <input type="text" id="modal-usuario-sobrenome" class="form-control" maxlength="200" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">CPF</label>
-                                    <input type="text" id="modal-usuario-cpf" class="form-control" required>
+                                    <input type="text" id="modal-usuario-cpf" class="form-control" maxlength="14" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Endereço</label>
-                                    <input type="text" id="modal-usuario-endereco" class="form-control" required>
+                                    <input type="text" id="modal-usuario-endereco" class="form-control" maxlength="250" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>
-                                    <input type="email" id="modal-usuario-email" class="form-control" required>
+                                    <input type="email" id="modal-usuario-email" class="form-control" maxlength="255" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Telefone</label>
-                                    <input type="text" id="modal-usuario-telefone" class="form-control" required>
+                                    <input type="text" id="modal-usuario-telefone" class="form-control" maxlength="14" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Salário</label>

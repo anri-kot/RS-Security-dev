@@ -630,7 +630,9 @@ export function init() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                const errorMsg = errorData.message;
+                console.error(`Erro ${errorData.status}: ${errorData.message}`);
+                document.getElementById('error-container').innerHTML = `Erro ao salvar produto: ${errorMsg}`;
                 vendaModal.hide();
                 return;
             } else {
@@ -657,7 +659,9 @@ export function init() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                alert(`Erro ${errorData.status}: ${errorData.message}`);
+                console.error(errorData);
+                const errorMsg = errorData.message;
+                document.getElementById('error-container').innerHTML = errorMsg;
                 return;
             } else {
                 alert('Ação executada com sucesso.');
