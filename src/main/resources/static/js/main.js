@@ -1,5 +1,7 @@
 const conteudo = document.getElementById('conteudo');
 const navOptions = document.querySelectorAll('#nav-options li');
+const TITLE = 'RSSECURITY';
+let currentPage = '';
 
 // Load Modules and Sidebar
 document.addEventListener("DOMContentLoaded", () => {
@@ -12,6 +14,7 @@ document.addEventListener("htmx:afterSwap", e => {
 	if (e.target.id === conteudo.id) {
 		loadModule();
 		updateSidebar();
+		document.title = `${TITLE} - ${currentPage}`;
 	}
 });
 
@@ -46,6 +49,7 @@ function loadModule() {
 		.then(module => module.init())
 		.catch(err => console.warn(`Não foi possível carregar módulo para ${pageId}`, err));
 
+	currentPage = pageId ? capitalize(pageId) : 'Home';
 }
 
 async function loadUsername() {
@@ -56,13 +60,17 @@ async function loadUsername() {
 		});
 }
 
+function capitalize(str) {
+	return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 // Click on sidebar
 navOptions.forEach(node => {
 	const option = node.querySelector('a');
 	option.addEventListener('click', e => {
 		e.preventDefault();
 		const page = option.dataset.page;
-		history.pushState({}, '', `/${page === 'home' ? '' : page}`);
+		//history.pushState({}, '', `/${page === 'home' ? '' : page}`);
 		navigateTo(page);
 	});
 });

@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/bootstrap-icons/bootstrap-icons.css">
-    <style>
-
-    </style>
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">RSSECURITY</title>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -70,19 +68,19 @@
                         <span class="ms-2">Vendas</span>
                     </a>
                 </li>
-                <li>
+                <li sec:authorize="hasRole('ROLE_ADMIN')">
                     <a href="/compras" data-page="compras" class="nav-link link-dark" id="compras">
                         <i class="bi bi-cart-plus"></i>
                         <span class="ms-2">Compras</span>
                     </a>
                 </li>
-                <li>
+                <li sec:authorize="hasRole('ROLE_ADMIN')">
                     <a href="/usuarios" data-page="usuarios" class="nav-link link-dark" id="importar">
                         <i class="bi bi-people"></i>
                         <span class="ms-2">Usuários</span>
                     </a>
                 </li>
-                <li>
+                <li sec:authorize="hasRole('ROLE_ADMIN')">
                     <a href="/importar" data-page="importar" class="nav-link link-dark" id="importar">
                         <i class="bi bi-file-earmark-arrow-up"></i>
                         <span class="ms-2">Importar</span>
@@ -100,7 +98,7 @@
             </div>
         </div>
 
-        <div id="conteudo" class="d-flex" layout:fragment="content">
+        <div id="conteudo" class="d-flex" layout:fragment="content" hx-history-elt>
             <!-- O conteúdo das páginas vai ser carregado aqui dinamicamente -->
         </div>
 
