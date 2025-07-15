@@ -12,6 +12,8 @@ export function init() {
     const autocompleteOptions = document.getElementById('autocomplete-options');
     const modalElement = document.getElementById("produtoModal");
     const searchType = document.getElementById('search-type');
+    const descontoToTotalEl = document.getElementById('desconto-to-total-input');
+    const descontoToTotalButtonEl = document.getElementById('desconto-to-total-btn');
 
     const dinheiroFields = document.getElementById('dinheiro-fields');
 
@@ -86,8 +88,19 @@ export function init() {
             autocompleteOptions.classList.remove('show');
         }
     }
-    
+
     /* === CART === */
+
+    // DESCONTO TO TOTAL
+    descontoToTotalButtonEl.addEventListener('click', () => {
+        const desconto = parseFloat(descontoToTotalEl.value);
+        if (total > 0 && desconto > 0 && cart.length > 0) {
+            cart.forEach(item => {
+                item.desconto = desconto.toFixed(2);
+            });
+            renderCart();
+        }
+    });
 
     // SHOW MODAL
     document.querySelector('#search-form').addEventListener('submit', (event) => {

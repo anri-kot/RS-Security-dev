@@ -1,12 +1,67 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout}">
-    <head>
-        <title>Home</title>
-    </head>
-    <body>
-    <div layout:fragment="content" th:fragment="content">
-        <h1 >Home</h1>
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Home</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div th:fragment="content" class="container py-4" data-page-id="home">
+            <h1 class="mb-4">Bem-vindo ao Painel do Sistema</h1>
+
+            <div class="row g-4">
+                <!-- Atalhos principais -->
+                <div class="col-md-4">
+                    <div class="card border-primary shadow-sm h-100">
+                        <div class="card-body d-flex flex-column align-items-start">
+                            <h5 class="card-title"><i class="bi bi-basket me-2"></i> Ponto de Venda</h5>
+                            <p class="card-text text-muted">Acesse o PDV para registrar vendas rapidamente.</p>
+                            <a href="/pdv" class="btn btn-primary mt-auto">Ir para PDV</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-success shadow-sm h-100">
+                        <div class="card-body d-flex flex-column align-items-start">
+                            <h5 class="card-title"><i class="bi bi-box-seam me-2"></i> Produtos</h5>
+                            <p class="card-text text-muted">Gerencie o estoque e cadastre novos produtos.</p>
+                            <a href="/produtos" class="btn btn-success mt-auto">Ver Produtos</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card border-warning shadow-sm h-100">
+                        <div class="card-body d-flex flex-column align-items-start">
+                            <h5 class="card-title"><i class="bi bi-graph-up me-2"></i> Relatórios</h5>
+                            <p class="card-text text-muted">Acompanhe as vendas e análise de desempenho.</p>
+                            <a href="/relatorios" class="btn btn-warning mt-auto text-white">Abrir Relatórios</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seções adicionais -->
+            <div class="row mt-5">
+                <div class="col-lg-6">
+                    <div class="alert alert-info shadow-sm">
+                        <h5 class="alert-heading"><i class="bi bi-info-circle-fill me-2"></i>Dica Rápida</h5>
+                        <p>Use a função de importação para cadastrar vários produtos via planilha Excel.</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="alert alert-secondary shadow-sm">
+                        <h5 class="alert-heading"><i class="bi bi-gear me-2"></i>Configurações</h5>
+                        <p>Você pode adicionar usuários e controlar permissões através da seção de Usuários.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    </body>
+</body>
+
 </html>
