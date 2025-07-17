@@ -3,6 +3,8 @@ const navOptions = document.querySelectorAll('#nav-options li');
 const TITLE = 'RSSECURITY';
 let currentPage = '';
 
+let pagesContainerEl = document.getElementById('pages-container');
+
 // Load Modules and Sidebar
 document.addEventListener("DOMContentLoaded", () => {
 	updateSidebar();
@@ -15,6 +17,7 @@ document.addEventListener("htmx:afterSwap", e => {
 		loadModule();
 		updateSidebar();
 		document.title = `${TITLE} - ${currentPage}`;
+		pagesContainerEl = document.getElementById('pages-container');
 	}
 });
 
