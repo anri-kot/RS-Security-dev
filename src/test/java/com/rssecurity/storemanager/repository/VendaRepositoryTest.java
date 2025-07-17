@@ -54,4 +54,14 @@ public class VendaRepositoryTest {
         BigDecimal total = repository.calculateTotalVendaValueBetween(start, end);
         assertEquals(0, total.compareTo(new BigDecimal("350")));
     }
+
+    @Test
+    void shouldReturnZeroWhenNoSalesInPeriod() {
+        LocalDateTime start = LocalDateTime.of(2026, 1, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2026, 12, 31, 23, 59);
+
+        BigDecimal result = repository.calculateTotalVendaValueBetween(start, end);
+
+        assertEquals(BigDecimal.ZERO, result);
+    }
 }

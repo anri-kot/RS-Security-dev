@@ -1,0 +1,17 @@
+<!-- Page Navigation -->
+<div th:fragment="page-nav" id="page-nav">
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination" id="pages-container">
+            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                <a class="page-link" th:href="@{('/' + ${target})(page=${currentPage - 1})}">Anterior</a>
+            </li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+                th:classappend="${currentPage == i} ? 'active'">
+                <a class="page-link" th:href="@{('/' + ${target})(page=${i})}" th:text="${i}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
+                <a class="page-link" th:href="@{('/' + ${target})(page=${currentPage + 1}, size=${size})}">Próximo</a>
+            </li>
+        </ul>
+    </nav>
+</div>

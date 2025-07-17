@@ -27,9 +27,8 @@ public interface VendaRepository extends JpaRepository<Venda, Long>, JpaSpecific
     List<Venda> findByMetodoPagamento(String metodoPagamento);
 
     // Reports
-    @Query(
-    """
-        SELECT COALESCE(SUM(v.valorRecebido), 0)
+    @Query("""
+        SELECT COALESCE(SUM(v.valorRecebido - v.troco), 0)
         FROM Venda v
         WHERE v.data BETWEEN :start AND :end
     """)

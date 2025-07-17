@@ -1,0 +1,42 @@
+<div th:fragment="resultado" id="resultado-relatorio">
+    <div th:if="${erro != null}" class="alert alert-danger" th:text="${erro}"></div>
+
+    <div th:if="${total != null}" class="card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <h5 class="card-title">Resumo</h5>
+                <h5 th:text="${interval ?: 'HOJE'}"></h3>
+            </div>
+            <ul class="list-group mb-3">
+                <li class="list-group-item">Total de vendas: <span th:text="${vendas.getContent().size()}"></span></li>
+                <li class="list-group-item">Total faturado: R$ <span th:text="${#numbers.formatDecimal(total, 1, 'POINT', 2, 'COMMA')}"></span></li>
+            </ul>
+
+            <h5 class="card-title">Vendas</h5>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Valor Liquido</th>
+                        <th>Método</th>
+                        <th>Observação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="v : ${vendas}">
+                        <td th:text="${#temporals.format(v.data, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <span th:text="${#numbers.formatDecimal(v.valorRecebido, 1, 'POINT', 2, 'COMMA')}"></span>
+                            <small th:if="${v.troco > 0}" th:text="'-' + ${#numbers.formatDecimal(v.troco, 1, 'POINT', 2, 'COMMA')}" class="fw-bold text-danger" title="troco"></small>
+                        </td>
+                        
+                        <td th:text="${v.metodoPagamento}"></td>
+                        <td th:text="${v.observacao}"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- Page Navigation -->
+            <div th:replace="~{fragments/page-nav :: page-nav}"></div>
+        </div>
+    </div>
+</div>

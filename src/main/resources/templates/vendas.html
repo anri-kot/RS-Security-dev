@@ -183,22 +183,7 @@
                 </div>
 
                 <!-- Page Navigation -->
-                <nav class="d-flex justify-content-center mt-4">
-                    <ul class="pagination">
-                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                        <a th:if="${size}" class="page-link" th:href="@{/vendas(page=${currentPage - 1}, size=${size})}">Anterior</a>
-                        <a th:unless="${size}" class="page-link" th:href="@{/vendas(page=${currentPage - 1})}">Anterior</a>
-                        </li>
-                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
-                            th:classappend="${currentPage == i} ? 'active'">
-                        <a th:if="${size}" class="page-link" th:href="@{/vendas(page=${i}, size=${size})}" th:text="${i}">1</a>
-                        <a th:unless="${size}" class="page-link" th:href="@{/vendas(page=${i})}" th:text="${i}">1</a>
-                        </li>
-                        <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
-                        <a class="page-link" th:href="@{/vendas(page=${currentPage + 1}, size=${size})}">Próximo</a>
-                        </li>
-                    </ul>
-                </nav>
+                <div th:replace="~{fragments/page-nav :: page-nav}"></div>
             </div>
 
             <!-- MODALS -->

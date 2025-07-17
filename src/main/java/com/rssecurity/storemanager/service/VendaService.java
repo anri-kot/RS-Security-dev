@@ -138,6 +138,10 @@ public class VendaService {
                 .toList();
     }
 
+    public BigDecimal calculateTotalVendaValueBetween(LocalDateTime start, LocalDateTime end) {
+        return repository.calculateTotalVendaValueBetween(start, end);
+    }
+
     // ACTIONS
 
     // Overloaded method for PDV transactions

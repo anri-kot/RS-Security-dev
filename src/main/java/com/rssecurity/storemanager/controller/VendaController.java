@@ -46,7 +46,6 @@ public class VendaController {
 
         return ResponseEntity.ok(service.findAllByCustomMatcher(allParams));
     }
-    
 
     @GetMapping("/search/data")
     public ResponseEntity<List<VendaDTO>> findByData(@RequestParam LocalDate data) {

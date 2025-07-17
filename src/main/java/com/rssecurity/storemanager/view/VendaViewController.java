@@ -63,6 +63,7 @@ public class VendaViewController {
             model.addAttribute("totalPages", 1);
             model.addAttribute("currentPage", 1);
             model.addAttribute("categorias", categoriaService.findAll());
+            model.addAttribute("target", "vendas");
 
             return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                     ? "vendas :: content"
@@ -77,6 +78,7 @@ public class VendaViewController {
         model.addAttribute("totalPages", vendasPage.getTotalPages());
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("categorias", categoriaService.findAll());
+        model.addAttribute("target", "vendas");
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "vendas :: content"
