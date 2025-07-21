@@ -199,7 +199,8 @@
                         <div class="modal-body">
                             <div class="container-fluid">
                                 <div class="row">
-                                    <div class="col-6 border-end mb-2">
+                                    <!-- col 1 -->
+                                    <div class="col-6 w-50 border-end mb-2">
 
                                         <!-- ITENS -->
 
@@ -208,7 +209,7 @@
                                                 <h4 class="mb-0">Itens</h4>
                                                 <button type="button" class="btn btn-outline-secondary btn-sm"
                                                     id="show-items-btn" data-bs-toggle="collapse"
-                                                    data-bs-target="#modal-compra-items-form" aria-expanded="false"
+                                                    data-bs-target="#modal-compra-items-container" aria-expanded="false"
                                                     aria-controls="item-compra-items-form">
                                                     <i class="bi bi-chevron-down" id="show-items-icon"></i>
                                                 </button>
@@ -216,7 +217,7 @@
 
                                             <hr>
 
-                                            <div class="collapse" id="modal-compra-items-form">
+                                            <div class="collapse" id="modal-compra-items-container">
                                                 <div class="d-flex align-items-center justify-content-between mb-2">
 
                                                     <select id="item-search-type" name="tipo"
@@ -274,64 +275,67 @@
                                                     <button type="submit" class="btn btn-primary btn-sm" id="add-button"
                                                         disabled>Adicionar</button>
                                                 </div>
+                                            </div>
                                         </form>
 
                                         <hr>
-
-                                    </div>
-
-                                    <!-- VENDA -->
-                                    <form id="compra-form" autocomplete="off">
-
-                                        <div class="mb-2">
-                                            <label class="form-label">ID</label>
-                                            <input type="text" id="modal-compra-idCompra" class="form-control" disabled>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <label class="form-label">Data <small class="text-muted">mês/dia/ano,
-                                                    hora</small></label>
-                                            <input type="datetime-local" id="modal-compra-data" class="form-control"
-                                                required>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <label class="form-label">Observação</label>
-                                            <input type="text" id="modal-compra-observacao" class="form-control"
-                                                required>
-                                        </div>
-
-                                        <div class="mb-2">
-                                            <div class="position-relative">
-                                                <label class="form-label">Fornecedor</label>
-                                                <input class="form-control input-dropdown" id="modal-compra-fornecedor"
-                                                    name="fornecedor" placeholder="Digite o nome do fornecedor"
-                                                    hx-get="compras/autocomplete"
-                                                    hx-target="#autocomplete-fornecedor-options"
-                                                    hx-trigger="keyup changed delay:300ms">
-
-                                                <input type="hidden" id="modal-compra-fornecedor-id">
-                                                <input type="hidden" id="modal-compra-fornecedor-nome">
-
-                                                <div class="dropdown-menu w-100" id="autocomplete-fornecedor-options">
+    
+                                        <!-- VENDA -->
+                                        <form id="compra-form" autocomplete="off">
+    
+                                            <div class="mb-2">
+                                                <label class="form-label">ID</label>
+                                                <input type="text" id="modal-compra-idCompra" class="form-control" disabled>
+                                            </div>
+    
+                                            <div class="mb-2">
+                                                <label class="form-label">Data <small class="text-muted">mês/dia/ano,
+                                                        hora</small></label>
+                                                <input type="datetime-local" id="modal-compra-data" class="form-control"
+                                                    required>
+                                            </div>
+    
+                                            <div class="mb-2">
+                                                <label class="form-label">Observação</label>
+                                                <input type="text" id="modal-compra-observacao" class="form-control"
+                                                    required>
+                                            </div>
+    
+                                            <div class="mb-2">
+                                                <div class="position-relative">
+                                                    <label class="form-label">Fornecedor</label>
+                                                    <input class="form-control input-dropdown" id="modal-compra-fornecedor"
+                                                        name="fornecedor" placeholder="Digite o nome do fornecedor"
+                                                        hx-get="compras/autocomplete"
+                                                        hx-target="#autocomplete-fornecedor-options"
+                                                        hx-trigger="keyup changed delay:300ms">
+    
+                                                    <input type="hidden" id="modal-compra-fornecedor-id">
+                                                    <input type="hidden" id="modal-compra-fornecedor-nome">
+    
+                                                    <div class="dropdown-menu w-100" id="autocomplete-fornecedor-options">
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+    
+                                        </form>
 
-                                    </form>
-                                </div>
-
-                                <div class="col-6 mb-2">
-                                    <!-- items edit/remove tab -->
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h4 class="mb-0">Itens Adicionados</h4>
-                                        <span class="fw-bold text-success" id="modal-items-total"></span>
                                     </div>
 
-                                    <hr>
+                                    <!-- col 2 -->
+                                    <div class="col-6 w-50 mb-2">
+                                        <!-- items edit/remove tab -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h4 class="mb-0">Itens Adicionados</h4>
+                                            <span class="fw-bold text-success" id="modal-items-total"></span>
+                                        </div>
+    
+                                        <hr>
+    
+                                        <ul class="list-group list-group-flush" id="modal-compra-itens">
+                                        </ul>
+                                    </div>
 
-                                    <ul class="list-group list-group-flush" id="modal-compra-itens">
-                                    </ul>
                                 </div>
                             </div>
 

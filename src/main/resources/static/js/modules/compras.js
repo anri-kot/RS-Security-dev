@@ -286,10 +286,10 @@ export function init() {
             modalItensEl.appendChild(renderCompraItem(item));
 
             // calculating total
-            const unitPriceCents = parseFloat(item.valorUnitario * 100);
-            total += (unitPriceCents * item.quantidade) / 100;
+            const unitPriceCents = Math.round(item.valorUnitario * 100);
+            total += (unitPriceCents * item.quantidade);
         });
-
+        total = total / 100;
         modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
@@ -299,8 +299,8 @@ export function init() {
         li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
 
         // Calculate price with discount
-        const preco = item.valorUnitario;
-        const total = preco * item.quantidade;
+        const precoCents = Math.round(item.valorUnitario * 100);
+        const total = (precoCents * item.quantidade) / 100;
 
         // Produto info container
         const mainContainer = document.createElement('div');

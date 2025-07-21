@@ -181,7 +181,7 @@ export function init() {
         document.getElementById('modal-produto-idProduto').value = id;
         document.getElementById('is-new').value = 'false';
         document.getElementById('modal-produto-nome').value = produto.nome;
-        document.getElementById('modal-produto-codigoBarras').value = produto.codigoBarras;
+        document.getElementById('modal-produto-codigo').value = produto.codigoBarras;
         document.getElementById('modal-produto-categoria-id').value = produto.categoria.idCategoria;
         document.getElementById('modal-produto-preco').value = produto.precoAtual.toFixed(2);
         document.getElementById('modal-produto-descricao').value = produto.descricao;

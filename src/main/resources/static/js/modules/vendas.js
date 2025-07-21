@@ -184,8 +184,8 @@ export function init() {
     });
 
     function updateTroco(receivedMoney) {
-        const receivedMoneyCents = receivedMoney * 100;
-        const totalCents = total * 100;
+        const receivedMoneyCents = Math.round(receivedMoney * 100);
+        const totalCents = Math.round(total * 100);
         const troco = (receivedMoneyCents - totalCents) / 100;
         modalTrocoEl.value = troco;
     }
@@ -323,9 +323,9 @@ export function init() {
             modalItensEl.appendChild(renderVendaItem(item));
 
             // calculating total
-            const discount = parseFloat(item.desconto || 0);
-            const unitPriceCents = item.valorUnitario * 100;
-            const price = parseFloat(unitPriceCents - (unitPriceCents * (discount / 100)));
+            const discount = parseFloat(item.desconto || 0)  / 100;
+            const unitPriceCents = Math.round(item.valorUnitario * 100);
+            const price = unitPriceCents - (unitPriceCents * discount);
             total += (price * item.quantidade) / 100;
         });
 
