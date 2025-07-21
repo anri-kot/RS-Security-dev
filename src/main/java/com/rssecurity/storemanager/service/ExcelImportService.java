@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
+import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.excel.reader.CategoriaExcelReader;
 import com.rssecurity.storemanager.excel.reader.CompraExcelReader;
 import com.rssecurity.storemanager.excel.reader.FornecedorExcelReader;
@@ -69,7 +70,8 @@ public class ExcelImportService {
                     }
                     case "vendas" -> {
                         VendaExcelReader reader = new VendaExcelReader();
-                        int created = vendaService.createAll(reader.readFromExcelSheet(sheet)).size();
+                        List<VendaDTO> vendas =  reader.readFromExcelSheet(sheet);
+                        int created = vendaService.createAll(vendas).size();
                         successMessages.add(created + " vendas adicionadas.");
                     }
                     default -> {

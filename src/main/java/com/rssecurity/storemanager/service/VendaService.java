@@ -151,7 +151,7 @@ public class VendaService {
         UsuarioResumoDTO usu = new UsuarioResumoDTO(usuario.getIdUsuario(), usuario.getUsername(), usuario.getNome(),
                 usuario.getSobrenome());
 
-        BigDecimal troco = null;
+        BigDecimal troco = BigDecimal.ZERO;
         if (venda.metodoPagamento().equals("DINHEIRO")) {
             troco = venda.valorRecebido().subtract(venda.getTotal());
         }
@@ -202,7 +202,7 @@ public class VendaService {
         }
 
         // Validating users
-        validateAllUsuarios(vendas.stream()
+        Map<String, Usuario> usuarios = getAllUsuarios(vendas.stream()
                 .map(v -> v.usuario())
                 .toList());
 
@@ -218,6 +218,7 @@ public class VendaService {
         List<Venda> entities = vendas.stream()
                 .map(dto -> {
                         Venda entity = mapper.toEntity(dto);
+                        entity.setUsuario(usuarios.get(dto.usuario().username()));
                         List<ItemVenda> itens = buildItemVendaList(dto, entity, produtosMap, false);
                         entity.setItens(itens);
                         return entity;
@@ -372,9 +373,9 @@ public class VendaService {
      * Each item will be linked to the given Venda entity, and optionally have its ID set if it's an update.
      *
      * @param venda the VendaDTO containing the list of item DTOs
-     * @param entity the Compra entity to associate with each item
+     * @param entity the Venda entity to associate with each item
      * @param isUpdate true if the operation is an update (to include item IDs), false for creation
-     * @return a list of fully initialized ItemCompra entities ready for persistence
+     * @return a list of fully initialized ItemVenda entities ready for persistence
      * @throws ResourceNotFoundException if any referenced Produto ID does not exist
      */
     private List<ItemVenda> buildItemVendaList(VendaDTO venda, Venda entity, boolean isUpdate) {
@@ -430,23 +431,24 @@ public class VendaService {
                 }).toList();
     }
 
-    private void validateAllUsuarios(List<UsuarioResumoDTO> usuarios) {
+    private Map<String, Usuario> getAllUsuarios(List<UsuarioResumoDTO> usuarios) {
         List<String> usernames = usuarios.stream()
             .map(UsuarioResumoDTO::username)
+            .distinct()
             .toList();
 
-        List<Usuario> encontrados = usuarioRepository.findAllByUsernameIn(usernames);
-        Set<String> encontradosSet = encontrados.stream()
-                .map(Usuario::getUsername)
-                .collect(Collectors.toSet());
+        Map<String, Usuario> foundMap = usuarioRepository.findAllByUsernameIn(usernames).stream()
+            .collect(Collectors.toMap(Usuario::getUsername, Function.identity()));
 
         List<String> notFound = usernames.stream()
-                .filter(username -> !encontradosSet.contains(username))
-                .toList();
+            .filter(username -> !foundMap.containsKey(username))
+            .toList();
 
         if (!notFound.isEmpty()) {
-            throw new BadRequestException("Usuários não encontrados: " + notFound);
+            throw new BadRequestException("Users not found: " + notFound);
         }
+
+        return foundMap;
     }
 
     private void validateUsuario(UsuarioResumoDTO usuario) {

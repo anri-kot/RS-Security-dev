@@ -18,9 +18,11 @@ public class CategoriaExcelReader {
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             if (row == null) continue;
-            categorias.add(mapper.fromRow(row));
+            CategoriaDTO categoria = mapper.fromRow(row);
+            if (categoria == null) continue;
+
+            categorias.add(categoria);
         }
         return categorias;
     }
-    
 }

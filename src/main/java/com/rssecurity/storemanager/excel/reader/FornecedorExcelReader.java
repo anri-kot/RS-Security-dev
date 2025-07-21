@@ -17,9 +17,11 @@ public class FornecedorExcelReader {
 
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
-            if (row == null)
-                continue;
-            fornecedores.add(mapper.fromRow(row));
+            if (row == null) continue;
+            
+            FornecedorDTO fornecedor = mapper.fromRow(row);
+            if (fornecedor == null) continue;
+            fornecedores.add(fornecedor);
         }
         return fornecedores;
     }

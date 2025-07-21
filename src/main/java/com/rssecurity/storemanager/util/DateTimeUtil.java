@@ -10,12 +10,11 @@ import com.rssecurity.storemanager.exception.BadRequestException;
 public class DateTimeUtil {
     
     public static LocalDateTime parseStartOfDay(String input) {
-        System.out.println(input);
         try {
-            return LocalDateTime.parse(input); // tenta como datetime
+            return LocalDateTime.parse(input);
         } catch (DateTimeParseException e1) {
             try {
-                return LocalDate.parse(input).atStartOfDay(); // tenta como date
+                return LocalDate.parse(input).atStartOfDay();
             } catch (DateTimeParseException e2) {
                 throw new BadRequestException("Formato de data inválido: " + input);
             }
@@ -23,7 +22,6 @@ public class DateTimeUtil {
     }
 
     public static LocalDateTime parseEndOfDay(String input) {
-        System.out.println(input);
         try {
             return LocalDateTime.parse(input);
         } catch (DateTimeParseException e1) {

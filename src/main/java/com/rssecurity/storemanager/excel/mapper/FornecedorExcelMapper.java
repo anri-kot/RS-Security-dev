@@ -57,6 +57,8 @@ public class FornecedorExcelMapper {
             throw new IllegalStateException("Cabeçalho não foi inicializado. Envie um cabeçado válido.");
         }
 
+        if (excel.isBlankRow(row)) return null;
+
         Long idFornecedor = excel.tryGetLong(row, FornecedorExcelHeader.ID.getHeaderName());
         String nome = excel.getCellStringValue(row, FornecedorExcelHeader.NOME.getHeaderName());
         String cnpj = excel.getCellStringValue(row, FornecedorExcelHeader.CNPJ.getHeaderName());

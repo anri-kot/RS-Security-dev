@@ -25,6 +25,8 @@ public class VendaExcelReader {
             if (row == null) continue;
 
             VendaExcelMapper.VendaParsedRow parsedKey = mapper.parseRow(row);
+            if (parsedKey == null) continue;
+            
             grouped.computeIfAbsent(parsedKey.key(), k -> new ArrayList<>()).add(parsedKey.item());
         }
 

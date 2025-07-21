@@ -43,6 +43,8 @@ public class CategoriaExcelMapper {
             throw new BadRequestException(
                 "Na planilha categorias está faltando o cabeçalho obrigatório: nome");
         }
+
+        excel = new ExcelRowReader(headerIndexMap);
     }
 
     /**
@@ -56,6 +58,8 @@ public class CategoriaExcelMapper {
 
         Long idCategoria = excel.tryGetLong(row, CategoriaExcelHeader.ID.getHeaderName());
         String nome = excel.getCellStringValue(row, CategoriaExcelHeader.NOME.getHeaderName());
+        
+        if (nome == null) return null;
 
         return new CategoriaDTO(idCategoria, nome);
     }

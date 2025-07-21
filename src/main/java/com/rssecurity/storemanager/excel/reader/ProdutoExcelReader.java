@@ -17,9 +17,11 @@ public class ProdutoExcelReader {
 
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
-            if (row == null)
-                continue;
-            produtos.add(mapper.fromRow(row));
+            if (row == null) continue;
+            ProdutoDTO produto = mapper.fromRow(row);
+            if (produto == null) continue;
+            
+            produtos.add(produto);
         }
 
         return produtos;
