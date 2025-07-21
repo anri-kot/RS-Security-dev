@@ -2,11 +2,9 @@ package com.rssecurity.storemanager.view;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -18,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.service.VendaService;
-import com.rssecurity.storemanager.util.DateTimeUtil;
-
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
