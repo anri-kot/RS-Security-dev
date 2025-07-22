@@ -95,8 +95,8 @@
                             <!-- Botão de busca -->
                             <div class="col-md-2">
                                 <button type="submit" class="btn btn-primary w-100" hx-get="/vendas"
-                                    hx-target="#cards-vendas" hx-push-url="true"
-                                    hx-select="#cards-vendas" hx-include="#search-form">Buscar</button>
+                                    hx-target="#cards-vendas" hx-push-url="true" hx-select="#cards-vendas"
+                                    hx-include="#search-form">Buscar</button>
                             </div>
 
                         </div>
@@ -145,8 +145,8 @@
 
                         <p class="mb-1"><strong>Observação:</strong> <span th:text="${venda.observacao}"></span></p>
                         <p class="mb-1"><strong>Pagamento:</strong> <span th:text="${venda.metodoPagamento}"></span></p>
-                        <p class="mb-1"><strong>Usuário:</strong> <abbr th:if="${venda.usuario != null}" th:text="${venda.usuario.username}"
-                                class="initialism"
+                        <p class="mb-1"><strong>Usuário:</strong> <abbr th:if="${venda.usuario != null}"
+                                th:text="${venda.usuario.username}" class="initialism"
                                 th:title="${venda.usuario.nome} + ' ' + ${venda.usuario.sobrenome}"></abbr></p>
 
                         <div class="collapse" th:id="'collapse__' + ${venda.idVenda}">
@@ -161,7 +161,8 @@
                             <ul class="list-group list-group-flush" th:each="item : ${venda.itens}">
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div class="fw-semibold" th:text="${item.produto.nome}"></div>
+                                        <div class="fw-semibold" th:if="${item.produto}" th:text="${item.produto.nome}"></div>
+                                        <div class="fw-semibold" th:unless="${item.produto}">PRODUTO NÃO INCONTRADO</div>
                                         <small class="text-muted d-block">
                                             <span
                                                 th:text="'Qtd: ' + ${item.quantidade} + ' × R$ ' + ${#numbers.formatDecimal(item.valorUnitario, 1, 'POINT', 2, 'COMMA')}"></span>
@@ -312,10 +313,11 @@
 
                                         <!-- VENDA -->
                                         <form id="venda-form" autocomplete="off">
-        
+
                                             <div class="mb-2">
                                                 <label class="form-label">ID</label>
-                                                <input type="text" id="modal-venda-idVenda" class="form-control" disabled>
+                                                <input type="text" id="modal-venda-idVenda" class="form-control"
+                                                    disabled>
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Data <small class="text-muted">mês/dia/ano,
@@ -344,26 +346,28 @@
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Troco</label>
-                                                <input type="number" step="0.1" id="modal-venda-troco" class="form-control"
-                                                    required>
+                                                <input type="number" step="0.1" id="modal-venda-troco"
+                                                    class="form-control" required>
                                             </div>
                                             <div class="mb-2">
                                                 <div class="position-relative">
                                                     <label class="form-label">Funcionário</label>
-                                                    <input class="form-control input-dropdown" id="modal-venda-funcionario"
-                                                        name="funcionario" placeholder="Digite o nome do funcionário"
+                                                    <input class="form-control input-dropdown"
+                                                        id="modal-venda-funcionario" name="funcionario"
+                                                        placeholder="Digite o nome do funcionário"
                                                         hx-get="/vendas/autocomplete"
                                                         hx-target="#autocomplete-funcionario-options"
                                                         hx-trigger="keyup changed delay:300ms">
-        
+
                                                     <input type="hidden" id="modal-venda-funcionario-id">
                                                     <input type="hidden" id="modal-venda-funcionario-username">
-        
-                                                    <div class="dropdown-menu w-100" id="autocomplete-funcionario-options">
+
+                                                    <div class="dropdown-menu w-100"
+                                                        id="autocomplete-funcionario-options">
                                                     </div>
                                                 </div>
                                             </div>
-        
+
                                         </form>
 
                                     </div>
@@ -374,9 +378,9 @@
                                             <h4 class="mb-0">Itens Adicionados</h4>
                                             <span class="fw-bold text-success" id="modal-items-total"></span>
                                         </div>
-    
+
                                         <hr>
-    
+
                                         <ul class="list-group list-group-flush" id="modal-venda-itens">
                                         </ul>
                                     </div>

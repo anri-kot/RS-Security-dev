@@ -1,9 +1,3 @@
-/*
-    TODO:
-    - Testing
-    - Pagination
-*/
-
 export function init() {
 
     let total = 0;
