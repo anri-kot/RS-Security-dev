@@ -29,9 +29,6 @@ O objetivo desta versão é permitir testes iniciais e coleta de feedback sobre 
 
 ⚠️ LIMITAÇÕES E PROBLEMAS CONHECIDOS
 ------------------------------------
-- Algumas exceptions em requisições HTMX não redirecionam corretamente para a tela de erro
-- A contagem de páginas pode não aparecer corretamente quando o filtro retorna zero resultados
-- A navegação entre páginas de tabelas não funciona corretamente quando há filtros ativos
 - Validações de formulário ainda serão aprimoradas
 - Logs de ações de usuários ainda não implementados
 - Testes automatizados ainda não foram incluídos
@@ -71,8 +68,8 @@ server.port=8080
 spring.datasource.url=jdbc:mysql://localhost:3306/nome_do_banco?useSSL=false&serverTimezone=America/Sao_Paulo
 
 # Usuário e senha do banco de dados
-spring.datasource.username=seu_usuario
-spring.datasource.password=sua_senha
+spring.datasource.username=root
+spring.datasource.password=
 
 
 # ========================
@@ -100,14 +97,16 @@ spring.jackson.time-zone=America/Sao_Paulo
 
 ---
 
-▶️ COMO EXECUTAR A APLICAÇÃO
+▶️ COMO EXECUTAR A APLICAÇÃO (WINDOWS)
 -----------------------------
-1. Abra o terminal (Prompt de Comando)
-2. Vá até a pasta onde o arquivo `sistema.jar` está salvo
-3. Execute o seguinte comando:
-```java -jar sistema.jar```
-4. Acesse o sistema pelo navegador:
-http://localhost:8080
+1. Para iniciar o sistema:
+   Dê um duplo clique no arquivo iniciar.bat na raiz.
+   O sistema iniciará em segundo plano.
+   Logs serão gravados em app/log.txt.
+
+2. Para finalizar o sistema:
+   Dê um duplo clique no arquivo parar.bat na raiz.
+   O processo será encerrado corretamente.
 ---
 
 🔐 ACESSO INICIAL
