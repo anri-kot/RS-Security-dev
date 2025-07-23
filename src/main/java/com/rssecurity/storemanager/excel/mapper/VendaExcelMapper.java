@@ -70,6 +70,8 @@ public class VendaExcelMapper {
      * It returns a CompraParsedRow
      */
     public VendaParsedRow parseRow(Row row) {
+        if (excel.isBlankRow(row)) return null;
+
         LocalDateTime data = excel.tryGetLocalDateTime(row, VendaExcelHeader.DATA.getHeaderName());
         String obs = excel.getCellStringValue(row, VendaExcelHeader.OBSERVACAO.getHeaderName());
         String username = excel.getCellStringValue(row, VendaExcelHeader.USERNAME.getHeaderName());
@@ -78,7 +80,7 @@ public class VendaExcelMapper {
         BigDecimal valorRecebido = excel.tryGetBigDecimal(row, VendaExcelHeader.VALOR_RECEBIDO.getHeaderName());
         BigDecimal desconto = excel.tryGetBigDecimal(row, VendaExcelHeader.DESCONTO.getHeaderName());
 
-        VendaKey key = new VendaKey(data, obs, username, valorRecebido, metodoPagamento, troco);
+        VendaKey key = new VendaKey(data, obs, username, metodoPagamento, troco, valorRecebido, desconto);
 
         Long idProduto = excel.tryGetLong(row, VendaExcelHeader.ID_PRODUTO.getHeaderName());
         String nomeProduto = excel.getCellStringValue(row, VendaExcelHeader.NOME_PRODUTO.getHeaderName());

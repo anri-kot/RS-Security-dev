@@ -12,7 +12,7 @@
         <div class="container py-4" th:fragment="content" data-page-id="fornecedores">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="mb-0">Fornecedores</h1>
-                <button id="new-fornecedor" class="btn btn-success">+ Novo Fornecedor</button>
+                <button sec:authorize="hasRole('ROLE_ADMIN')" id="new-fornecedor" class="btn btn-success">+ Novo Fornecedor</button>
             </div>
 
             <div class="card mb-4">
@@ -59,7 +59,7 @@
                                     <th scope="col">CNPJ</th>
                                     <th scope="col">Email</th>
                                     <th scope="col">Telefone</th>
-                                    <th scope="col" class="text-end">Ações</th>
+                                    <th scope="col" class="text-end" sec:authorize="hasRole('ROLE_ADMIN')">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -69,7 +69,7 @@
                                     <td th:text="${fornecedor.cnpj}"></td>
                                     <td th:text="${fornecedor.email}"></td>
                                     <td th:text="${fornecedor.telefone}"></td>
-                                    <td class="text-end">
+                                    <td class="text-end" sec:authorize="hasRole('ROLE_ADMIN')">
                                         <button class="btn btn-sm btn-outline-primary me-2" th:attr="data-id=${fornecedor.idFornecedor}"
                                             data-action="edit">
                                             <i class="bi bi-pencil"></i>
@@ -86,22 +86,7 @@
                 </div>
 
                 <!-- Page Navigation -->
-                <nav class="d-flex justify-content-center mt-4">
-                    <ul class="pagination">
-                        <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
-                        <a th:if="${size}" class="page-link" th:href="@{/fornecedores(page=${currentPage - 1}, size=${size})}">Anterior</a>
-                        <a th:unless="${size}" class="page-link" th:href="@{/fornecedores(page=${currentPage - 1})}">Anterior</a>
-                        </li>
-                        <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
-                            th:classappend="${currentPage == i} ? 'active'">
-                        <a th:if="${size}" class="page-link" th:href="@{/fornecedores(page=${i}, size=${size})}" th:text="${i}">1</a>
-                        <a th:unless="${size}" class="page-link" th:href="@{/fornecedores(page=${i})}" th:text="${i}">1</a>
-                        </li>
-                        <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'">
-                        <a class="page-link" th:href="@{/fornecedores(page=${currentPage + 1}, size=${size})}">Próximo</a>
-                        </li>
-                    </ul>
-                </nav>
+                <div th:replace="~{fragments/page-nav :: page-nav}"></div>
             </div>
             <!-- MODALS -->
 

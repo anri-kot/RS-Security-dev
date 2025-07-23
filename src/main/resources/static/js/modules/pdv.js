@@ -12,6 +12,8 @@ export function init() {
     const autocompleteOptions = document.getElementById('autocomplete-options');
     const modalElement = document.getElementById("produtoModal");
     const searchType = document.getElementById('search-type');
+    const descontoToTotalEl = document.getElementById('desconto-to-total-input');
+    const descontoToTotalButtonEl = document.getElementById('desconto-to-total-btn');
 
     const dinheiroFields = document.getElementById('dinheiro-fields');
 
@@ -86,8 +88,19 @@ export function init() {
             autocompleteOptions.classList.remove('show');
         }
     }
-    
+
     /* === CART === */
+
+    // DESCONTO TO TOTAL
+    descontoToTotalButtonEl.addEventListener('click', () => {
+        const desconto = parseFloat(descontoToTotalEl.value);
+        if (total > 0 && desconto > 0 && cart.length > 0) {
+            cart.forEach(item => {
+                item.desconto = desconto.toFixed(2);
+            });
+            renderCart();
+        }
+    });
 
     // SHOW MODAL
     document.querySelector('#search-form').addEventListener('submit', (event) => {
@@ -172,7 +185,7 @@ export function init() {
             <td>${item.produto.nome}</td>
             <td>${item.quantidade}</td>
             <td>R$ ${item.valorUnitario.toFixed(2)}</td>
-            <td>${discount * 100}</td>
+            <td>${Math.round(discount * 100)}</td>
             <td>R$ ${finalPrice.toFixed(2)}</td>
             <td><button class="btn btn-sm btn-danger" data-index="${index}">Remover</button>
             <button class="btn btn-sm btn-secondary" data-index="${index}">Editar</button></td>`;
@@ -321,10 +334,13 @@ export function init() {
 
     function getChange(valorRecebido) {
         // to cents
-        const receivedCents = valorRecebido * 100;
-        const totalCents = total * 100;
+        const receivedCents = Math.round(valorRecebido * 100);
+        const totalCents = Math.round(total * 100);
+        const change = (receivedCents - totalCents) / 100;
+        
+        if (change == null) return 0.0;
 
-        return (receivedCents - totalCents) / 100;
+        return change;
     }
 
     async function sellCart() {
@@ -345,6 +361,7 @@ export function init() {
         }
 
         obs = observacao.value;
+        const troco = getChange(valorRecebido);
 
         if (cart.length === 0) {
             alert('Carrinho vazio');
@@ -355,6 +372,7 @@ export function init() {
             itens: cart,
             observacao: obs,
             metodoPagamento: metodoPagamento,
+            troco: troco,
             valorRecebido: valorRecebido
         });
 

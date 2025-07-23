@@ -1,10 +1,13 @@
 package com.rssecurity.storemanager.repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.rssecurity.storemanager.model.Venda;
@@ -22,5 +25,11 @@ public interface VendaRepository extends JpaRepository<Venda, Long>, JpaSpecific
     List<Venda> findByObservacaoContaining(String observacao);
     List<Venda> findByMetodoPagamento(String metodoPagamento);
 
-    // Pages
+    // Reports
+    @Query("""
+        SELECT COALESCE(SUM(v.valorRecebido - v.troco), 0)
+        FROM Venda v
+        WHERE v.data BETWEEN :start AND :end
+    """)
+    BigDecimal calculateTotalVendaValueBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

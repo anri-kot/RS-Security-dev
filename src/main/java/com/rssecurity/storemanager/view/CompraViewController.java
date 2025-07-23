@@ -63,6 +63,7 @@ public class CompraViewController {
             model.addAttribute("totalPages", 1);
             model.addAttribute("currentPage", 1);
             model.addAttribute("categorias", categoriaService.findAll());
+            model.addAttribute("target", "compras");
 
             return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                     ? "compras :: content"
@@ -76,6 +77,7 @@ public class CompraViewController {
         model.addAttribute("totalPages", comprasPage.getTotalPages());
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("categorias", categoriaService.findAll());
+        model.addAttribute("target", "compras");
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "compras :: content"

@@ -42,6 +42,7 @@ public class FornecedorViewController {
         model.addAttribute("fornecedores", fornecedoresPage);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", fornecedoresPage.getTotalPages());
+        model.addAttribute("target", "fornecedores");
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "fornecedores :: content"

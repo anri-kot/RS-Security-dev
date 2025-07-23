@@ -7,7 +7,6 @@ docker-compose.yml
 # Maven
 target/
 .mvn/wrapper/maven-wrapper.jar
-application.properties
 src/main/resources/application.properties
 
 # IDEs

@@ -66,6 +66,8 @@ public class CompraExcelMapper {
      * It returns a CompraParsedRow
      */
     public CompraParsedRow parseRow(Row row) {
+        if (excel.isBlankRow(row)) return null;
+        
         LocalDateTime data = excel.tryGetLocalDateTime(row, CompraExcelHeader.DATA.getHeaderName());
         String obs = excel.getCellStringValue(row, CompraExcelHeader.OBSERVACAO.getHeaderName());
         Long idFornecedor = excel.tryGetLong(row, CompraExcelHeader.ID_FORNECEDOR.getHeaderName());

@@ -1,0 +1,42 @@
+# ========================
+# CONFIGURAÇÃO DO SERVIDOR
+# ========================
+
+# Porta onde a aplicação será executada (ex: http://localhost:8080)
+server.port=8080
+
+
+# ========================
+# CONFIGURAÇÃO DO BANCO DE DADOS
+# ========================
+
+# URL de conexão com o banco de dados MySQL
+# Substitua "localhost", "3306" e "nome_do_banco" conforme necessário
+spring.datasource.url=jdbc:mysql://localhost:3306/nome_do_banco?useSSL=false&serverTimezone=America/Sao_Paulo
+
+# Usuário e senha do banco de dados
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
+
+
+# ========================
+# CONFIGURAÇÃO JPA / HIBERNATE
+# ========================
+
+# Evita alterações automáticas na estrutura do banco
+spring.jpa.hibernate.ddl-auto=none
+
+# Dialeto do MySQL 8 (necessário para compatibilidade total com o banco)
+spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+
+
+# ========================
+# LOCALIZAÇÃO E FUSO HORÁRIO
+# ========================
+
+# Localização padrão da aplicação
+spring.mvc.locale=pt_BR
+spring.mvc.locale-resolver=fixed
+
+# Fuso horário usado pela aplicação
+spring.jackson.time-zone=America/Sao_Paulo

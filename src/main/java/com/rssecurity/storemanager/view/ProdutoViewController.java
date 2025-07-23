@@ -49,6 +49,7 @@ public class ProdutoViewController {
         model.addAttribute("produtos", produtosPage);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", produtosPage.getTotalPages());
+        model.addAttribute("target", "produtos");
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "produtos :: content"

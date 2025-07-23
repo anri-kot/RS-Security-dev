@@ -7,17 +7,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(name = "venda")
 public class Venda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idVenda;
+
     private LocalDateTime data;
     private String observacao;
+
     @ManyToOne
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
+
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<ItemVenda> itens;
+
     private String metodoPagamento;
     private BigDecimal valorRecebido;
     private BigDecimal troco;

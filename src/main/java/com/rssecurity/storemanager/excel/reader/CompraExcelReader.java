@@ -25,6 +25,7 @@ public class CompraExcelReader {
             if (row == null) continue;
             
             CompraExcelMapper.CompraParsedRow parsedKey = mapper.parseRow(row);
+            if (parsedKey == null) continue;
             grouped.computeIfAbsent(parsedKey.key(), k -> new ArrayList<>()).add(parsedKey.item());
         }
 

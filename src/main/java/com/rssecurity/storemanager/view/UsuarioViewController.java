@@ -44,6 +44,7 @@ public class UsuarioViewController {
         model.addAttribute("usuarios", usuariosPage);
         model.addAttribute("currentPage", currentPage);
         model.addAttribute("totalPages", usuariosPage.getTotalPages());
+        model.addAttribute("target", "usuarios");
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "usuarios :: content"

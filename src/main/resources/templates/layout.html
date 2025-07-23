@@ -4,12 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/bootstrap-icons/bootstrap-icons.css">
-    <style>
-
-    </style>
+    <link rel="stylesheet" href="css/bootstrap/bootstrap-icons/bootstrap-icons.css">
+    <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">RSSECURITY</title>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -70,19 +68,25 @@
                         <span class="ms-2">Vendas</span>
                     </a>
                 </li>
-                <li>
+                <li sec:authorize="hasRole('ROLE_ADMIN')">
                     <a href="/compras" data-page="compras" class="nav-link link-dark" id="compras">
                         <i class="bi bi-cart-plus"></i>
                         <span class="ms-2">Compras</span>
                     </a>
                 </li>
-                <li>
+                <li sec:authorize="hasRole('ROLE_ADMIN')">
+                    <a href="/relatorios" data-page="relatorios" class="nav-link link-dark" id="relatorios">
+                        <i class="bi bi-graph-up"></i>
+                        <span class="ms-2">Relatórios</span>
+                    </a>
+                </li>
+                <li sec:authorize="hasRole('ROLE_ADMIN')">
                     <a href="/usuarios" data-page="usuarios" class="nav-link link-dark" id="importar">
                         <i class="bi bi-people"></i>
                         <span class="ms-2">Usuários</span>
                     </a>
                 </li>
-                <li>
+                <li sec:authorize="hasRole('ROLE_ADMIN')">
                     <a href="/importar" data-page="importar" class="nav-link link-dark" id="importar">
                         <i class="bi bi-file-earmark-arrow-up"></i>
                         <span class="ms-2">Importar</span>
@@ -93,7 +97,8 @@
             <div class="user-info mt-auto d-flex flex-column align-items-center justify-content-center">
                 <i class="bi bi-person-circle fs-4"></i>
                 <div class="fw-semibold text-truncate user-details" id="user-username">usuário</div>
-                <a href="/auth/logout" class="btn btn-sm btn-outline-secondary mt-1 w-100 logout-btn d-flex align-items-center justify-content-center">
+                <a href="/auth/logout"
+                    class="btn btn-sm btn-outline-secondary mt-1 w-100 logout-btn d-flex align-items-center justify-content-center">
                     <i class="bi bi-box-arrow-right me-2"></i>
                     <span class="logout-text">Logout</span>
                 </a>
@@ -113,8 +118,8 @@
         </div>
     </footer>
 
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/htmx/htmx.min.js"></script>
+    <script src="/js/bootstrap/bootstrap.bundle.js"></script>
     <script type="module" src="/js/main.js"></script>
 
     <script>

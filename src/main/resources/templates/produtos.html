@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{layout}">
+    layout:decorate="~{layout.html}">
 
 <head>
     <title>Produtos</title>
@@ -14,7 +14,7 @@
 
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="mb-0">Produtos</h1>
-                <button id="new-produto" class="btn btn-success">+ Novo Produto</button>
+                <button sec:authorize="hasRole('ROLE_ADMIN')" id="new-produto" class="btn btn-success">+ Novo Produto</button>
             </div>
             <div class="card mb-4">
                 <div class="card-body">
@@ -65,7 +65,7 @@
                                         <th scope="col">Descrição</th>
                                         <th scope="col">Estoque</th>
                                         <th scope="col">Categoria</th>
-                                        <th scope="col">Ações</th>
+                                        <th sec:authorize="hasRole('ROLE_ADMIN')" scope="col">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -81,7 +81,7 @@
                                             <span class="badge bg-info text-dark"
                                                 th:text="${produto.categoria.nome}"></span>
                                         </td>
-                                        <td>
+                                        <td sec:authorize="hasRole('ROLE_ADMIN')">
                                             <button class="btn btn-sm btn-outline-primary me-2" th:attr="data-id=${produto.idProduto}"
                                                 data-action="edit">
                                                 <i class="bi bi-pencil"></i>
@@ -99,7 +99,9 @@
                 </div>
 
                 <!-- Page Navigation -->
-                <nav class="d-flex justify-content-center mt-4">
+                <div th:replace="~{fragments/page-nav :: page-nav}"></div>
+
+                <!-- <nav class="d-flex justify-content-center mt-4">
                     <ul class="pagination">
                         <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
                         <a th:if="${size}" class="page-link" th:href="@{/produtos(page=${currentPage - 1}, size=${size})}">Anterior</a>
@@ -114,7 +116,7 @@
                         <a class="page-link" th:href="@{/produtos(page=${currentPage + 1}, size=${size})}">Próximo</a>
                         </li>
                     </ul>
-                </nav>
+                </nav> -->
             </div>
 
             <div class="modal fade" id="produtoModal" tabindex="-1" aria-labelledby="produtoModalLabel"

@@ -62,6 +62,7 @@ public class ProdutoExcelMapper {
         if (headerIndexMap.isEmpty()) {
             throw new IllegalStateException("Cabeçalho não foi inicializado. Envie um cabeçado válido.");
         }
+        if (excel.isBlankRow(row)) return null;
 
         Long idProduto = excel.tryGetLong(row, ProdutoExcelHeader.ID.getHeaderName());
         String nome = excel.getCellStringValue(row, ProdutoExcelHeader.NOME.getHeaderName());

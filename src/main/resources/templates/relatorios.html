@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout.html}">
+
+<head>
+    <title>Relatórios</title>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+
+        <div class="container py-4" th:fragment="content" data-page-id="relatorios">
+
+            <h1>Relatórios de Vendas</h1>
+
+            <form hx-get="/relatorios/vendas" hx-target="#resultado-relatorio" hx-swap="innerHTML" hx-push-url="true"
+                class="row g-3 mt-4 mb-4">
+                <div class="col-md-4">
+                    <label for="start">Data inicial</label>
+                    <input type="date" class="form-control" name="start" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="end">Data final</label>
+                    <input type="date" class="form-control" name="end" required>
+                </div>
+                <div class="col-md-4 align-self-end">
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                </div>
+            </form>
+
+            <div th:replace="~{fragments/relatorio :: resultado}"></div>
+
+        </div>
+    </div>
+</body>
+
+</html>
