@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -288,11 +289,13 @@ public class VendaService {
             case "UPDATE" -> {
                 // Subtracts from the stock
                 for (ItemVendaDTO item : oldVendaDTO.itens()) {
-                    Long idProduto = item.produto().idProduto();
-                    Integer quantidade = item.quantidade();
-                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
+                    if (item.produto() != null) {
+                        Long idProduto = item.produto().idProduto();
+                        Integer quantidade = item.quantidade();
+                        stockArranges.merge(idProduto, -quantidade, Integer::sum);
+                    }
                 }
-                // Aplica os efeitos da nova venda
+                // Apply
                 for (ItemVendaDTO item : vendaDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
@@ -472,11 +475,15 @@ public class VendaService {
     }
 
     private void validateTroco(VendaDTO venda) {
-        BigDecimal total = venda.getTotal();
-        BigDecimal change = venda.valorRecebido().subtract(total);
-        if (venda.troco().compareTo(change) != 0) {
-            throw new BadRequestException("Valor do troco inserido inválido.\nTotal: " + total + "\nValor Recebido: "
-                    + venda.valorRecebido() + "\nTroco inserido: " + venda.troco());
+        BigDecimal total = venda.getTotal().setScale(2, RoundingMode.HALF_UP);
+        BigDecimal received = venda.valorRecebido().setScale(2, RoundingMode.HALF_UP);
+        BigDecimal troco = venda.troco().setScale(2, RoundingMode.HALF_UP);
+
+        BigDecimal expectedTroco = received.subtract(total).setScale(2, RoundingMode.HALF_UP);
+
+        if (troco.compareTo(expectedTroco) != 0) {
+            throw new BadRequestException("Valor do troco inserido inválido.\nTotal: " + total
+                    + "\nValor Recebido: " + received + "\nTroco inserido: " + troco);
         }
     }
 }

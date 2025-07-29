@@ -296,13 +296,15 @@ public class CompraService {
             }
 
             case "UPDATE" -> {
-                // Subtracts from the stock
+
                 for (ItemCompraDTO item : oldCompraDTO.itens()) {
-                    Long idProduto = item.produto().idProduto();
-                    Integer quantidade = item.quantidade();
-                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
+                    if (item.produto() != null) {
+                        Long idProduto = item.produto().idProduto();
+                        Integer quantidade = item.quantidade();
+                        stockArranges.merge(idProduto, -quantidade, Integer::sum);
+                    }
                 }
-                // Aplica os efeitos da nova compra
+
                 for (ItemCompraDTO item : compraDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();

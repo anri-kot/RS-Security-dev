@@ -20,6 +20,7 @@ export function init() {
     const modalItensEl = document.getElementById('modal-compra-itens');
     // Compra Items
     const modalItemsTotalEl = document.getElementById('modal-items-total');
+    const modalItemsTotalOldEl = document.getElementById('modal-items-total-old');
     const modalQuantidadeEl = document.getElementById('modal-compra-quantidade');
     const modalValorUnitarioEl = document.getElementById('modal-compra-valorUnitario');
     const modalCurrentProdutoEl = document.getElementById('current-product');
@@ -201,6 +202,9 @@ export function init() {
         });
         modalItensEl.innerHTML = '';
         modalItemsTotalEl.innerText = 'R$ 0,00';
+        
+        modalItemsTotalOldEl.innerHTML = '';
+        modalItemsTotalOldEl.classList.add('d-none');
     }
 
     function clearCompraModalFields() {
@@ -281,16 +285,41 @@ export function init() {
 
     function refreshItems() {
         modalItensEl.innerHTML = '';
-        total = 0;
+        let totalCents = 0;
+        let oldTotalCents = 0;
+        let hasDeletedProduto = false;
+    
         itens.forEach(item => {
             modalItensEl.appendChild(renderCompraItem(item));
-
-            // calculating total
-            const unitPriceCents = Math.round(item.valorUnitario * 100);
-            total += (unitPriceCents * item.quantidade);
+    
+            const unitPriceCents = Math.round(parseFloat(item.valorUnitario) * 100);
+            const quantity = parseInt(item.quantidade);
+            const itemTotalCents = unitPriceCents * quantity;
+    
+            if (item.produto) {
+                totalCents += itemTotalCents;
+            } else {
+                oldTotalCents += itemTotalCents + totalCents;
+                hasDeletedProduto = true;
+            }
         });
-        total = total / 100;
-        modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    
+        total = totalCents / 100;
+        modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        });
+    
+        if (hasDeletedProduto) {
+            const oldTotal = oldTotalCents / 100;
+            modalItemsTotalOldEl.innerText = oldTotal.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+            modalItemsTotalOldEl.classList.remove('d-none');
+        } else {
+            modalItemsTotalOldEl.classList.add('d-none');
+        }
     }
 
     let tempId = 0;
@@ -308,11 +337,19 @@ export function init() {
 
         const nomeEl = document.createElement('div');
         nomeEl.classList.add('fw-semibold');
-        nomeEl.textContent = item.produto.nome;
 
         const qtdPrecoEl = document.createElement('small');
         qtdPrecoEl.classList.add('text-muted', 'd-block');
-        qtdPrecoEl.textContent = `Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+
+        if (item.produto == null) {
+            nomeEl.textContent = '[Produto removido]';
+            nomeEl.classList.add('text-muted');
+            qtdPrecoEl.innerHTML = `<del>Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</del>`;
+        } else {
+            nomeEl.textContent = item.produto.nome;
+            qtdPrecoEl.textContent = `Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        }
+        
 
         mainContainer.appendChild(nomeEl);
         mainContainer.appendChild(qtdPrecoEl);
@@ -327,33 +364,42 @@ export function init() {
         totalEl.classList.add('fw-bold', 'text-dark');
         totalEl.textContent = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 
-        // buttons
-        const editButton = document.createElement('button');
-        editButton.classList.add('btn', 'btn-sm', 'btn-outline-primary');
-        editButton.setAttribute('title', 'Editar');
-        editButton.innerHTML = '<i class="bi bi-pencil"></i>'; // Bootstrap Icons
-        editButton.dataset.idProduto = item.produto.idProduto;
+        if (item.produto != null) {
+            const ID = parseInt(item.produto.idProduto);
 
-        const deleteButton = document.createElement('button');
-        deleteButton.classList.add('btn', 'btn-sm', 'btn-outline-danger');
-        deleteButton.setAttribute('title', 'Excluir');
-        deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
-        deleteButton.dataset.idProduto = item.produto.idProduto;
+            const editButton = document.createElement('button');
+            editButton.classList.add('btn', 'btn-sm', 'btn-outline-primary');
+            editButton.setAttribute('title', 'Editar');
+            editButton.innerHTML = '<i class="bi bi-pencil"></i>';
 
-        // edit/delete listeners
-        editButton.addEventListener('click', () => {
-            const itemIndex = itens.findIndex(item => item.produto.idProduto === parseInt(editButton.dataset.idProduto));
-            currentItemIndex = itemIndex;
-            populateItemFields(itens[itemIndex]);
-        });
-        deleteButton.addEventListener('click', () => {
-            itens.splice(itens.findIndex(item => item.produto.idProduto === parseInt(deleteButton.dataset.idProduto)), 1);
-            refreshItems();
-        });
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('btn', 'btn-sm', 'btn-outline-danger');
+            deleteButton.setAttribute('title', 'Excluir');
+            deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+                        
+            editButton.dataset.idProduto = ID;
+            deleteButton.dataset.idProduto = ID;
 
+            editButton.addEventListener('click', () => {
+                const itemIndex = itens.findIndex(it => it.produto && it.produto.idProduto === ID);
+                currentItemIndex = itemIndex;
+                populateItemFields(itens[itemIndex]);
+            });
 
-        buttonsContainer.appendChild(editButton);
-        buttonsContainer.appendChild(deleteButton);
+            deleteButton.addEventListener('click', () => {
+                const index = itens.findIndex(it => it.produto && it.produto.idProduto === ID);
+                if (index !== -1) {
+                    itens.splice(index, 1);
+                    refreshItems();
+                }
+            });
+
+            buttonsContainer.appendChild(editButton);
+            buttonsContainer.appendChild(deleteButton);
+        } else {
+            totalEl.classList.add('text-decoration-line-through')
+        }
+
         rightContainer.appendChild(buttonsContainer);
         rightContainer.appendChild(totalEl);
 
@@ -460,7 +506,7 @@ export function init() {
 
         } else if (dropdownId === dropdowns.produto.id) {
             const idProduto = parseInt(dataset.idProduto);
-            const itemIndex = itens.findIndex(item => item.produto.idProduto === idProduto);
+            const itemIndex = itens.findIndex(item => item.produto != null && item.produto.idProduto === idProduto);
 
             itemSearchProduct.value = dataset.nomeProduto;
 
@@ -602,11 +648,12 @@ export function init() {
         const data = modalDataEl.value;
         const observacao = modalObservacaoEl.value;
         const idFornecedor = parseInt(modalFornecedorIdEl.value);
+        const theItems = itens.filter(item => item.produto != null);
 
         return {
             idCompra: idCompra,
             data: data,
-            itens: itens,
+            itens: theItems,
             observacao: observacao,
             fornecedor: { idFornecedor: idFornecedor }
         }

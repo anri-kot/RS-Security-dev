@@ -321,33 +321,32 @@ export function init() {
         clearItemsFormFields();
     }
 
-    let oldTotal = null;
     function refreshItems() {
         modalItensEl.innerHTML = '';
-        total = 0;
-
+        let oldTotalCents = 0;
+        let totalCents = 0;
         let hasDeletedProduto = false;
+
         itens.forEach(item => {
             modalItensEl.appendChild(renderVendaItem(item));
 
             // calculating total
+            const unitPriceCents = Math.round(parseFloat(item.valorUnitario) * 100);
+            const discount = parseFloat(item.desconto || 0) / 100;
+            const discountMultiplier = 1 - (discount / 100);
+            const quantity = parseInt(item.quantidade);
+            const itemTotalCents = unitPriceCents * discountMultiplier * quantity;
+
             if (item.produto) {
-                const discount = parseFloat(item.desconto || 0) / 100;
-                const unitPriceCents = Math.round(item.valorUnitario * 100);
-                const price = unitPriceCents - (unitPriceCents * discount);
-                total += price * item.quantidade;
-            } else if (!oldTotal) {
-                const discount = parseFloat(item.desconto || 0)  / 100;
-                const unitPriceCents = Math.round(item.valorUnitario * 100);
-                const price = unitPriceCents - (unitPriceCents * discount);
-                oldTotal += (price * item.quantidade) + total;
+                totalCents += itemTotalCents;
+            } else {
+                oldTotalCents += itemTotalCents + totalCents;
                 hasDeletedProduto = true;
             }
         });
 
         // cents to real
-        total = total / 100;
-        oldTotal = oldTotal / 100;
+        total = totalCents / 100;
 
         const currentValue = parseFloat(modalValorRecebidoEl.value);
 
@@ -362,6 +361,7 @@ export function init() {
         modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
         if (hasDeletedProduto) {
+            const oldTotal = oldTotalCents / 100;
             modalItemsTotalOldEl.innerText = oldTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
             modalItemsTotalOldEl.classList.remove('d-none');
         }
@@ -389,8 +389,9 @@ export function init() {
 
         if (item.produto == null) {
             nomeEl.textContent = '[Produto removido]';
-            nomeEl.classList.add('text-muted')
+            nomeEl.classList.add('text-muted');
             qtdPrecoEl.innerHTML = `<del>Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</del>`;
+            descontoEl.classList.add('text-muted', 'text-decoration-line-through');
         } else {
             nomeEl.textContent = item.produto.nome;
             qtdPrecoEl.textContent = `Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
@@ -718,14 +719,15 @@ export function init() {
         const observacao = modalObservacaoEl.value;
         const metodoPagamento = modalMetodoPagamentoEl.value;
         const valorRecebido = parseFloat(modalValorRecebidoEl.value);
-        const troco = parseFloat(modalTrocoEl.value) || null;
+        const troco = parseFloat(modalTrocoEl.value) || 0;
         const idFuncionario = parseInt(modalFuncionarioIdEl.value);
         const username = modalFuncionarioUsernameEl.value;
+        const theItems = itens.filter(item => item.produto != null);
 
         return {
             idVenda: idVenda,
             data: data,
-            itens: itens,
+            itens: theItems,
             observacao: observacao,
             metodoPagamento: metodoPagamento,
             valorRecebido: valorRecebido,
