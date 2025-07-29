@@ -47,9 +47,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/fornecedor/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/fornecedor/**").hasRole("ADMIN")
 
+                .requestMatchers("/relatorios/**", "/api/relatorio/**").hasRole("ADMIN")
+
                 .requestMatchers("/usuarios/**", "/api/usuario/**").hasRole("ADMIN")
 
-                .requestMatchers("/vendas/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

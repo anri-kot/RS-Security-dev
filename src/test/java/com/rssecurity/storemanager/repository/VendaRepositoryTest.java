@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,21 +36,26 @@ public class VendaRepositoryTest {
         v1.setData(LocalDateTime.of(today, LocalTime.of(10, 0)));
         v1.setObservacao("v1");
         v1.setValorRecebido(new BigDecimal("100"));
+        v1.setTroco(new BigDecimal("0"));
         em.persist(v1);
 
         Venda v2 = new Venda();
         v2.setData(LocalDateTime.of(today, LocalTime.of(14, 30)));
         v2.setObservacao("v2");
         v2.setValorRecebido(new BigDecimal("250"));
+        v2.setTroco(new BigDecimal("0"));
         em.persist(v2);
 
         Venda outroDia = new Venda();
         outroDia.setData(LocalDateTime.of(today.minusDays(1), LocalTime.of(15, 0)));
         outroDia.setObservacao("outro");
         outroDia.setValorRecebido(new BigDecimal("999"));
+        outroDia.setTroco(new BigDecimal("0"));
         em.persist(outroDia);
 
         em.flush();
+
+        List<Venda> vendas = repository.findAll();
 
         BigDecimal total = repository.calculateTotalVendaValueBetween(start, end);
         assertEquals(0, total.compareTo(new BigDecimal("350")));

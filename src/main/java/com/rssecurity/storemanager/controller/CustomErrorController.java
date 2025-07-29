@@ -19,6 +19,7 @@ public class CustomErrorController implements ErrorController {
 
             return switch (code) {
                 case 400 -> "error/400";
+                case 403 -> "error/403";
                 case 404 -> "error/404";
                 case 500 -> "error/500";
                 default -> "error/error";
