@@ -5,15 +5,21 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record VendaDTO(
         Long idVenda,
+        @NotNull(message = "data deve ser definida")
         LocalDateTime data,
         String observacao,
+        @NotNull(message = "usuario deve ser definido")
         UsuarioResumoDTO usuario,
-        @NotNull List<ItemVendaDTO> itens,
+        @NotNull(message = "itens devem ser definidos")
+        List<ItemVendaDTO> itens,
+        @NotBlank(message = "metodo não pode estar em branco")
         String metodoPagamento,
+        @NotNull(message = "valor deve ser definido")
         BigDecimal valorRecebido,
         BigDecimal troco) {
 

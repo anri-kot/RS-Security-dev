@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -41,7 +42,7 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<?> handleError(HttpServletRequest request, String message, HttpStatus status) {
         if (isHtmx(request)) {
-            String html = "<div class='alert alert-danger'>" + message + "</div>";
+            String html = "<div class='alert alert-danger alert-dismissible'>" + message + "</div>";
             return ResponseEntity.status(status).body(html);
         }
 
@@ -56,5 +57,19 @@ public class GlobalExceptionHandler {
 
     private boolean isHtmx(HttpServletRequest request) {
         return "true".equalsIgnoreCase(request.getHeader("HX-Request"));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        Map<String, String> errors = new HashMap<>();
+        StringBuilder message = new StringBuilder();
+
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            if (!message.isEmpty()) message.append(", ");
+            errors.put(error.getField(), error.getDefaultMessage());
+            message.append(error.getField() + ": " + error.getDefaultMessage());
+        });
+
+        return handleError(request, message.toString(), HttpStatus.BAD_REQUEST);
     }
 }

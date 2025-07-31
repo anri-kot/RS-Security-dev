@@ -9,7 +9,8 @@ import java.util.List;
 
 public record CompraDTO(
         Long idCompra,
-        @NotNull LocalDateTime data,
+        @NotNull(message = "data não pode ser nula")
+        LocalDateTime data,
         String observacao,
         FornecedorDTO fornecedor,
         List<ItemCompraDTO> itens) {
