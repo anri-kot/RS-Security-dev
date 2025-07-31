@@ -53,10 +53,11 @@
 
             <section class="mt-4">
                 <h5 class="mb-3">Baixar modelo de dados</h5>
-                <form class="row g-3 align-items-end">
+                <form class="row g-3 align-items-end" action="/download/modelo" method="GET">
                     <div class="col-md-6">
-                        <label for="modeloSelect" class="form-label">Selecionar tipo de dado</label>
-                        <select id="modeloSelect" class="form-select">
+                        <label for="tipo" class="form-label">Selecionar tipo de dado</label>
+                        <select id="tipo" name="tipo" class="form-select">
+                            <option value="geral">Geral</option>
                             <option value="produtos">Produtos</option>
                             <option value="compras">Compras</option>
                             <option value="fornecedores">Fornecedores</option>
@@ -65,7 +66,7 @@
                         </select>
                     </div>
                     <div class="col-md-auto">
-                        <button type="button" class="btn btn-outline-secondary" id="downloadModeloBtn">
+                        <button type="submit" class="btn btn-outline-secondary" id="downloadModeloBtn">
                             <i class="bi bi-download me-1"></i> Baixar modelo
                         </button>
                     </div>
