@@ -42,7 +42,7 @@ public class CategoriaController {
     @PutMapping("/{idCategoria}")
     public ResponseEntity<Void> update(@PathVariable Long idCategoria, @RequestBody CategoriaDTO categoria) {
         if (!idCategoria.equals(categoria.idCategoria())) {
-            throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
+            throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL. IDs: " + idCategoria + " " + categoria.idCategoria());
         }
         service.update(idCategoria, categoria);
         return ResponseEntity.noContent().build();

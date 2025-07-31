@@ -61,6 +61,8 @@ public class ProdutoController {
 
     @PostMapping
     public ResponseEntity<ProdutoDTO> create(@RequestBody @Valid ProdutoDTO produto) {
+        System.out.println("=============================");
+        System.out.println(produto);
         ProdutoDTO created = service.create(produto);
         URI location = URI.create("/api/produto/" + created.idProduto());
         return ResponseEntity.created(location).body(created);

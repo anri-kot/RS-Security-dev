@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout.html}">
+
+<head>
+    <title>Categorias</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container py-4" th:fragment="content" data-page-id="categorias">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Categorias</h1>
+                <button sec:authorize="hasRole('ROLE_ADMIN')" id="new-categoria" class="btn btn-success">
+                    + Nova Categoria
+                </button>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form id="search-form" class="d-flex flex-wrap align-items-center" hx-get="/categorias"
+                        hx-target="#tabela-categorias" hx-push-url="true" hx-select="#tabela-categorias">
+                        <label for="tipo">Buscar por:</label>
+                        <select id="search-type" name="tipo" class="form-select me-2 w-auto">
+                            <option value="nome">Nome</option>
+                            <option value="id">ID</option>
+                        </select>
+
+                        <div class="position-relative me-2" style="flex: 1; min-width: 250px;">
+                            <input type="text" id="search-categoria" name="termo" class="form-control"
+                                placeholder="Buscar categoria..." autocomplete="off">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="search-btn">Buscar</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="error-container"></div>
+
+            <div id="tabela-categorias" th:fragment="categorias">
+                <div class="card shadow-sm rounded">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Categorias</h5>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Nome</th>
+                                    <th sec:authorize="hasRole('ROLE_ADMIN')" scope="col">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="cat : ${categorias}">
+                                    <td th:text="${cat.idCategoria}"></td>
+                                    <td th:text="${cat.nome}"></td>
+                                    <td sec:authorize="hasRole('ROLE_ADMIN')">
+                                        <button class="btn btn-sm btn-outline-primary me-2"
+                                            th:attr="data-id=${cat.idCategoria}" data-action="edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                            th:attr="data-id=${cat.idCategoria}" data-action="delete">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div th:replace="~{fragments/page-nav :: page-nav}"></div>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="categoriaModal" tabindex="-1" aria-labelledby="categoriaModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Categoria</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <form id="modal-categoria-form">
+                                <div class="mb-3">
+                                    <label class="form-label">ID</label>
+                                    <input type="text" id="modal-categoria-id" class="form-control" disabled>
+                                    <input type="hidden" name="is-new" id="is-new">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Nome</label>
+                                    <input type="text" id="modal-categoria-nome" minlength="2" class="form-control" required>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                            <button class="btn btn-success" id="confirm-register"
+                                data-action="confirm-modal">Confirmar</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="confirma-modal" tabindex="-1" aria-labelledby="confirmarLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirmar ação</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p id="modal-mensagem">Tem certeza disso?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="confirmar-acao">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

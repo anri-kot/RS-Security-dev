@@ -57,6 +57,12 @@
                     </a>
                 </li>
                 <li>
+                    <a sec:authorize="hasRole('ROLE_ADMIN')" href="/categorias" data-page="categorias" class="nav-link link-dark" id="nav-categorias">
+                        <i class="bi bi-bookmark"></i>
+                        <span class="ms-2">Categorias</span>
+                    </a>
+                </li>
+                <li>
                     <a href="/fornecedores" data-page="fornecedores" class="nav-link link-dark" id="nav-fornecedores">
                         <i class="bi bi-truck"></i>
                         <span class="ms-2">Fornecedores</span>

@@ -10,6 +10,9 @@ import com.rssecurity.storemanager.repository.CategoriaRepository;
 import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,16 +37,27 @@ public class CategoriaService {
                 .toList();
     }
 
+    public Page<CategoriaDTO> findAll(int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findAll(p).map(mapper::toDTO);
+    }
+
     public CategoriaDTO findById(Long idCategoria) {
         Categoria categoria = repository.findById(idCategoria)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada. ID: " + idCategoria));
         return mapper.toDTO(categoria);
     }
-     public List<CategoriaDTO> findByNomeContains(String nome) {
-         return repository.findByNomeContains(nome).stream()
-                 .map(mapper::toDTO)
-                 .toList();
-     }
+
+    public List<CategoriaDTO> findByNomeContains(String nome) {
+        return repository.findByNomeContains(nome).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
+    public Page<CategoriaDTO> findByNomeContains(String nome, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByNomeContains(nome, p).map(mapper::toDTO);
+    }
 
     public CategoriaDTO create(CategoriaDTO categoria) {
         if (categoria.idCategoria() != null) {
@@ -59,7 +73,7 @@ public class CategoriaService {
                 .filter(c -> c.idCategoria() != null && c.idCategoria() != 0)
                 .map(c -> c.idCategoria())
                 .toList();
-        
+
         if (!categoriasWithId.isEmpty()) {
         }
 
@@ -72,7 +86,7 @@ public class CategoriaService {
     }
 
     public void update(Long idCategoria, CategoriaDTO categoria) {
-        if (repository.findById(idCategoria).isEmpty()) {
+        if (!repository.existsById(idCategoria)) {
             throw new ResourceNotFoundException("Categoria não encontrada. ID: " + idCategoria);
         }
         repository.save(mapper.toEntity(categoria));
