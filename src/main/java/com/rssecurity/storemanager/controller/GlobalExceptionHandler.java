@@ -9,12 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -40,10 +44,33 @@ public class GlobalExceptionHandler {
         return handleError(request, "Ocorreu um erro inesperado.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public String handleNoResourceFound(HttpServletRequest request, HttpServletResponse response) {
+        response.setStatus(HttpStatus.NOT_FOUND.value());
+        request.setAttribute(RequestDispatcher.ERROR_STATUS_CODE, HttpStatus.NOT_FOUND.value());
+        request.setAttribute(RequestDispatcher.ERROR_MESSAGE, "Página não encontrada");
+        return "forward:/error";
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+        StringBuilder message = new StringBuilder();
+
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            if (!message.isEmpty()) message.append(", ");
+            message.append(error.getField() + ": " + error.getDefaultMessage());
+        });
+
+        return handleError(request, message.toString(), HttpStatus.BAD_REQUEST);
+    }
+
     private ResponseEntity<?> handleError(HttpServletRequest request, String message, HttpStatus status) {
-        if (isHtmx(request)) {
+        String url = request.getRequestURL().toString();
+        if (isHtmx(request) && !url.contains("/api/")) {
             String html = "<div class='alert alert-danger alert-dismissible'>" + message + "</div>";
             return ResponseEntity.status(status).body(html);
+        } else if (!url.contains(("/api/"))) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro 404 - Página não encontrada");
         }
 
         Map<String, Object> errorDetails = new HashMap<>();
@@ -57,19 +84,5 @@ public class GlobalExceptionHandler {
 
     private boolean isHtmx(HttpServletRequest request) {
         return "true".equalsIgnoreCase(request.getHeader("HX-Request"));
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        Map<String, String> errors = new HashMap<>();
-        StringBuilder message = new StringBuilder();
-
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            if (!message.isEmpty()) message.append(", ");
-            errors.put(error.getField(), error.getDefaultMessage());
-            message.append(error.getField() + ": " + error.getDefaultMessage());
-        });
-
-        return handleError(request, message.toString(), HttpStatus.BAD_REQUEST);
     }
 }
