@@ -15,7 +15,6 @@ import com.rssecurity.storemanager.model.Produto;
 import com.rssecurity.storemanager.repository.ProdutoRepository;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 
 @Service
 public class ProdutoService {
@@ -53,6 +52,12 @@ public class ProdutoService {
         return mapper.toDTO(produto);
     }
 
+    public List<ProdutoDTO> findByCodigoBarrasContains(String codigoBarras) {
+        return repository.findByCodigoBarrasContains(codigoBarras).stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
+
     public List<ProdutoDTO> findByDescricaoContains(String descricao) {
         return repository.findByDescricaoContains(descricao).stream()
                 .map(mapper::toDTO)
@@ -81,6 +86,11 @@ public class ProdutoService {
     public Page<ProdutoDTO> findByNomeContains(String nome, int page, int size) {
         Pageable p = PageRequest.of(page, size);
         return repository.findByNomeContains(nome, p).map(mapper::toDTO);
+    }
+
+    public Page<ProdutoDTO> findByCodigoBarrasContains(String codigo, int page, int size) {
+        Pageable p = PageRequest.of(page, size);
+        return repository.findByCodigoBarrasContains(codigo, p).map(mapper::toDTO);
     }
 
     public Page<ProdutoDTO> findByDescricaoContains(String descricao, int page, int size) {

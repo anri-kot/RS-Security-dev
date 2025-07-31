@@ -64,7 +64,7 @@ public class AutocompleteController {
                 results = new ArrayList<>();
                 try {
                     String codigo = termo.trim();
-                    results.add(produtoService.findByCodigoBarras(codigo));
+                    results.addAll(produtoService.findByCodigoBarrasContains(codigo));
                 } catch (Exception e) {}
             }
             default -> {
