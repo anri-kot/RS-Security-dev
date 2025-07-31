@@ -94,7 +94,7 @@ export function init() {
     // DESCONTO TO TOTAL
     descontoToTotalButtonEl.addEventListener('click', () => {
         const desconto = parseFloat(descontoToTotalEl.value);
-        if (total > 0 && desconto > 0 && cart.length > 0) {
+        if (total > 0 && desconto >= 0 && cart.length > 0) {
             cart.forEach(item => {
                 item.desconto = desconto.toFixed(2);
             });
@@ -136,7 +136,7 @@ export function init() {
     }
 
     function addProductToCart(produto, quantidade, preco, desconto) {
-        let exists = false;
+        let isAlreadyPresent = false;
 
         // If add item already exists in the cart
         cart.forEach(item => {
@@ -145,12 +145,12 @@ export function init() {
                 item.quantidade = parseInt(quantidade);
                 item.desconto = parseFloat(desconto);
                 item.preco = parseInt(preco);
-                exists = true;
+                isAlreadyPresent = true;
                 return;
             }
         });
 
-        if (!exists) {
+        if (!isAlreadyPresent) {
             cart.push({
                 "produto": produto,
                 "quantidade": parseInt(quantidade),
@@ -175,8 +175,9 @@ export function init() {
             const discount = item.desconto / 100 ?? 0;
             const priceCents = Math.round(item.valorUnitario * 100);
             const fullPriceCents = item.quantidade * priceCents;
-            const discountCents = Math.round(fullPriceCents * discount);
+            const discountCents = fullPriceCents * discount;
             const finalPrice = (fullPriceCents - discountCents) / 100;
+            console.log(finalPrice)
             total += finalPrice;
 
             const tr = document.createElement('tr');
@@ -272,7 +273,7 @@ export function init() {
         document.getElementById("modal-produto-nome").value = produto.nome;
         document.getElementById("modal-produto-categoria").value = produto.categoria.nome;
         document.getElementById("modal-produto-preco").value = parseFloat(valorUnitario).toFixed(2);
-        document.getElementById("modal-produto-desconto").value = parseFloat(desconto).toFixed(2) || '0.00';
+        document.getElementById("modal-produto-desconto").value = parseFloat(desconto) || '0';
         document.getElementById("modal-produto-quantidade").value = quantidade;
     }
 
