@@ -29,6 +29,7 @@ document.addEventListener("htmx:afterSwap", e => {
 // Click on sidebar
 navOptions.forEach(node => {
 	const option = node.querySelector('a');
+	if (option === null) return;
 	option.addEventListener('click', e => {
 		e.preventDefault();
 		const page = option.dataset.page;
@@ -59,6 +60,7 @@ function updateSidebar() {
 
 	navOptions.forEach(node => {
 		const option = node.querySelector('a');
+		if (option === null) return;
 		if (option.dataset.page === currentPage) {
 			option.classList.add('active');
 			option.classList.remove('link-dark');

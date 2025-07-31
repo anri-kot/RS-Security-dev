@@ -245,6 +245,18 @@ export function init() {
         modalTrocoEl.setAttribute('disabled', true);
         vendaForm.querySelectorAll('input').forEach(el => {
             el.value = '';
+
+            if (el.type.includes('date')) {
+                const today = new Date();
+
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const hours = String(today.getHours()).padStart(2, '0');
+                const minutes = String(today.getMinutes()).padStart(2, '0');
+
+                el.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
         });
         modalItensEl.innerHTML = '';
         modalValorRecebidoEl.setAttribute('min', '0.05');
@@ -668,10 +680,8 @@ export function init() {
             const vendaModal = bootstrap.Modal.getInstance(vendaModalEl);
 
             if (!response.ok) {
-                const errorData = await response.json();
-                const errorMsg = errorData.message;
-                console.error(`Erro ${errorData.status}: ${errorData.message}`);
-                document.getElementById('error-container').innerHTML = `Erro ao salvar produto: ${errorMsg}`;
+                const errorData = await response.text();
+                document.getElementById('error-container').innerHTML = errorData;
                 vendaModal.hide();
                 return;
             } else {

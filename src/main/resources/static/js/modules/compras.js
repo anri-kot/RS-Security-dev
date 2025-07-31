@@ -199,6 +199,18 @@ export function init() {
         const compraForm = document.getElementById('compra-form');
         compraForm.querySelectorAll('input').forEach(el => {
             el.value = '';
+            if (el.type.includes('date')) {
+                const today = new Date();
+                today.setHours(12, 0, 0, 0);
+
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const hours = String(today.getHours()).padStart(2, '0');
+                const minutes = String(today.getMinutes()).padStart(2, '0');
+
+                el.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
         });
         modalItensEl.innerHTML = '';
         modalItemsTotalEl.innerText = 'R$ 0,00';

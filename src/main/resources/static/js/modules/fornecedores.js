@@ -101,10 +101,8 @@ export function init() {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                const errorMsg = errorData.message;
-                console.error(`Erro ${errorData.status}: ${errorMsg}`);
-                document.getElementById('error-container').innerHTML = `Erro ao salvar fornecedor: ${errorMsg}`;
+                const errorData = await response.text();
+                document.getElementById('error-container').innerHTML = errorData;
                 fornecedorModal.hide();
                 return;
             } else {
