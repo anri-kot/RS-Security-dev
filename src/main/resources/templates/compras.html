@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-    layout:decorate="~{layout}">
+    layout:decorate="~{layout.html}">
 
 <head>
     <title>Compras</title>
@@ -139,7 +139,8 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
 
                                     <div>
-                                        <div class="fw-semibold" th:text="${item.produto.nome}"></div>
+                                        <div class="fw-semibold" th:if="${item.produto}" th:text="${item.produto.nome}"></div>
+                                        <div class="fw-semibold" th:unless="${item.produto}">[REMOVIDO]</div>
                                         <small class="text-muted d-block">
                                             <span
                                                 th:text="'Qtd: ' + ${item.quantidade} + ' × R$ ' + ${#numbers.formatDecimal(item.valorUnitario, 1, 'POINT', 2, 'COMMA')}"></span>
@@ -327,7 +328,10 @@
                                         <!-- items edit/remove tab -->
                                         <div class="d-flex justify-content-between align-items-center">
                                             <h4 class="mb-0">Itens Adicionados</h4>
-                                            <span class="fw-bold text-success" id="modal-items-total"></span>
+                                            <div class="d-flex flex-column align-items-end">
+                                                <span class="fw-bold text-success m-0" id="modal-items-total"></span>
+                                                <small class="fw-bold text-muted text-decoration-line-through d-none m-0" id="modal-items-total-old"></small>
+                                            </div>
                                         </div>
     
                                         <hr>

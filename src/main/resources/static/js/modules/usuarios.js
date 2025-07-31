@@ -280,19 +280,10 @@ export function init() {
 
             if (!response.ok) {
                 let errorMsg = 'Erro desconhecido';
-                try {
-                    const errorData = await response.json();
-                    console.error('Erro da API:', errorData);
+                const errorData = await response.text();
+                errorMsg = errorData || 'Erro ao processar requisição.';
 
-                    errorMsg = errorData.message || 'Erro ao processar requisição.';
-                    if (errorData.details) {
-                        console.warn('Detalhes técnicos:', errorData.details);
-                    }
-                } catch (e) {
-                    console.warn('Resposta não era JSON.');
-                }
-
-                document.getElementById('error-container').innerHTML = `Erro ao salvar usuário: ${errorMsg}`;
+                document.getElementById('error-container').innerHTML = errorMsg;
             } else {
                 refreshUsuarios();
                 bootstrap.Modal.getOrCreateInstance(usuarioModalEl).hide();

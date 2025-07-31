@@ -56,7 +56,7 @@ public class VendaViewController {
             // Search by ID
             List<VendaDTO> vendas = new ArrayList<>();
             try {
-                vendas.add(service.findById(Long.parseLong(params.get("idVenda"))));
+                vendas.add(service.findById(Long.parseLong(params.get("termo"))));
             } catch (Exception ignored) {}
 
             model.addAttribute("vendas", vendas);

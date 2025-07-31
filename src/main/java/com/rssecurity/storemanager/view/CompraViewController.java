@@ -52,11 +52,11 @@ public class CompraViewController {
 
         if (params.isEmpty()) {
             comprasPage = service.findAll(page, size);
-        } else if (params.containsKey("idCompra") && "idCompra".equals(params.get("tipo"))) {
+        } else if ("idCompra".equals(params.get("tipo"))) {
             // Search by ID
             List<CompraDTO> compras = new ArrayList<>();
             try {
-                compras.add(service.findById(Long.parseLong(params.get("idCompra"))));
+                compras.add(service.findById(Long.parseLong(params.get("termo"))));
             } catch (Exception ignore) {}
 
             model.addAttribute("compras", compras);

@@ -5,6 +5,8 @@ export function init() {
     const produtoModalEl = document.getElementById('produtoModal');
     const confirmModalEl = document.getElementById('confirma-modal');
 
+    const newProdutoEl = document.getElementById('new-produto');
+
     let lastSearch = '';
 
     searchForm.addEventListener('submit', (event) => {
@@ -25,9 +27,11 @@ export function init() {
     let isNewField = document.getElementById('is-new');
     const modal = new bootstrap.Modal(produtoModalEl);
 
-    document.getElementById('new-produto').addEventListener('click', () => {
-        showProdutoModal(-1);
-    });
+    if (newProdutoEl !== null) {
+        document.getElementById('new-produto').addEventListener('click', () => {
+            showProdutoModal(-1);
+        });
+    }
     
     // Listens to edit/delete buttons
     document.getElementById('tabela-produtos').addEventListener('click', (e) => {
@@ -46,8 +50,23 @@ export function init() {
     });
 
     document.getElementById('confirm-register').addEventListener('click', () => {
+        if (!validateProdutoForm()) return;
         sendProduto();
     });
+
+    function validateProdutoForm() {
+        const form = document.getElementById('modal-produto-form');
+        const idCategoriaEl = document.getElementById('modal-produto-categoria-id');
+        const idCategoria = parseInt(idCategoriaEl.value) || null;
+
+        if (idCategoria === null) {
+            idCategoriaEl.classList.add('is-invalid')
+        }
+
+        const isValid = form.checkValidity();
+        if (!isValid) form.reportValidity();
+        return isValid;
+    }
 
     async function showProdutoModal(id) {
 
@@ -111,10 +130,8 @@ export function init() {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                const errorMsg = errorData.message;
-                console.error(`Erro ${errorData.status}: ${errorMsg}`);
-                document.getElementById('error-container').innerHTML = `Erro ao salvar produto: ${errorMsg}`;
+                const errorData = await response.text();
+                document.getElementById('error-container').innerHTML = errorData;
                 modal.hide();
                 return;
             } else {
@@ -189,14 +206,19 @@ export function init() {
     }
 
     function clearProdutoModal() {
-        document.getElementById('modal-produto-idProduto').value = '';
-        document.getElementById('is-new').value = 'true';
-        document.getElementById('modal-produto-nome').value = '';
-        document.getElementById('modal-produto-nome').value = '';
-        document.getElementById('modal-produto-categoria-id').value = '';
-        document.getElementById('modal-produto-preco').value = '00.00';
-        document.getElementById('modal-produto-descricao').value = '';
-        document.getElementById('modal-produto-estoque').value = '0';
+        const formEl = document.getElementById('modal-produto-form');
+        formEl.querySelectorAll("input").forEach(el => {
+            el.value = '';
+            if (el.id.includes('preco')) {
+                el.value = '00.00';
+            }
+            if (el.id.includes('estoque')) {
+                el.value = '0';
+            }
+            if (el.id.includes('is-new')) {
+                el.value = 'true';
+            }
+        });
     }
 
     async function refresh() {

@@ -16,6 +16,7 @@
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>Data</th>
                         <th>Valor Liquido</th>
                         <th>Método</th>
@@ -24,10 +25,12 @@
                 </thead>
                 <tbody>
                     <tr th:each="v : ${vendas}">
+                        <td class="text-center">
+                            <a th:href="@{/vendas(tipo=idVenda,termo=${v.idVenda})}"><i class="bi bi-receipt"></i></a>
+                        </td>
                         <td th:text="${#temporals.format(v.data, 'dd/MM/yyyy HH:mm')}"></td>
                         <td>
-                            <span th:text="${#numbers.formatDecimal(v.valorRecebido, 1, 'POINT', 2, 'COMMA')}"></span>
-                            <small th:if="${v.troco > 0}" th:text="'-' + ${#numbers.formatDecimal(v.troco, 1, 'POINT', 2, 'COMMA')}" class="fw-bold text-danger" title="troco"></small>
+                            <span th:text="${#numbers.formatDecimal(v.liquido, 1, 'POINT', 2, 'COMMA')}"></span>
                         </td>
                         
                         <td th:text="${v.metodoPagamento}"></td>

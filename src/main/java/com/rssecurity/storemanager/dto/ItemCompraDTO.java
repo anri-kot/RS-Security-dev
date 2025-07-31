@@ -6,9 +6,9 @@ import java.math.BigDecimal;
 
 public record ItemCompraDTO(
         Long idItem,
-        @NotNull
+        @NotNull(message = "quantidade deve ser definida")
         Integer quantidade,
-        @NotNull
+        @NotNull(message = "valor deve ser definido")
         BigDecimal valorUnitario,
         ProdutoDTO produto
 ) {

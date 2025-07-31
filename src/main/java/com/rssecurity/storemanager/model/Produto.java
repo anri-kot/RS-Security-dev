@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
@@ -10,11 +11,12 @@ public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idProduto;
-    @NotNull
+    @NotBlank(message = "o nome não pode estar em branco")
     private String nome;
     @Column(name = "codigo_barras", unique = true)
     private String codigoBarras;
     private String descricao;
+    @NotNull(message = "estoque não pode ser nulo")
     private Integer estoque;
     private BigDecimal precoAtual;
     @ManyToOne

@@ -15,6 +15,7 @@ import com.rssecurity.storemanager.model.Produto;
 import com.rssecurity.storemanager.repository.ProdutoRepository;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 
 @Service
 public class ProdutoService {

@@ -312,8 +312,10 @@ export function init() {
 
     // Listens to valorRecebido and calculates troco
     valorRecebidoEl.addEventListener('keyup', (e) => {
-        const valorRecebido = valorRecebidoEl.value;
-        trocoEl.innerText = getChange(valorRecebido).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const valorRecebido = parseFloat(valorRecebidoEl.value);
+        if (valorRecebido >= total) {
+            trocoEl.innerText = getChange(valorRecebido).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
     });
 
     // Listens to valorRecebido on change

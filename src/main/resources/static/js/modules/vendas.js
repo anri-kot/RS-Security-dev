@@ -24,6 +24,7 @@ export function init() {
     const modalItensEl = document.getElementById('modal-venda-itens');
     // Venda Itens Modal fields
     const modalItemsTotalEl = document.getElementById('modal-items-total');
+    const modalItemsTotalOldEl = document.getElementById('modal-items-total-old');
     const modalQuantidadeEl = document.getElementById('modal-venda-quantidade');
     const modalValorUnitarioEl = document.getElementById('modal-venda-valorUnitario');
     const modalDescontoEl = document.getElementById('modal-venda-desconto');
@@ -165,6 +166,7 @@ export function init() {
             modalValorRecebidoEl.value = total.toFixed(2);
             modalTrocoEl.value = '';
         } else {
+            modalValorRecebidoEl.value = total.toFixed(2);
             updateTroco(parseFloat(modalValorRecebidoEl.value));
         }
     });
@@ -176,12 +178,18 @@ export function init() {
         }
         e.target.value = parseFloat(e.target.value).toFixed(2);
     });
+    modalValorRecebidoEl.addEventListener('keyup', (e) => {
+        const value = e.target.value;
+        if (modalMetodoPagamentoEl.value === 'DINHEIRO' && value > total) {
+            updateTroco(parseFloat(e.target.value));
+        }
+    });
 
     function updateTroco(receivedMoney) {
         const receivedMoneyCents = Math.round(receivedMoney * 100);
         const totalCents = Math.round(total * 100);
         const troco = (receivedMoneyCents - totalCents) / 100;
-        modalTrocoEl.value = troco;
+        modalTrocoEl.value = troco.toFixed(2);
     }
 
     async function showVendaModal(id) {
@@ -237,11 +245,25 @@ export function init() {
         modalTrocoEl.setAttribute('disabled', true);
         vendaForm.querySelectorAll('input').forEach(el => {
             el.value = '';
+
+            if (el.type.includes('date')) {
+                const today = new Date();
+
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const hours = String(today.getHours()).padStart(2, '0');
+                const minutes = String(today.getMinutes()).padStart(2, '0');
+
+                el.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            }
         });
         modalItensEl.innerHTML = '';
         modalValorRecebidoEl.setAttribute('min', '0.05');
         modalItemsTotalEl.innerText = 'R$ 0,00';
 
+        modalItemsTotalOldEl.innerHTML = '';
+        modalItemsTotalOldEl.classList.add('d-none');
     }
 
     // MODAL ITEMS
@@ -284,6 +306,7 @@ export function init() {
     }
 
     function addUpdateItem() {
+
         const idProduto = parseInt(selectedProdutoIdEl.value);
         const nome = selectedProdutoNameEl.value;
         const quantidade = parseInt(modalQuantidadeEl.value);
@@ -312,16 +335,30 @@ export function init() {
 
     function refreshItems() {
         modalItensEl.innerHTML = '';
-        total = 0;
+        let oldTotalCents = 0;
+        let totalCents = 0;
+        let hasDeletedProduto = false;
+
         itens.forEach(item => {
             modalItensEl.appendChild(renderVendaItem(item));
 
             // calculating total
-            const discount = parseFloat(item.desconto || 0)  / 100;
-            const unitPriceCents = Math.round(item.valorUnitario * 100);
-            const price = unitPriceCents - (unitPriceCents * discount);
-            total += (price * item.quantidade) / 100;
+            const unitPriceCents = Math.round(parseFloat(item.valorUnitario) * 100);
+            const discount = parseFloat(item.desconto || 0) / 100;
+            const discountMultiplier = 1 - (discount / 100);
+            const quantity = parseInt(item.quantidade);
+            const itemTotalCents = unitPriceCents * discountMultiplier * quantity;
+
+            if (item.produto) {
+                totalCents += itemTotalCents;
+            } else {
+                oldTotalCents += itemTotalCents + totalCents;
+                hasDeletedProduto = true;
+            }
         });
+
+        // cents to real
+        total = totalCents / 100;
 
         const currentValue = parseFloat(modalValorRecebidoEl.value);
 
@@ -330,45 +367,57 @@ export function init() {
                 modalValorRecebidoEl.value = total.toFixed(2);
             }
         }
+
         modalValorRecebidoEl.setAttribute('min', total);
+        modalValorRecebidoEl.value = total.toFixed(2);
         modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        if (hasDeletedProduto) {
+            const oldTotal = oldTotalCents / 100;
+            modalItemsTotalOldEl.innerText = oldTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            modalItemsTotalOldEl.classList.remove('d-none');
+        }
     }
 
-    let tempId = 0;
     function renderVendaItem(item) {
         const li = document.createElement('li');
         li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
 
-        // Calculate price with discount
         const desconto = item.desconto || 0;
         const precoComDesconto = item.valorUnitario * (1 - desconto / 100);
         const total = precoComDesconto * item.quantidade;
 
-        // Produto info container
         const mainContainer = document.createElement('div');
         mainContainer.classList.add('flex-grow-1');
 
         const nomeEl = document.createElement('div');
         nomeEl.classList.add('fw-semibold');
-        nomeEl.textContent = item.produto.nome;
 
         const qtdPrecoEl = document.createElement('small');
         qtdPrecoEl.classList.add('text-muted', 'd-block');
-        qtdPrecoEl.textContent = `Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 
         const descontoEl = document.createElement('small');
         descontoEl.classList.add('text-danger', 'd-block');
-        if (desconto > 0) {
-            descontoEl.textContent = `${desconto}%`;
+
+        if (item.produto == null) {
+            nomeEl.textContent = '[Produto removido]';
+            nomeEl.classList.add('text-muted');
+            qtdPrecoEl.innerHTML = `<del>Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</del>`;
+            descontoEl.classList.add('text-muted', 'text-decoration-line-through');
+        } else {
+            nomeEl.textContent = item.produto.nome;
+            qtdPrecoEl.textContent = `Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+            if (desconto > 0) {
+                descontoEl.textContent = `${desconto}%`;
+                mainContainer.appendChild(descontoEl);
+            }
         }
 
         mainContainer.appendChild(nomeEl);
         mainContainer.appendChild(qtdPrecoEl);
-        if (desconto > 0) mainContainer.appendChild(descontoEl);
 
-        // total and buttons container
         const rightContainer = document.createElement('div');
-        rightContainer.classList.add('d-flex', 'flex-column', 'justify-content-between')
+        rightContainer.classList.add('d-flex', 'flex-column', 'justify-content-between', 'align-items-end');
         const buttonsContainer = document.createElement('div');
         buttonsContainer.classList.add('text-end', 'd-flex', 'align-items-center', 'gap-2', 'mb-2');
 
@@ -376,37 +425,45 @@ export function init() {
         totalEl.classList.add('fw-bold', 'text-dark');
         totalEl.textContent = `R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
 
-        // buttons
-        const editButton = document.createElement('button');
-        editButton.classList.add('btn', 'btn-sm', 'btn-outline-primary');
-        editButton.setAttribute('title', 'Editar');
-        editButton.innerHTML = '<i class="bi bi-pencil"></i>'; // Bootstrap Icons
-        editButton.dataset.idProduto = item.produto.idProduto;
+        if (item.produto != null) {
+            const ID = parseInt(item.produto.idProduto);
 
-        const deleteButton = document.createElement('button');
-        deleteButton.classList.add('btn', 'btn-sm', 'btn-outline-danger');
-        deleteButton.setAttribute('title', 'Excluir');
-        deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
-        deleteButton.dataset.idProduto = item.produto.idProduto;
+            const editButton = document.createElement('button');
+            editButton.classList.add('btn', 'btn-sm', 'btn-outline-primary');
+            editButton.setAttribute('title', 'Editar');
+            editButton.innerHTML = '<i class="bi bi-pencil"></i>';
 
-        // edit/delete listeners
-        editButton.addEventListener('click', () => {
-            const itemIndex = itens.findIndex(item => item.produto.idProduto === parseInt(editButton.dataset.idProduto));
-            currentItemIndex = itemIndex;
-            populateItemFields(itens[itemIndex]);
-        });
-        deleteButton.addEventListener('click', () => {
-            itens.splice(itens.findIndex(item => item.produto.idProduto === parseInt(deleteButton.dataset.idProduto)), 1);
-            refreshItems();
-        });
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('btn', 'btn-sm', 'btn-outline-danger');
+            deleteButton.setAttribute('title', 'Excluir');
+            deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+                        
+            editButton.dataset.idProduto = ID;
+            deleteButton.dataset.idProduto = ID;
 
+            editButton.addEventListener('click', () => {
+                const itemIndex = itens.findIndex(it => it.produto && it.produto.idProduto === ID);
+                currentItemIndex = itemIndex;
+                populateItemFields(itens[itemIndex]);
+            });
 
-        buttonsContainer.appendChild(editButton);
-        buttonsContainer.appendChild(deleteButton);
+            deleteButton.addEventListener('click', () => {
+                const index = itens.findIndex(it => it.produto && it.produto.idProduto === ID);
+                if (index !== -1) {
+                    itens.splice(index, 1);
+                    refreshItems();
+                }
+            });
+
+            buttonsContainer.appendChild(editButton);
+            buttonsContainer.appendChild(deleteButton);
+        } else {
+            totalEl.classList.add('text-decoration-line-through')
+        }
+
         rightContainer.appendChild(buttonsContainer);
         rightContainer.appendChild(totalEl);
 
-        // Mount item
         li.appendChild(mainContainer);
         li.appendChild(rightContainer);
 
@@ -520,7 +577,7 @@ export function init() {
                 break;
             case autocompleteProdutoOptions.id:
                 const idProduto = parseInt(itemEl.dataset.idProduto);
-                const itemIndex = itens.findIndex(item => item.produto.idProduto === idProduto);
+                const itemIndex = itens.findIndex(item => item.produto != null && item.produto.idProduto === idProduto);
 
                 searchProduct.value = itemEl.dataset.nomeProduto;
 
@@ -623,10 +680,8 @@ export function init() {
             const vendaModal = bootstrap.Modal.getInstance(vendaModalEl);
 
             if (!response.ok) {
-                const errorData = await response.json();
-                const errorMsg = errorData.message;
-                console.error(`Erro ${errorData.status}: ${errorData.message}`);
-                document.getElementById('error-container').innerHTML = `Erro ao salvar produto: ${errorMsg}`;
+                const errorData = await response.text();
+                document.getElementById('error-container').innerHTML = errorData;
                 vendaModal.hide();
                 return;
             } else {
@@ -674,14 +729,15 @@ export function init() {
         const observacao = modalObservacaoEl.value;
         const metodoPagamento = modalMetodoPagamentoEl.value;
         const valorRecebido = parseFloat(modalValorRecebidoEl.value);
-        const troco = parseFloat(modalTrocoEl.value) || null;
+        const troco = parseFloat(modalTrocoEl.value) || 0;
         const idFuncionario = parseInt(modalFuncionarioIdEl.value);
         const username = modalFuncionarioUsernameEl.value;
+        const theItems = itens.filter(item => item.produto != null);
 
         return {
             idVenda: idVenda,
             data: data,
-            itens: itens,
+            itens: theItems,
             observacao: observacao,
             metodoPagamento: metodoPagamento,
             valorRecebido: valorRecebido,
