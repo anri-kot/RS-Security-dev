@@ -17,12 +17,14 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     Optional<Produto> findByCodigoBarras(String codigoBarras);
     List<Produto> findByDescricaoContains(String descricao);
     List<Produto> findByCategoria_Nome(String categoria);
+    List<Produto> findByCodigoBarrasContains(String codigoBarras);
 
     List<Produto> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String nome, Long categoria);
 
     Page<Produto> findByNomeContains(String nome, Pageable p);
     Page<Produto> findByDescricaoContains(String descricao, Pageable p);
     Page<Produto> findByCategoria_Nome(String categoria, Pageable p);
+    Page<Produto> findByCodigoBarrasContains(String codigoBarras, Pageable p);
 
     Page<Produto> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String nome, Long categoria, Pageable p);
 }

@@ -74,8 +74,7 @@ public class ProdutoViewController {
             }
             case "codigo" -> {
                 try {
-                    ProdutoDTO produto = service.findByCodigoBarras(query);
-                    yield new PageImpl<>(List.of(produto));
+                    yield service.findByCodigoBarrasContains(query, page, size);
                 } catch (ResourceNotFoundException ignore) {
                     yield new PageImpl<>(List.of());
                 }

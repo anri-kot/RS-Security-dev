@@ -164,7 +164,7 @@ export function init() {
     modalMetodoPagamentoEl.addEventListener('change', (e) => {
         if (e.target.value !== 'DINHEIRO') {
             modalValorRecebidoEl.value = total.toFixed(2);
-            modalTrocoEl.value = '';
+            modalTrocoEl.value = '0';
         } else {
             modalValorRecebidoEl.value = total.toFixed(2);
             updateTroco(parseFloat(modalValorRecebidoEl.value));
@@ -180,7 +180,7 @@ export function init() {
     });
     modalValorRecebidoEl.addEventListener('keyup', (e) => {
         const value = e.target.value;
-        if (modalMetodoPagamentoEl.value === 'DINHEIRO' && value > total) {
+        if (modalMetodoPagamentoEl.value === 'DINHEIRO' && value >= total) {
             updateTroco(parseFloat(e.target.value));
         }
     });
@@ -189,6 +189,17 @@ export function init() {
         const receivedMoneyCents = Math.round(receivedMoney * 100);
         const totalCents = Math.round(total * 100);
         const troco = (receivedMoneyCents - totalCents) / 100;
+
+        if (total !== receivedMoney && troco < 0) {
+            modalValorRecebidoEl.classList.add('is-invalid');
+            modalTrocoEl.classList.add('is-invalid');
+            const vendaForm = document.getElementById('venda-form');
+            vendaForm.reportValidity();
+        } else {
+            modalValorRecebidoEl.classList.remove('is-invalid');
+            modalTrocoEl.classList.remove('is-invalid');
+        }
+
         modalTrocoEl.value = troco.toFixed(2);
     }
 
@@ -360,17 +371,18 @@ export function init() {
         // cents to real
         total = totalCents / 100;
 
-        const currentValue = parseFloat(modalValorRecebidoEl.value);
+        modalValorRecebidoEl.setAttribute('min', total);
+        modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-        if (currentValue < total) {
-            if (modalMetodoPagamentoEl.value !== 'DINHEIRO') {
+        const currentValue = parseFloat(modalValorRecebidoEl.value);
+        if (modalMetodoPagamentoEl.value !== 'DINHEIRO') {
+            
+            if (currentValue < total) {
                 modalValorRecebidoEl.value = total.toFixed(2);
             }
+        } else {
+            updateTroco(currentValue);
         }
-
-        modalValorRecebidoEl.setAttribute('min', total);
-        modalValorRecebidoEl.value = total.toFixed(2);
-        modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
         if (hasDeletedProduto) {
             const oldTotal = oldTotalCents / 100;

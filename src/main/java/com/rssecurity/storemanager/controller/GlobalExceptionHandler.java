@@ -66,7 +66,7 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<?> handleError(HttpServletRequest request, String message, HttpStatus status) {
         String url = request.getRequestURL().toString();
-        if (isHtmx(request) && !url.contains("/api/")) {
+        if (isHtmx(request) && url.contains("/api/")) {
             String html = "<div class='alert alert-danger alert-dismissible'>" + message + "</div>";
             return ResponseEntity.status(status).body(html);
         } else if (!url.contains(("/api/"))) {

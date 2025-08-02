@@ -45,8 +45,8 @@ public class ProdutoController {
     }
 
     @GetMapping("/search/codigoBarras")
-    public ResponseEntity<ProdutoDTO> findByCodigoBarrasContains(@RequestParam String codigoBarras) {
-        return ResponseEntity.ok(service.findByCodigoBarras(codigoBarras));
+    public ResponseEntity<List<ProdutoDTO>> findByCodigoBarrasContains(@RequestParam String codigoBarras) {
+        return ResponseEntity.ok(service.findByCodigoBarrasContains(codigoBarras));
     }
 
     @GetMapping("/search/descricao")

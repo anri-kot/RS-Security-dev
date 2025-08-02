@@ -273,7 +273,7 @@ public class VendaService {
                 for (ItemVendaDTO item : vendaDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    stockArranges.merge(idProduto, quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
                 }
             }
 
@@ -292,14 +292,14 @@ public class VendaService {
                     if (item.produto() != null) {
                         Long idProduto = item.produto().idProduto();
                         Integer quantidade = item.quantidade();
-                        stockArranges.merge(idProduto, -quantidade, Integer::sum);
+                        stockArranges.merge(idProduto, quantidade, Integer::sum);
                     }
                 }
                 // Apply
                 for (ItemVendaDTO item : vendaDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    stockArranges.merge(idProduto, quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
                 }
             }
 

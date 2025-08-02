@@ -79,7 +79,11 @@
           <div class="d-flex flex-column align-items-center">
             <h4>Total: R$ <span id="total">0,00</span></h4>
             <div class="input-group mt-2" style="max-width: 200px;">
-              <input type="number" class="form-control form-control-sm text-end" id="desconto-to-total-input" step="0.1" min="0" max="90" value="0.0" placeholder="Desconto %">
+              <!-- <input type="number" class="form-control form-control-sm text-end" id="desconto-to-total-input" step="0.1" min="0" max="90" value="0.0" placeholder="Desconto %"> -->
+              <select id="desconto-to-total-input" value="0" class="form-select form-select-sm text-end">
+                <option value="0" selected>0%</option>
+                <option value="3">3%</option>
+              </select>
               <button class="btn btn-sm btn-outline-danger" id="desconto-to-total-btn" type="button" title="Aplicar desconto ao total">
                 <i class="bi bi-percent"></i>
               </button>
@@ -111,12 +115,16 @@
                   <input type="text" id="modal-produto-categoria" class="form-control" disabled>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Preço</label>
+                  <label class="form-label">Preço (R$)</label>
                   <input type="text" id="modal-produto-preco" class="form-control" disabled>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Desconto<small class="text-muted px-2">Ex: 10% = 10.00</small></label>
-                  <input type="number" step="0.01" min="0" max="100" id="modal-produto-desconto" class="form-control">
+                  <label class="form-label">Desconto (%)</label>
+                  <!-- <input type="number" step="0.1" min="0" max="3" id="modal-produto-desconto" class="form-control"> -->
+                  <select id="modal-produto-desconto" class="form-select">
+                    <option value="0">Sem desconto</option>
+                    <option value="3">3%</option>
+                  </select>
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Quantidade</label>
@@ -184,7 +192,7 @@
             </div>
             <div class="modal-body">
               <p>A venda foi concluída com sucesso!</p>
-              <p id="resumoVenda"></p> <!-- Aqui você pode injetar um resumo simples se quiser -->
+              <p id="resumoVenda"></p> 
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-success" data-bs-dismiss="modal">Ok</button>
