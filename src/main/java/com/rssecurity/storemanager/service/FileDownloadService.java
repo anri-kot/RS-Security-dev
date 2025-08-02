@@ -16,7 +16,8 @@ import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 public class FileDownloadService {
 
     public Resource getModelo(String tipo) throws IOException {
-        Path path = Paths.get("data/modelo-" + tipo + ".xlsx");
+        String baseDir = System.getProperty("user.dir");
+        Path path = Paths.get(baseDir, "data", "modelo-" + tipo + ".xlsx");
 
         if (!Files.exists(path)) {
             throw new ResourceNotFoundException("Modelo não encontrado. Tipo: " + tipo);
