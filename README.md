@@ -6,6 +6,8 @@ Esta é a versão beta do sistema de gestão web, desenvolvido em Java (Spring B
 O objetivo desta versão é permitir testes iniciais e coleta de feedback sobre o funcionamento geral da aplicação.
 
 ---
+<a href="https://github.com/anri-kot/RSLauncher/releases/tag/v1.0">RSLauncher</a>
+---
 
 ✅ FUNCIONALIDADES ATUALMENTE DISPONÍVEIS
 -----------------------------------------
