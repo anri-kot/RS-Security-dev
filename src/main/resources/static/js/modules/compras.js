@@ -1,6 +1,15 @@
+// ======== INIT + STATE ========
 export function init() {
+    let alreadySet = false;
 
-    let lastSearch = '';
+    let lastSearch = location.search;
+    let lastEditId = null;
+    let itens = [];
+    let total = 0;
+    let currentItemIndex = null;
+    let lastQuery = null;
+
+    const STORAGE_KEY = 'compra-form-draft';
 
     // ================== ELEMENTS ==================
     // ===== MAIN SEARCH
@@ -13,6 +22,7 @@ export function init() {
     // ===== MODALS
     // Compra
     const compraModalEl = document.getElementById('compra-modal');
+    const compraFormEl = document.getElementById('compra-form');
     const modalIdEl = document.getElementById('modal-compra-idCompra');
     const modalDataEl = document.getElementById('modal-compra-data');
     const modalObservacaoEl = document.getElementById('modal-compra-observacao');
@@ -39,10 +49,20 @@ export function init() {
     const modalConfirmLabelEl = document.getElementById('confirmar-label');
     const modalConfirmMsgEl = document.getElementById('confirmar-mensagem');
     const modalConfirmOkButtonEl = document.getElementById('confirmar-acao');
+    const modalConfirmCancelButtonEl = document.getElementById('cancelar-acao');
 
-    // Keeps track of the current search
-    document.addEventListener('htmx:afterSettle', (e) => {
-        lastSearch = location.search;
+    restoreFormDraft();
+
+    // Keeps track of the current search and restores modal
+    document.addEventListener('htmx:afterSwap', (e) => {
+        if (!location.pathname.includes('compras')) return;
+
+        if (!alreadySet) {
+            lastSearch = location.search;
+            restoreFormDraft();
+            alreadySet = true;
+        }
+
     });
 
     // ================== MAIN SEARCH ==================
@@ -128,23 +148,29 @@ export function init() {
 
     /* ================== COMPRA MODAL ================== */
 
-    let itens = [];
-    let total = 0;
-
     // Listens to new Compra button
     document.getElementById('new-compra').addEventListener('click', () => {
         showCompraModal();
     });
 
     // Listens to edit/remove buttons
-    document.getElementById('cards-compras').addEventListener('click', (e) => {
+    document.getElementById('cards-compras').addEventListener('click', async (e) => {
         if (e.target.closest('button')) {
             const el = e.target.closest('button');
 
             if (el.dataset.action == 'edit') {
                 showCompraModal(el.dataset.id);
             } else if (el.dataset.action == 'delete') {
-                showConfirmModal(el.dataset.id);
+                const id = el.dataset.id;
+                const message = `Tem certeza que deseja deletar a compra número <strong>#${id}</strong>?`;
+                
+                const confirmed = await showConfirmModal(id, 'delete', message);
+                if (confirmed) {
+                    deleteCompra(id);
+                }
+                
+                const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
+                confirmModal.hide();
             }
         }
     });
@@ -161,10 +187,85 @@ export function init() {
         }
     });
 
-    async function showCompraModal(id) {
-        clearCompraModalFields();
+    // Saves form to local storage
+    compraFormEl.addEventListener('input', (e) => {
+        const el = e.target.closest('form');
+        saveFormDraft(el);
+    });
 
-        if (id || id > 0) {
+    function saveFormDraft() {
+        const draft = {
+            form: {
+                idCompra: document.querySelector("#modal-compra-idCompra").value,
+                data: document.querySelector("#modal-compra-data").value,
+                observacao: document.querySelector("#modal-compra-observacao").value,
+                fornecedor: document.querySelector("#modal-compra-fornecedor").value
+            },
+            items: {
+                itens: itens
+            }
+        };
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    }
+
+    function restoreFormDraft() {
+        const draft = localStorage.getItem(STORAGE_KEY);
+        if (!draft) return;
+
+        try {
+            const parsed = JSON.parse(draft);
+
+            const form = parsed.form;
+            if (form) {
+                document.querySelector("#modal-compra-idCompra").value = form.idCompra || "";
+                document.querySelector("#modal-compra-data").value = form.data || "";
+                document.querySelector("#modal-compra-observacao").value = form.observacao || "";
+                document.querySelector("#modal-compra-fornecedor").value = form.fornecedor || "";
+
+                const id = parseInt(form.idCompra) || 0;
+                lastEditId = id;
+            }
+
+            const itemsWrapper = parsed.items;
+            if (itemsWrapper && itemsWrapper.itens && Array.isArray(itemsWrapper.itens)) {
+                itens = itemsWrapper.itens; 
+                refreshItems(); 
+            }
+        } catch (e) {
+            console.error("Erro ao restaurar rascunho:", e);
+        }
+    }
+
+    function clearFormDraft() {
+        localStorage.removeItem(STORAGE_KEY);
+    }
+
+    async function showCompraModal(id = 0) {
+        const isTheSame = lastEditId === (parseInt(id) || 0);
+
+        if (lastEditId !== null) {
+            if (!isTheSame && itens.length > 0) {
+                let message;
+                if (lastEditId > 0) {
+                    message = `Você estava editando a compra de <strong>ID ${lastEditId}</strong>. Se continuar as alterações não serão aplicadas.`;
+                } else {
+                    message = `Você estava editando uma nova compra. Se continuar o registro será perdido.`;
+                }
+
+                const confirmed = await showConfirmModal(id, 'switch-edit', message);
+                if (!confirmed) {
+                    return;
+                }
+
+                lastEditId = null;
+                clearCompraModalFields();
+            }
+        } else {
+            clearCompraModalFields();
+        }
+
+        if (id > 0 && !isTheSame) {
             let compra;
 
             try {
@@ -180,8 +281,11 @@ export function init() {
             itens = compra.itens;
             populateCompraModal(compra);
         }
+
+        lastEditId = parseInt(id);
         const compraModal = bootstrap.Modal.getOrCreateInstance(compraModalEl);
 
+        saveFormDraft();
         compraModal.show();
     }
 
@@ -201,7 +305,7 @@ export function init() {
             el.value = '';
             if (el.type.includes('date')) {
                 const today = new Date();
-                today.setHours(12, 0, 0, 0);
+                today.setHours(today.getHours(), 0, 0, 0);
 
                 const year = today.getFullYear();
                 const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -214,7 +318,7 @@ export function init() {
         });
         modalItensEl.innerHTML = '';
         modalItemsTotalEl.innerText = 'R$ 0,00';
-        
+
         modalItemsTotalOldEl.innerHTML = '';
         modalItemsTotalOldEl.classList.add('d-none');
     }
@@ -228,8 +332,6 @@ export function init() {
     }
 
     // ===== COMPRA ITEMS
-
-    let currentItemIndex = null;
 
     // Cancel submit
     document.getElementById('items-form').addEventListener('submit', e => e.preventDefault());
@@ -258,11 +360,18 @@ export function init() {
     function clearItemsFormFields() {
         const itemsForm = document.getElementById('items-form');
         itemsForm.querySelectorAll('input').forEach(el => el.value = '');
+        addItemBtn.setAttribute('disabled', true);
         modalCurrentProdutoEl.innerText = 'Aguardando selecionar produto...';
     }
 
     function addUpdateItem() {
-        const idProduto = parseInt(selectedProdutoIdEl.value);
+        const itemsForm = document.getElementById('items-form');
+        if (!itemsForm.checkValidity()) {
+            itemsForm.reportValidity();
+            return;
+        }
+
+        const idProduto = parseInt(selectedProdutoIdEl.value) || null;
         const nome = selectedProdutoNameEl.value;
         const quantidade = parseInt(modalQuantidadeEl.value);
         const valorUnitario = parseFloat(modalValorUnitarioEl.value);
@@ -281,6 +390,7 @@ export function init() {
             });
         }
 
+        saveFormDraft();
         refreshItems();
         clearItemsFormFields();
     }
@@ -300,14 +410,14 @@ export function init() {
         let totalCents = 0;
         let oldTotalCents = 0;
         let hasDeletedProduto = false;
-    
+
         itens.forEach(item => {
-            modalItensEl.appendChild(renderCompraItem(item));
-    
+            modalItensEl.prepend(renderCompraItem(item));
+
             const unitPriceCents = Math.round(parseFloat(item.valorUnitario) * 100);
             const quantity = parseInt(item.quantidade);
             const itemTotalCents = unitPriceCents * quantity;
-    
+
             if (item.produto) {
                 totalCents += itemTotalCents;
             } else {
@@ -315,13 +425,13 @@ export function init() {
                 hasDeletedProduto = true;
             }
         });
-    
+
         total = totalCents / 100;
         modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', {
             style: 'currency',
             currency: 'BRL'
         });
-    
+
         if (hasDeletedProduto) {
             const oldTotal = oldTotalCents / 100;
             modalItemsTotalOldEl.innerText = oldTotal.toLocaleString('pt-BR', {
@@ -361,7 +471,7 @@ export function init() {
             nomeEl.textContent = item.produto.nome;
             qtdPrecoEl.textContent = `Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
         }
-        
+
 
         mainContainer.appendChild(nomeEl);
         mainContainer.appendChild(qtdPrecoEl);
@@ -388,7 +498,7 @@ export function init() {
             deleteButton.classList.add('btn', 'btn-sm', 'btn-outline-danger');
             deleteButton.setAttribute('title', 'Excluir');
             deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
-                        
+
             editButton.dataset.idProduto = ID;
             deleteButton.dataset.idProduto = ID;
 
@@ -424,26 +534,40 @@ export function init() {
 
     /* ================== CONFIRM MODAL ================== */
 
-    modalConfirmOkButtonEl.addEventListener('click', (e) => {
-        deleteCompra(e.target.dataset.id);
-        const modal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
-        modal.hide();
-    });
+    function showConfirmModal(id, action, message) {
+        return new Promise((resolve) => {
+            const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
 
-    function showConfirmModal(id) {
-        const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
-        if (!id) return;
+            modalConfirmLabelEl.innerText = `Tem certeza de que deseja continuar?`;
+            modalConfirmMsgEl.innerHTML = message;
 
-        modalConfirmLabelEl.innerText = 'Confirmar delete';
-        modalConfirmOkButtonEl.dataset.id = id;
-        modalConfirmMsgEl.innerHTML = `Tem certeza que deseja deletar a compra número <strong>#${id}</strong>?`;
+            modalConfirmOkButtonEl.dataset.id = id;
+            modalConfirmOkButtonEl.dataset.action = action;
 
-        confirmModal.show();
+            const okHandler = () => {
+                cleanUp();
+                resolve(true);
+            };
+
+            const cancelHandler = () => {
+                cleanUp();
+                resolve(false)
+            };
+
+            const cleanUp = () => {
+                modalConfirmOkButtonEl.removeEventListener('click', okHandler);
+                modalConfirmCancelButtonEl.removeEventListener('click', cancelHandler);
+                confirmModal.hide();
+            };
+
+            modalConfirmOkButtonEl.addEventListener('click', okHandler);
+            modalConfirmCancelButtonEl.addEventListener('click', cancelHandler);
+
+            confirmModal.show();
+        });
     }
 
     /* ================== DROPDOWNS ================== */
-
-    let lastQuery = null;
 
     const dropdowns = {
         fornecedor: itemAutocompleteFornecedorOptions,
@@ -534,7 +658,9 @@ export function init() {
                 }
             }
 
-            document.getElementById('add-button').removeAttribute('disabled');
+            addItemBtn.removeAttribute('disabled');
+            modalQuantidadeEl.removeAttribute('disabled');
+            modalValorUnitarioEl.removeAttribute('disabled');
             selectedProdutoIdEl.value = idProduto;
             selectedProdutoNameEl.value = dataset.nomeProduto;
 
@@ -576,7 +702,7 @@ export function init() {
 
     /* ================== INSERT, UPDATE, DELETE ================== */
 
-    document.getElementById('confirm-register').addEventListener('click', (e) => {
+    document.getElementById('confirm-register').addEventListener('click', () => {
         const id = parseInt(modalIdEl.value) || 0;
 
         modalFornecedorEl.querySelectorAll('option').forEach(opt => {
@@ -587,6 +713,22 @@ export function init() {
         });
 
         sendCompra(id);
+    });
+
+    document.getElementById('cancel-register').addEventListener('click', async () => {
+        if (itens.length <= 0) return;
+
+        const id = parseInt(modalIdEl.value) || 0;
+        let message;
+        message = `Tem certeza de que deseja cancelar o registro? Os inseridos no formulário serão perdidos.<br>Caso deseje sair temporariamente, clique em cancelar ou fora da janela.`;
+        const confirm = await showConfirmModal(id, 'cancel-register', message);
+
+        if (confirm) {
+            lastEditId = null;
+        } else {
+            const modal = bootstrap.Modal.getOrCreateInstance(compraModalEl);
+            modal.show();
+        }
     });
 
     async function sendCompra(id) {
@@ -622,6 +764,8 @@ export function init() {
             } else {
                 // alert('Ação executada com sucesso.');
                 refreshCompras();
+                clearCompraModalFields();
+                clearFormDraft();
                 compraModal.hide();
             }
         } catch (e) {
@@ -648,6 +792,7 @@ export function init() {
             } else {
                 // alert('Ação executada com sucesso.');
                 refreshCompras();
+                return;
             }
         } catch (e) {
             console.error('Erro inesperado:', e);

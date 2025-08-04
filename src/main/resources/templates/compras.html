@@ -83,8 +83,7 @@
                             <!-- Botão de busca -->
                             <div class="col-md-2">
                                 <button type="submit" class="btn btn-primary w-100" hx-get="/compras"
-                                    hx-target="#cards-compras" hx-push-url="true"
-                                    hx-select="#cards-compras"
+                                    hx-target="#cards-compras" hx-push-url="true" hx-select="#cards-compras"
                                     hx-include="#search-form">Buscar</button>
                             </div>
                         </div>
@@ -130,7 +129,8 @@
                     <div class="card-body px-3">
 
                         <p class="mb-1"><strong>Observação:</strong> <span th:text="${compra.observacao}"></span></p>
-                        <p class="mb-1"><strong>Fornecedor:</strong> <span th:text="${compra.fornecedor.nome}"></span></p>
+                        <p class="mb-1"><strong>Fornecedor:</strong> <span th:text="${compra.fornecedor.nome}"></span>
+                        </p>
 
                         <div class="collapse" th:id="'collapse__' + ${compra.idCompra}">
 
@@ -139,7 +139,8 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
 
                                     <div>
-                                        <div class="fw-semibold" th:if="${item.produto}" th:text="${item.produto.nome}"></div>
+                                        <div class="fw-semibold" th:if="${item.produto}" th:text="${item.produto.nome}">
+                                        </div>
                                         <div class="fw-semibold" th:unless="${item.produto}">[REMOVIDO]</div>
                                         <small class="text-muted d-block">
                                             <span
@@ -179,7 +180,8 @@
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-secondary" id="cancelar-acao"
+                                data-bs-dismiss="modal">Cancelar</button>
                             <button type="button" class="btn btn-primary" id="confirmar-acao">Confirmar</button>
                         </div>
                     </div>
@@ -187,7 +189,8 @@
             </div>
 
             <!-- new/edit -->
-            <div class="modal fade" id="compra-modal" tabindex="-1" aria-labelledby="compraModalLabel" aria-hidden="true">
+            <div class="modal fade" id="compra-modal" tabindex="-1" aria-labelledby="compraModalLabel"
+                aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
 
@@ -256,20 +259,20 @@
                                                 <div class="alert alert-primary mb-2" role="alert" id="current-product">
                                                     Aguardando selecionar produto...
                                                 </div>
-                                                <input type="hidden" id="selected-product-id" value="" disabled>
-                                                <input type="hidden" id="selected-product-name" value="" disabled>
+                                                <input type="hidden" id="selected-product-id" value="">
+                                                <input type="hidden" id="selected-product-name" value="">
 
                                                 <div class="mb-2">
                                                     <label for="quantidade" class="form-label">Quantidade</label>
                                                     <input type="number" name="quantidade" id="modal-compra-quantidade"
-                                                        class="form-control" min="1" value="1">
+                                                        class="form-control" min="1" required disabled>
                                                 </div>
                                                 <div class="mb-2">
                                                     <label for="valorUnitario" class="form-label">Valor Unitário (R$)
                                                         <small class="text-muted">Ex: 10.00</small></label>
                                                     <input type="number" name="valorUnitario"
                                                         id="modal-compra-valorUnitario" class="form-control" step="0.01"
-                                                        min="0.05" value="0.05">
+                                                        min="0.05" required disabled>
                                                 </div>
 
                                                 <div class="d-flex justify-content-center mb-2">
@@ -280,45 +283,48 @@
                                         </form>
 
                                         <hr>
-    
+
                                         <!-- VENDA -->
                                         <form id="compra-form" autocomplete="off">
-    
+
                                             <div class="mb-2">
                                                 <label class="form-label">ID</label>
-                                                <input type="text" id="modal-compra-idCompra" class="form-control" disabled>
+                                                <input type="text" name="idCompra" id="modal-compra-idCompra"
+                                                    class="form-control" readonly>
                                             </div>
-    
+
                                             <div class="mb-2">
                                                 <label class="form-label">Data <small class="text-muted">mês/dia/ano,
                                                         hora</small></label>
-                                                <input type="datetime-local" id="modal-compra-data" class="form-control"
-                                                    required>
+                                                <input type="datetime-local" name="data" id="modal-compra-data"
+                                                    class="form-control" required>
                                             </div>
-    
+
                                             <div class="mb-2">
                                                 <label class="form-label">Observação</label>
-                                                <input type="text" id="modal-compra-observacao" class="form-control"
-                                                    required>
+                                                <input type="text" name="observacao" id="modal-compra-observacao"
+                                                    class="form-control" required>
                                             </div>
-    
+
                                             <div class="mb-2">
                                                 <div class="position-relative">
                                                     <label class="form-label">Fornecedor</label>
-                                                    <input class="form-control input-dropdown" id="modal-compra-fornecedor"
-                                                        name="fornecedor" placeholder="Digite o nome do fornecedor"
+                                                    <input class="form-control input-dropdown"
+                                                        id="modal-compra-fornecedor" name="fornecedor"
+                                                        placeholder="Digite o nome do fornecedor"
                                                         hx-get="compras/autocomplete"
                                                         hx-target="#autocomplete-fornecedor-options"
                                                         hx-trigger="keyup changed delay:300ms">
-    
+
                                                     <input type="hidden" id="modal-compra-fornecedor-id">
                                                     <input type="hidden" id="modal-compra-fornecedor-nome">
-    
-                                                    <div class="dropdown-menu w-100" id="autocomplete-fornecedor-options">
+
+                                                    <div class="dropdown-menu w-100"
+                                                        id="autocomplete-fornecedor-options">
                                                     </div>
                                                 </div>
                                             </div>
-    
+
                                         </form>
 
                                     </div>
@@ -330,12 +336,14 @@
                                             <h4 class="mb-0">Itens Adicionados</h4>
                                             <div class="d-flex flex-column align-items-end">
                                                 <span class="fw-bold text-success m-0" id="modal-items-total"></span>
-                                                <small class="fw-bold text-muted text-decoration-line-through d-none m-0" id="modal-items-total-old"></small>
+                                                <small
+                                                    class="fw-bold text-muted text-decoration-line-through d-none m-0"
+                                                    id="modal-items-total-old"></small>
                                             </div>
                                         </div>
-    
+
                                         <hr>
-    
+
                                         <ul class="list-group list-group-flush" id="modal-compra-itens">
                                         </ul>
                                     </div>
@@ -346,7 +354,8 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                            <button class="btn btn-danger" id="cancel-register"
+                                data-bs-dismiss="modal">Cancelar</button>
                             <button class="btn btn-success" id="confirm-register"
                                 data-action="confirm-modal">Confirmar</button>
                         </div>
