@@ -1,16 +1,18 @@
 package com.rssecurity.storemanager.dto;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 public record CompraDTO(
         Long idCompra,
         @NotNull(message = "data não pode ser nula")
         LocalDateTime data,
+        @Size(max = 255, message = "observação não pode ter mais de 255 caracteres")
         String observacao,
         FornecedorDTO fornecedor,
         List<ItemCompraDTO> itens) {

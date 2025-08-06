@@ -1,3 +1,4 @@
+import Formatter from "/js/formatter.js";
 export function init() {
 
     let lastSearch = '';
@@ -45,7 +46,22 @@ export function init() {
 
     // Listens to confirm
     document.getElementById('confirm-register').addEventListener('click', () => {
+        const form = document.getElementById('modal-fornecedor-form');
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
         sendFornecedor();
+    });
+
+    // Formatting
+    telefoneEl.addEventListener('input', (e) => {
+        const value = e.target.value;
+        e.target.value = Formatter.formatPhone(value);
+    });
+    cnpjEl.addEventListener('input', (e) => {
+        const value = e.target.value;
+        e.target.value = Formatter.formatCnpj(value);
     });
 
     async function showFornecedorModal(id) {
@@ -153,10 +169,10 @@ export function init() {
             idFornecedor = null;
         }
 
-        const nome = nomeEl.value;
-        const cnpj = cnpjEl.value;
-        const telefone = telefoneEl.value;
-        const email = emailEl.value;
+        const nome = nomeEl.value.trim();
+        const cnpj = cnpjEl.value.trim().replace(/\D/g, '');
+        const telefone = telefoneEl.value.trim().replace(/\D/g, '');
+        const email = emailEl.value.trim();
 
         return {
             idFornecedor: idFornecedor,

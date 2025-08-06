@@ -129,7 +129,9 @@
                     <div class="card-body px-3">
 
                         <p class="mb-1"><strong>Observação:</strong> <span th:text="${compra.observacao}"></span></p>
-                        <p class="mb-1"><strong>Fornecedor:</strong> <span th:text="${compra.fornecedor.nome}"></span>
+                        <p class="mb-1"><strong>Fornecedor:</strong> 
+                            <span th:if="${compra.fornecedor}" th:text="${compra.fornecedor.nome}"></span>
+                            <span th:unless="${compra.fornecedor}">EXCLUÍDO</span>
                         </p>
 
                         <div class="collapse" th:id="'collapse__' + ${compra.idCompra}">
@@ -303,7 +305,7 @@
                                             <div class="mb-2">
                                                 <label class="form-label">Observação</label>
                                                 <input type="text" name="observacao" id="modal-compra-observacao"
-                                                    class="form-control" required>
+                                                    class="form-control" maxlength="255" required>
                                             </div>
 
                                             <div class="mb-2">

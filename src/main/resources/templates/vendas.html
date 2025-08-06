@@ -322,16 +322,16 @@
                                             <div class="mb-2">
                                                 <label class="form-label">Data <small class="text-muted">mês/dia/ano,
                                                         hora</small></label>
-                                                <input type="datetime-local" name="data" id="modal-venda-data" class="form-control" step = "1" required>
+                                                <input type="datetime-local" name="data" id="modal-venda-data" class="form-control" required>
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Observação</label>
-                                                <input type="text" name="observacao" id="modal-venda-observacao" class="form-control"
-                                                    required>
+                                                <input type="text" name="observacao" id="modal-venda-observacao" maxlength="255" class="form-control">
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Método de Pagamento</label>
-                                                <select name="metodoPagamento" id="modal-venda-metodoPagamento" class="form-select">
+                                                <select name="metodoPagamento" id="modal-venda-metodoPagamento" class="form-select" required>
+                                                    <option value="">Selecione um método</option>
                                                     <option value="CARTAO_CREDITO">Cartão de Crédito</option>
                                                     <option value="CARTAO_DEBITO">Cartão de Débito</option>
                                                     <option value="PIX">PIX</option>
@@ -340,12 +340,12 @@
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Valor Recebido (R$)</label>
-                                                <input type="number" name="valorRecebido" step="0.01" id="modal-venda-valorRecebido"
+                                                <input type="number" name="valorRecebido" step="0.01" minlength="0.00" id="modal-venda-valorRecebido"
                                                     class="form-control" required>
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Troco</label>
-                                                <input type="number" step="0.1" name="troco" id="modal-venda-troco"
+                                                <input type="number" step="0.1" min="0.00" name="troco" id="modal-venda-troco"
                                                     class="form-control" readonly required>
                                             </div>
                                             <div class="mb-2">
