@@ -171,14 +171,19 @@ export function init() {
         cartItems.innerHTML = '';
 
         total = 0;
+        let totalCents = 0;
         cart.forEach((item, index) => {
-            const discount = item.desconto / 100 ?? 0;
-            const priceCents = Math.round(item.valorUnitario * 100);
-            const fullPriceCents = item.quantidade * priceCents;
-            const discountCents = fullPriceCents * discount;
-            const finalPrice = (fullPriceCents - discountCents) / 100;
-            console.log(finalPrice)
-            total += finalPrice;
+            const unitPriceCents = Math.round(item.valorUnitario * 100);
+            const quantity = item.quantidade;
+            const discountPercent = item.desconto ?? 0;
+            const discount = (item.desconto ?? 0) / 100;
+
+            const fullPriceCents = quantity * unitPriceCents;
+            const discountCents = Math.round(fullPriceCents * (discountPercent / 100));
+            const finalPriceCents = fullPriceCents - discountCents;
+            const finalPrice = finalPriceCents / 100;
+
+            totalCents += finalPriceCents;
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -193,6 +198,7 @@ export function init() {
 
             cartItems.appendChild(tr);
         });
+        total = totalCents / 100;
 
         document.getElementById('total').textContent = total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     }

@@ -1,6 +1,9 @@
 package com.rssecurity.storemanager.excel.headers;
 
-public enum VendaExcelHeader {
+import java.util.ArrayList;
+import java.util.List;
+
+public enum VendaExcelHeader implements ExcelHeader {
     ID("id"),
     DATA("data"),
     OBSERVACAO("observacao"),
@@ -22,5 +25,16 @@ public enum VendaExcelHeader {
 
     public String getHeaderName() {
         return headerName;
+    }
+
+    public List<VendaExcelHeader> numericFields() {
+        List<VendaExcelHeader> numericFields = new ArrayList<>();
+        numericFields.add(VALOR_RECEBIDO);
+        numericFields.add(TROCO);
+        numericFields.add(QUANTIDADE);
+        numericFields.add(VALOR_UNITARIO);
+        numericFields.add(DESCONTO);
+
+        return numericFields;
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.exception.RecordConversionException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 
 import jakarta.servlet.RequestDispatcher;
@@ -42,6 +43,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleGenericException(HttpServletRequest request, Exception ex) {
         ex.printStackTrace();
         return handleError(request, "Ocorreu um erro inesperado.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(RecordConversionException.class)
+    public ResponseEntity<?> handleRecordConversionException(HttpServletRequest request, RecordConversionException ex) {
+        return handleError(request, ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
