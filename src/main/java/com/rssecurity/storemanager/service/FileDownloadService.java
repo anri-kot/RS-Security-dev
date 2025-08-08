@@ -1,10 +1,13 @@
 package com.rssecurity.storemanager.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -15,7 +18,7 @@ import com.rssecurity.storemanager.exception.ResourceNotFoundException;
 @Service
 public class FileDownloadService {
 
-    public Resource getModelo(String tipo) throws IOException {
+    public Resource downloadModelo(String tipo) throws IOException {
         String baseDir = System.getProperty("user.dir");
         Path path = Paths.get(baseDir, "data", "modelo-" + tipo + ".xlsx");
 
@@ -27,6 +30,15 @@ public class FileDownloadService {
             return new InputStreamResource(Files.newInputStream(path));
         } catch (IOException e) {
             throw new IOException("Erro ao ler arquivo '" + ExcelModelo.GERAL + "'");
+        }
+    }
+
+    public Resource workbookToResource(Workbook workbook) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            workbook.write(out);
+            return new InputStreamResource(new ByteArrayInputStream(out.toByteArray()));
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao gerar arquivo Excel", e);
         }
     }
 }

@@ -1,40 +1,44 @@
 package com.rssecurity.storemanager.excel.headers;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.rssecurity.storemanager.util.FormatterUtil;
 
 public enum VendaExcelHeader implements ExcelHeader {
-    ID("id"),
-    DATA("data"),
-    OBSERVACAO("observacao"),
-    USERNAME("username"),
-    METODO_PAGAMENTO("metodo pagamento"),
-    VALOR_RECEBIDO("valor recebido"),
-    TROCO("troco"),
-    QUANTIDADE("quantidade"),
-    VALOR_UNITARIO("valor unitario"),
-    DESCONTO("desconto"),
-    ID_PRODUTO("id produto"),
-    NOME_PRODUTO("nome produto");
+    ID("id", false),
+    DATA("data", false),
+    OBSERVACAO("observacao", false),
+    USERNAME("username", false),
+    METODO_PAGAMENTO("metodo pagamento", false),
+    VALOR_RECEBIDO("valor recebido", true),
+    TROCO("troco", true),
+    QUANTIDADE("quantidade", true),
+    VALOR_UNITARIO("valor unitario", true),
+    DESCONTO("desconto", true),
+    ID_PRODUTO("id produto", false),
+    NOME_PRODUTO("nome", false);
     
     private final String headerName;
+    private final boolean numeric;
 
-    VendaExcelHeader(String headerName) {
+    VendaExcelHeader(String headerName, boolean numeric) {
         this.headerName = headerName;
+        this.numeric = numeric;
     }
 
+    @Override
     public String getHeaderName() {
         return headerName;
     }
 
-    public List<VendaExcelHeader> numericFields() {
-        List<VendaExcelHeader> numericFields = new ArrayList<>();
-        numericFields.add(VALOR_RECEBIDO);
-        numericFields.add(TROCO);
-        numericFields.add(QUANTIDADE);
-        numericFields.add(VALOR_UNITARIO);
-        numericFields.add(DESCONTO);
+    @Override
+    public boolean isNumeric() {
+        return numeric;
+    }
 
-        return numericFields;
+    @Override
+    public String getKey() {
+        return switch (this) {
+            case ID -> "idVenda";
+            default -> FormatterUtil.formatCamelCase(headerName);
+        };
     }
 }

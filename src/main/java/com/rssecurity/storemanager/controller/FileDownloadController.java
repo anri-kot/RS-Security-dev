@@ -24,7 +24,7 @@ public class FileDownloadController {
 
     @GetMapping("/modelo")
     public ResponseEntity<Resource> getModelo(@RequestParam String tipo) throws IOException {
-        Resource file = service.getModelo(tipo);
+        Resource file = service.downloadModelo(tipo);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"modelo-" + tipo + ".xlsx\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
