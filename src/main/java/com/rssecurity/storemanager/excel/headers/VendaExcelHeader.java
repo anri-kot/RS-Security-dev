@@ -14,7 +14,7 @@ public enum VendaExcelHeader implements ExcelHeader {
     VALOR_UNITARIO("valor unitario", true),
     DESCONTO("desconto", true),
     ID_PRODUTO("id produto", false),
-    NOME_PRODUTO("nome", false);
+    NOME_PRODUTO("nome produto", false);
     
     private final String headerName;
     private final boolean numeric;

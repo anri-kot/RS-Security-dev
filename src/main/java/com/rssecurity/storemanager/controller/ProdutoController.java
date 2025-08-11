@@ -3,6 +3,9 @@ package com.rssecurity.storemanager.controller;
 import java.net.URI;
 import java.util.List;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rssecurity.storemanager.dto.ProdutoDTO;
+import com.rssecurity.storemanager.excel.writter.ProdutoExcelWritter;
 import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.service.FileDownloadService;
 import com.rssecurity.storemanager.service.ProdutoService;
 
 import jakarta.validation.Valid;
@@ -24,9 +29,13 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/produto")
 public class ProdutoController {
     private final ProdutoService service;
+    private final FileDownloadService downloadService;
+    private final ProdutoExcelWritter excelWritter;
 
-    public ProdutoController(ProdutoService service) {
+    public ProdutoController(ProdutoService service, FileDownloadService downloadService, ProdutoExcelWritter excelWritter) {
         this.service = service;
+        this.downloadService = downloadService;
+        this.excelWritter = excelWritter;
     }
 
     @GetMapping
@@ -58,6 +67,18 @@ public class ProdutoController {
     public ResponseEntity<List<ProdutoDTO>> findByCategoria_Nome(@RequestParam String categoria) {
         return ResponseEntity.ok(service.findByCategoria_Nome(categoria));
     }
+
+    @GetMapping("/export")
+    public ResponseEntity<Resource> export() {
+        List<ProdutoDTO> produtos = service.findAll();
+        Resource resource = downloadService.workbookToResource(excelWritter.export(produtos));
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=produtos.xlsx")
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .body(resource);
+    }
+
+    // ACTIONS
 
     @PostMapping
     public ResponseEntity<ProdutoDTO> create(@RequestBody @Valid ProdutoDTO produto) {

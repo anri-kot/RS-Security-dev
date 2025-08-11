@@ -1,22 +1,41 @@
 package com.rssecurity.storemanager.controller;
 
-import com.rssecurity.storemanager.dto.CompraDTO;
-import com.rssecurity.storemanager.exception.ConflictException;
-import com.rssecurity.storemanager.service.CompraService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.rssecurity.storemanager.dto.CompraDTO;
+import com.rssecurity.storemanager.excel.writter.CompraExcelWritter;
+import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.service.CompraService;
+import com.rssecurity.storemanager.service.FileDownloadService;
 
 @RestController
 @RequestMapping("/api/compra")
 public class CompraController {
     @Autowired
     private CompraService service;
+    @Autowired
+    private FileDownloadService downloadService;
+    @Autowired
+    private CompraExcelWritter excelWritter;
 
     // SEARCH
     
@@ -63,6 +82,16 @@ public class CompraController {
     @GetMapping("/search/fornecedor")
     public ResponseEntity<List<CompraDTO>> findByFornecedor_NomeContaining(@RequestParam String nome) {
         return ResponseEntity.ok(service.findByFornecedor_NomeContaining(nome));
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<Resource> export(@RequestParam Map<String, String> params) {
+        List<CompraDTO> compras = service.findAllByCustomMatcher(params);
+        Resource resource = downloadService.workbookToResource(excelWritter.export(compras));
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=compras.xlsx")
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .body(resource);
     }
 
     // ACTION

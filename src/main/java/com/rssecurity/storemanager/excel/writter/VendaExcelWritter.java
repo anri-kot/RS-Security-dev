@@ -43,9 +43,19 @@ public class VendaExcelWritter extends ExcelWritter<VendaDTO> {
                 Map<String, Object> row = new HashMap<>();
                 for (VendaExcelHeader header : HEADERS) {
                     String key = header.getKey();
-                    Object value = vendaMap.getOrDefault(key, usuMap
+                    
+                    Object value;
+                    System.out.println("TESTE ============");
+                    System.out.println(key.toLowerCase().contains("produto"));
+                    System.out.println(key);
+                    if (key.toLowerCase().contains("produto")) {
+                        value = produtoMap.getOrDefault(key, produtoMap
+                            .getOrDefault(key.replace("Produto", ""), null));
+                    } else {
+                        value = vendaMap.getOrDefault(key, usuMap
                             .getOrDefault(key, itemMap
-                                    .getOrDefault(key, produtoMap.getOrDefault(key, null))));
+                                .getOrDefault(key, null)));
+                    }
                     row.put(key, value);
                 }
                 result.add(row);
