@@ -46,6 +46,7 @@ public class RelatorioViewController {
 
     @GetMapping("/vendas")
     public String gerarRelatorioVendas(
+        HttpServletRequest request,
         @RequestParam String start,
         @RequestParam String end,
         Model model,
@@ -53,7 +54,9 @@ public class RelatorioViewController {
         @RequestParam(defaultValue = "15") Integer size
     ) {
         model.addAllAttributes(buildModel(start, end, currentPage, size));
-        return "fragments/relatorio :: resultado";
+        return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
+                ? "relatorios :: resultado"
+                : "relatorios";
     }
 
     private String formatInterval(String start, String end) {
@@ -81,6 +84,8 @@ public class RelatorioViewController {
             BigDecimal total = vendaService.calculateTotalVendaValueBetween(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
     
             modelMap.put("vendas", vendas);
+            modelMap.put("start", startDateString);
+            modelMap.put("end", endDateString);
             modelMap.put("total", total);
             modelMap.put("currentPage", currentPage);
             modelMap.put("totalPages", vendas.getTotalPages());

@@ -45,9 +45,6 @@ public class VendaExcelWritter extends ExcelWritter<VendaDTO> {
                     String key = header.getKey();
                     
                     Object value;
-                    System.out.println("TESTE ============");
-                    System.out.println(key.toLowerCase().contains("produto"));
-                    System.out.println(key);
                     if (key.toLowerCase().contains("produto")) {
                         value = produtoMap.getOrDefault(key, produtoMap
                             .getOrDefault(key.replace("Produto", ""), null));

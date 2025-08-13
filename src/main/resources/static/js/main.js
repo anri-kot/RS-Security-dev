@@ -21,7 +21,7 @@ document.addEventListener("htmx:afterSwap", e => {
 		updateSidebar();
 		setupPageNumNav();
 		document.title = `${TITLE} - ${currentPage}`;
-	} else if (targetId === `tabela-${pathname}` || targetId === `cards-${pathname}`) {
+	} else if (targetId === `tabela-${pathname}` || targetId === `cards-${pathname}` || targetId.includes('relatorio')) {
 		setupPageNumNav();
 	}
 });
