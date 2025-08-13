@@ -316,7 +316,7 @@
                                                         placeholder="Digite o nome do fornecedor"
                                                         hx-get="compras/autocomplete"
                                                         hx-target="#autocomplete-fornecedor-options"
-                                                        hx-trigger="keyup changed delay:300ms">
+                                                        hx-trigger="keyup changed delay:300ms" required>
 
                                                     <input type="hidden" id="modal-compra-fornecedor-id">
                                                     <input type="hidden" id="modal-compra-fornecedor-nome">
@@ -324,6 +324,7 @@
                                                     <div class="dropdown-menu w-100"
                                                         id="autocomplete-fornecedor-options">
                                                     </div>
+                                                    <div id="fornecedor-validation"></div>
                                                 </div>
                                             </div>
 

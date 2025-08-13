@@ -35,9 +35,11 @@ export function init() {
     const modalValorUnitarioEl = document.getElementById('modal-compra-valorUnitario');
     const modalCurrentProdutoEl = document.getElementById('current-product');
     const modalFornecedorIdEl = document.getElementById('modal-compra-fornecedor-id');
+    const modalFornecedorNomeEl = document.getElementById('modal-compra-fornecedor-nome');
     const selectedProdutoIdEl = document.getElementById('selected-product-id');
     const selectedProdutoNameEl = document.getElementById('selected-product-name')
     const addItemBtn = document.getElementById('add-button');
+    const modalFornecedorValidationEl = document.getElementById('fornecedor-validation')
     // Compra Items Search
     const itemSearchTypeEl = document.getElementById('item-search-type');
     const itemSearchProduct = document.getElementById('search-product');
@@ -199,13 +201,17 @@ export function init() {
                 idCompra: document.querySelector("#modal-compra-idCompra").value,
                 data: document.querySelector("#modal-compra-data").value,
                 observacao: document.querySelector("#modal-compra-observacao").value,
-                fornecedor: document.querySelector("#modal-compra-fornecedor").value
+                fornecedor: document.querySelector("#modal-compra-fornecedor").value,
+                nomeFornecedor: document.querySelector("#modal-compra-fornecedor").dataset.nome,
+                datasetIdFornecedor: document.querySelector("#modal-compra-fornecedor").dataset.idFornecedor,
+                idFornecedor: document.querySelector("#modal-compra-fornecedor-id").value
             },
             items: {
                 itens: itens
             }
         };
 
+        lastEditId = parseInt(modalIdEl.value) || 0;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
     }
 
@@ -218,10 +224,13 @@ export function init() {
 
             const form = parsed.form;
             if (form) {
-                document.querySelector("#modal-compra-idCompra").value = form.idCompra || "";
-                document.querySelector("#modal-compra-data").value = form.data || "";
-                document.querySelector("#modal-compra-observacao").value = form.observacao || "";
-                document.querySelector("#modal-compra-fornecedor").value = form.fornecedor || "";
+                modalIdEl.value = form.idCompra || "";
+                modalDataEl.value = form.data || "";
+                modalObservacaoEl.value = form.observacao || "";
+                modalFornecedorEl.value = form.fornecedor || "";
+                modalFornecedorEl.dataset.nome = form.nomeFornecedor || "";
+                modalFornecedorEl.dataset.idFornecedor = form.datasetIdFornecedor || "";
+                modalFornecedorIdEl.value = form.idFornecedor || "";
 
                 const id = parseInt(form.idCompra) || 0;
                 lastEditId = id;
@@ -287,6 +296,7 @@ export function init() {
 
         saveFormDraft();
         compraModal.show();
+        validateFornecedor();
     }
 
     function populateCompraModal(compra) {
@@ -295,6 +305,8 @@ export function init() {
         modalObservacaoEl.value = compra.observacao;
         modalFornecedorEl.value = compra.fornecedor.nome;
         modalFornecedorIdEl.value = compra.fornecedor.idFornecedor;
+        modalFornecedorEl.dataset.idFornecedor = compra.fornecedor.idFornecedor;
+        modalFornecedorEl.dataset.nome = compra.fornecedor.nome;
 
         refreshItems();
     }
@@ -321,6 +333,8 @@ export function init() {
 
         modalItemsTotalOldEl.innerHTML = '';
         modalItemsTotalOldEl.classList.add('d-none');
+
+        validateFornecedor();
     }
 
     function clearCompraModalFields() {
@@ -350,17 +364,36 @@ export function init() {
     });
 
     // Validates fornecedor
-    modalFornecedorEl.addEventListener('change', (e) => {
-        const value = e.target.value;
-        if (value !== e.target.dataset.nome) {
-            modalFornecedorEl.setAttribute('isvalid', false);
-        }
+    modalFornecedorEl.addEventListener('input', () => {
+        validateFornecedor();
     });
+
+    function validateFornecedor() {        
+        const value = modalFornecedorEl.value;
+        const nome = modalFornecedorEl.dataset.nome;
+        const idFornecedor = modalFornecedorEl.dataset.idFornecedor;
+
+        if (value !== nome || idFornecedor !== modalFornecedorIdEl.value) {
+            modalFornecedorValidationEl.classList.add('invalid-feedback');
+            modalFornecedorValidationEl.innerText = "Fornecedor não selecionado ou inválido. Selecione novamente";
+            modalFornecedorEl.classList.add("is-invalid");
+            return false;
+        } else {
+            modalFornecedorValidationEl.innerText = `ID selecionado: ${idFornecedor}`;
+            modalFornecedorValidationEl.classList.remove('invalid-feedback');
+            modalFornecedorValidationEl.classList.add('valid-feedback');
+            modalFornecedorEl.classList.remove("is-invalid");
+            modalFornecedorEl.classList.add("is-valid");
+            return true
+        }
+    }
 
     function clearItemsFormFields() {
         const itemsForm = document.getElementById('items-form');
         itemsForm.querySelectorAll('input').forEach(el => el.value = '');
         addItemBtn.setAttribute('disabled', true);
+        modalQuantidadeEl.setAttribute('disabled', true);
+        modalValorUnitarioEl.setAttribute('disabled', true);
         modalCurrentProdutoEl.innerText = 'Aguardando selecionar produto...';
     }
 
@@ -400,9 +433,12 @@ export function init() {
 
         modalQuantidadeEl.value = item.quantidade || 1;
         modalValorUnitarioEl.value = parseFloat(item.valorUnitario || item.produto.precoAtual || '0.05').toFixed(2);
-        document.getElementById('add-button').removeAttribute('disabled');
         selectedProdutoIdEl.value = item.produto.idProduto;
         selectedProdutoNameEl.value = item.produto.nome;
+
+        addItemBtn.removeAttribute('disabled');
+        modalQuantidadeEl.removeAttribute('disabled');
+        modalValorUnitarioEl.removeAttribute('disabled');
     }
 
     function refreshItems() {
@@ -638,7 +674,11 @@ export function init() {
         if (dropdownId === dropdowns.fornecedor.id) {
             modalFornecedorEl.value = dataset.nome;
             modalFornecedorEl.dataset.nome = dataset.nome;
-            modalFornecedorIdEl.value = dataset.idUsuario;
+            modalFornecedorEl.dataset.idFornecedor = dataset.idFornecedor
+            modalFornecedorIdEl.value = dataset.idFornecedor;
+
+            validateFornecedor();
+            saveFormDraft();
 
         } else if (dropdownId === dropdowns.produto.id) {
             const idProduto = parseInt(dataset.idProduto);
@@ -657,12 +697,6 @@ export function init() {
                     currentItemIndex = null;
                 }
             }
-
-            addItemBtn.removeAttribute('disabled');
-            modalQuantidadeEl.removeAttribute('disabled');
-            modalValorUnitarioEl.removeAttribute('disabled');
-            selectedProdutoIdEl.value = idProduto;
-            selectedProdutoNameEl.value = dataset.nomeProduto;
 
         } else if (dropdownId === dropdowns.term.id) {
             searchTermEl.value = dataset.nomeProduto;
@@ -712,6 +746,11 @@ export function init() {
             }
         });
 
+        if (!compraFormEl.checkValidity() || !validateFornecedor()) {
+            compraFormEl.reportValidity();
+            return;
+        }
+
         sendCompra(id);
     });
 
@@ -725,6 +764,7 @@ export function init() {
 
         if (confirm) {
             lastEditId = null;
+            clearFormDraft();
         } else {
             const modal = bootstrap.Modal.getOrCreateInstance(compraModalEl);
             modal.show();
