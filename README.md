@@ -9,6 +9,10 @@ O objetivo desta versão é permitir testes iniciais e coleta de feedback sobre 
 <a href="https://github.com/anri-kot/RSLauncher/releases/tag/v1.0">RSLauncher</a>
 ---
 
+✅ LATEST COMPILED JAR + LAUNCHER + CONFIG
+-----------------------------------------
+[Google Drive because github upload takes too long](https://drive.google.com/drive/folders/1-CSCsjLD6uJXqseimPuQmP1A-2jjEFHQ?usp=sharing)
+
 ✅ FUNCIONALIDADES ATUALMENTE DISPONÍVEIS
 -----------------------------------------
 - Login com autenticação no banco de dados
