@@ -38,6 +38,7 @@ export function init() {
     const modalCurrentProdutoEl = document.getElementById('current-product');
     const modalFuncionarioIdEl = document.getElementById('modal-venda-funcionario-id');
     const modalFuncionarioUsernameEl = document.getElementById('modal-venda-funcionario-username');
+    const modalFuncionarioValidationEl = document.getElementById('funcionario-validation');
     const selectedProdutoIdEl = document.getElementById('selected-product-id');
     const selectedProdutoNameEl = document.getElementById('selected-product-name')
     const addItemBtn = document.getElementById('add-button');
@@ -180,14 +181,7 @@ export function init() {
 
     // Updates arrow symbol on toggle collapse
     document.getElementById('show-items-btn').addEventListener('click', () => {
-        const iconEl = document.getElementById('show-items-icon');
-        if (iconEl.classList.contains('bi-chevron-down')) {
-            iconEl.classList.remove('bi-chevron-down');
-            iconEl.classList.add('bi-chevron-up');
-        } else {
-            iconEl.classList.remove('bi-chevron-up');
-            iconEl.classList.add('bi-chevron-down');
-        }
+        updateArrowToggle();
     });
 
     // Checks if DINHEIRO is selected
@@ -221,6 +215,46 @@ export function init() {
         saveFormDraft(el);
     });
 
+    modalFuncionarioEl.addEventListener('input', () => {
+        validateFuncionario();
+    });
+
+    function updateArrowToggle() {
+        const iconEl = document.getElementById('show-items-icon');
+        if (iconEl.classList.contains('bi-chevron-down')) {
+            iconEl.classList.remove('bi-chevron-down');
+            iconEl.classList.add('bi-chevron-up');
+        } else {
+            iconEl.classList.remove('bi-chevron-up');
+            iconEl.classList.add('bi-chevron-down');
+        }
+    }
+
+    function validateFuncionario() {
+        const value = modalFuncionarioEl.value;
+        const nome = modalFuncionarioEl.dataset.nome;
+
+        if (value === nome) {
+            const id = parseInt(modalFuncionarioIdEl.value) || 0;
+            const username = modalFuncionarioUsernameEl.value;
+
+            if (id > 0 && username.length > 0) {
+                modalFuncionarioValidationEl.innerText = `ID: ${id} USERNAME: ${username}`;
+                modalFuncionarioValidationEl.classList.add("valid-feedback");
+                modalFuncionarioValidationEl.classList.remove("invalid-feedback");
+                modalFuncionarioEl.classList.add('is-valid');
+                modalFuncionarioEl.classList.remove('is-invalid');
+                return true;
+            }
+        }
+        modalFuncionarioEl.classList.add('is-invalid');
+        modalFuncionarioEl.classList.remove('is-valid');
+        modalFuncionarioValidationEl.innerText = 'Funcionário não selecionado ou inválido. Selecione novamente.';
+        modalFuncionarioValidationEl.classList.add('invalid-feedback');
+        modalFuncionarioValidationEl.classList.remove('valid-feedback');
+        return false;
+    }
+
     function saveFormDraft() {
         const draft = {
             form: {
@@ -230,7 +264,11 @@ export function init() {
                 metodoPagamento: document.querySelector("#modal-venda-metodoPagamento").value,
                 valorRecebido: document.querySelector("#modal-venda-valorRecebido").value,
                 troco: document.querySelector("#modal-venda-troco").value,
-                funcionario: document.querySelector("#modal-venda-funcionario").value,
+                funcionario: { 
+                    id: parseInt(modalFuncionarioIdEl.value) || null,
+                    nome: modalFuncionarioEl.dataset.nome,
+                    username: modalFuncionarioUsernameEl.value
+                }
             },
             items: {
                 itens: itens
@@ -249,13 +287,16 @@ export function init() {
 
             const form = parsed.form;
             if (form) {
-                document.querySelector("#modal-venda-idVenda").value = form.idVenda || "";
-                document.querySelector("#modal-venda-data").value = form.data || "";
-                document.querySelector("#modal-venda-observacao").value = form.observacao || "";
-                document.querySelector("#modal-venda-metodoPagamento").value = form.metodoPagamento || "";
-                document.querySelector("#modal-venda-valorRecebido").value = form.valorRecebido || "";
-                document.querySelector("#modal-venda-troco").value = form.troco || "";
-                document.querySelector("#modal-venda-funcionario").value = form.funcionario || "";
+                modalIdEl.value = form.idVenda || "";
+                modalDataEl.value = form.data || "";
+                modalObservacaoEl.value = form.observacao || "";
+                modalMetodoPagamentoEl.value = form.metodoPagamento || "";
+                modalValorRecebidoEl.value = form.valorRecebido || "";
+                modalTrocoEl.value = form.troco || "";
+                modalFuncionarioEl.value = form.funcionario.nome || "";
+                modalFuncionarioEl.dataset.nome = form.funcionario.nome || "";
+                modalFuncionarioIdEl.value = form.funcionario.id || "";
+                modalFuncionarioUsernameEl.value = form.funcionario.username || "";
 
                 const id = parseInt(form.idVenda) || 0;
                 lastEditId = id;
@@ -337,6 +378,7 @@ export function init() {
         const vendaModal = bootstrap.Modal.getOrCreateInstance(vendaModalEl);
 
         saveFormDraft();
+        validateFuncionario();
         vendaModal.show();
     }
 
@@ -350,6 +392,7 @@ export function init() {
         modalValorRecebidoEl.value = parseFloat(venda.valorRecebido).toFixed(2);
         modalTrocoEl.value = parseFloat(venda.troco).toFixed(2) || '';
         modalFuncionarioEl.value = `${venda.usuario.nome} ${venda.usuario.sobrenome}`;
+        modalFuncionarioEl.dataset.nome = modalFuncionarioEl.value;
         modalFuncionarioIdEl.value = venda.usuario.idUsuario;
         modalFuncionarioUsernameEl.value = venda.usuario.username;
 
@@ -582,6 +625,9 @@ export function init() {
                 const itemIndex = itens.findIndex(it => it.produto && it.produto.idProduto === ID);
                 currentItemIndex = itemIndex;
                 populateItemFields(itens[itemIndex]);
+                
+                bootstrap.Collapse.getOrCreateInstance("#modal-venda-items-container").show();
+                updateArrowToggle();
             });
 
             deleteButton.addEventListener('click', () => {
@@ -616,7 +662,12 @@ export function init() {
         if (item.desconto && item.desconto !== 0) {
             modalDescontoEl.value = parseFloat(item.desconto || '0.00').toFixed(2);
         }
-        document.getElementById('add-button').removeAttribute('disabled');
+
+        modalValorUnitarioEl.removeAttribute('disabled');
+        modalQuantidadeEl.removeAttribute('disabled');
+        modalDescontoEl.removeAttribute('disabled');
+        addItemBtn.removeAttribute('disabled');
+
         selectedProdutoIdEl.value = item.produto.idProduto;
         selectedProdutoNameEl.value = item.produto.nome;
     }
@@ -729,6 +780,7 @@ export function init() {
                 modalFuncionarioEl.setAttribute('data-nome', itemEl.dataset.nome);
                 modalFuncionarioIdEl.value = itemEl.dataset.idUsuario;
                 modalFuncionarioUsernameEl.value = itemEl.dataset.username;
+                validateFuncionario();
                 break;
             case autocompleteProdutoOptions.id:
                 const idProduto = parseInt(itemEl.dataset.idProduto);
@@ -748,11 +800,6 @@ export function init() {
 
                 selectedProdutoIdEl.value = idProduto;
                 selectedProdutoNameEl.value = itemEl.dataset.nomeProduto;
-
-                modalValorUnitarioEl.removeAttribute('disabled');
-                modalQuantidadeEl.removeAttribute('disabled');
-                modalDescontoEl.removeAttribute('disabled');
-                addItemBtn.removeAttribute('disabled');
                 break;
             case autocompleteSearchProdutos.id:
                 searchTerm.value = itemEl.dataset.nomeProduto;
@@ -802,7 +849,7 @@ export function init() {
 
     document.getElementById('confirm-register').addEventListener('click', (e) => {
         const id = parseInt(modalIdEl.value) || 0;
-        if (!vendaFormEl.checkValidity()) {
+        if (!vendaFormEl.checkValidity() || !validateFuncionario()) {
             vendaFormEl.reportValidity();
             return;
         }

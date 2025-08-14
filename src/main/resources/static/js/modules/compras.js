@@ -179,14 +179,7 @@ export function init() {
 
     // Updates arrow symbol on toggle collapse
     document.getElementById('show-items-btn').addEventListener('click', () => {
-        const iconEl = document.getElementById('show-items-icon');
-        if (iconEl.classList.contains('bi-chevron-down')) {
-            iconEl.classList.remove('bi-chevron-down');
-            iconEl.classList.add('bi-chevron-up');
-        } else {
-            iconEl.classList.remove('bi-chevron-up');
-            iconEl.classList.add('bi-chevron-down');
-        }
+        updateArrowToggle();
     });
 
     // Saves form to local storage
@@ -194,6 +187,31 @@ export function init() {
         const el = e.target.closest('form');
         saveFormDraft(el);
     });
+
+    // Validates fornecedor
+    modalFornecedorEl.addEventListener('input', () => {
+        validateFornecedor();
+    });
+
+    function validateFornecedor() {        
+        const value = modalFornecedorEl.value;
+        const nome = modalFornecedorEl.dataset.nome;
+        const idFornecedor = modalFornecedorEl.dataset.idFornecedor;
+
+        if (value !== nome || idFornecedor !== modalFornecedorIdEl.value) {
+            modalFornecedorValidationEl.classList.add('invalid-feedback');
+            modalFornecedorValidationEl.innerText = "Fornecedor não selecionado ou inválido. Selecione novamente";
+            modalFornecedorEl.classList.add("is-invalid");
+            return false;
+        } else {
+            modalFornecedorValidationEl.innerText = `ID selecionado: ${idFornecedor}`;
+            modalFornecedorValidationEl.classList.remove('invalid-feedback');
+            modalFornecedorValidationEl.classList.add('valid-feedback');
+            modalFornecedorEl.classList.remove("is-invalid");
+            modalFornecedorEl.classList.add("is-valid");
+            return true
+        }
+    }
 
     function saveFormDraft() {
         const draft = {
@@ -363,28 +381,14 @@ export function init() {
         addUpdateItem();
     });
 
-    // Validates fornecedor
-    modalFornecedorEl.addEventListener('input', () => {
-        validateFornecedor();
-    });
-
-    function validateFornecedor() {        
-        const value = modalFornecedorEl.value;
-        const nome = modalFornecedorEl.dataset.nome;
-        const idFornecedor = modalFornecedorEl.dataset.idFornecedor;
-
-        if (value !== nome || idFornecedor !== modalFornecedorIdEl.value) {
-            modalFornecedorValidationEl.classList.add('invalid-feedback');
-            modalFornecedorValidationEl.innerText = "Fornecedor não selecionado ou inválido. Selecione novamente";
-            modalFornecedorEl.classList.add("is-invalid");
-            return false;
+    function updateArrowToggle() {
+        const iconEl = document.getElementById('show-items-icon');
+        if (iconEl.classList.contains('bi-chevron-down')) {
+            iconEl.classList.remove('bi-chevron-down');
+            iconEl.classList.add('bi-chevron-up');
         } else {
-            modalFornecedorValidationEl.innerText = `ID selecionado: ${idFornecedor}`;
-            modalFornecedorValidationEl.classList.remove('invalid-feedback');
-            modalFornecedorValidationEl.classList.add('valid-feedback');
-            modalFornecedorEl.classList.remove("is-invalid");
-            modalFornecedorEl.classList.add("is-valid");
-            return true
+            iconEl.classList.remove('bi-chevron-up');
+            iconEl.classList.add('bi-chevron-down');
         }
     }
 
@@ -542,6 +546,9 @@ export function init() {
                 const itemIndex = itens.findIndex(it => it.produto && it.produto.idProduto === ID);
                 currentItemIndex = itemIndex;
                 populateItemFields(itens[itemIndex]);
+
+                bootstrap.Collapse.getOrCreateInstance("#modal-compra-items-container").show();
+                updateArrowToggle();
             });
 
             deleteButton.addEventListener('click', () => {

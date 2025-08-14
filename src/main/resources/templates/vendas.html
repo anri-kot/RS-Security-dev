@@ -322,7 +322,7 @@
                                             <div class="mb-2">
                                                 <label class="form-label">Data <small class="text-muted">mês/dia/ano,
                                                         hora</small></label>
-                                                <input type="datetime-local" name="data" id="modal-venda-data" class="form-control" required>
+                                                <input type="datetime-local" name="data" id="modal-venda-data" step="1" class="form-control" required>
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Observação</label>
@@ -356,7 +356,7 @@
                                                         placeholder="Digite o nome do funcionário"
                                                         hx-get="/vendas/autocomplete"
                                                         hx-target="#autocomplete-funcionario-options"
-                                                        hx-trigger="keyup changed delay:300ms">
+                                                        hx-trigger="keyup changed delay:300ms" required>
 
                                                     <input type="hidden" name="funcionarioId" id="modal-venda-funcionario-id">
                                                     <input type="hidden" name="funcionarioUsername" id="modal-venda-funcionario-username">
@@ -364,6 +364,7 @@
                                                     <div class="dropdown-menu w-100"
                                                         id="autocomplete-funcionario-options">
                                                     </div>
+                                                    <div id="funcionario-validation"></div>
                                                 </div>
                                             </div>
 
