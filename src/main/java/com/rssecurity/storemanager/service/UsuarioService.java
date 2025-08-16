@@ -186,9 +186,24 @@ public class UsuarioService implements UserDetailsService {
     }
 
     private Usuario setPassword(UsuarioDTO dto) {
-        Usuario entity = mapper.toEntity(dto);
-        String encodedPwd = passwordEncoder.encode(dto.senha());
-        entity.setSenha(encodedPwd);
-        return entity;
+        if (validatePassword(dto.senha())) {
+            Usuario entity = mapper.toEntity(dto);
+            String encodedPwd = passwordEncoder.encode(dto.senha());
+            entity.setSenha(encodedPwd);
+            return entity;
+        }
+        return null;
+    }
+
+    private boolean validatePassword(String password) {
+        String message = "Senha inválida.";
+        if (password.length() < 8) {
+            message = "Senha deve conter no mínimo 8 caracteres";
+        } else if (password.indexOf(" ") != -1) {
+            message = "Senha não pode conter espaços.";
+        } else {
+            return true;
+        }
+        throw new BadRequestException(message);
     }
 }

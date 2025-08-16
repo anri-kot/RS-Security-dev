@@ -1,12 +1,10 @@
 package com.rssecurity.storemanager.controller;
 
 import com.rssecurity.storemanager.dto.FornecedorDTO;
-import com.rssecurity.storemanager.excel.headers.FornecedorExcelHeader;
 import com.rssecurity.storemanager.excel.writter.FornecedorExcelWritter;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.service.FileDownloadService;
 import com.rssecurity.storemanager.service.FornecedorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;

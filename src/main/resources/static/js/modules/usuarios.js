@@ -105,23 +105,29 @@ export function init() {
     function validateSenha() {
         if (modalSenhaEl.disabled === true && modalConfirmSenhaEl.disabled === true) return true;
 
-        const senha = modalSenhaEl.value.trim();
-        const confirm = modalConfirmSenhaEl.value.trim();
+        const senha = modalSenhaEl.value;
+        const confirm = modalConfirmSenhaEl;
+        const senhaValidationEl = document.getElementById('senha-validation');
 
         let isLengthValid = false;
         let isConfirmValid = false;
+        let hasNoSpaces = false;
 
-        // Senha >= 6 caracteres
-        if (senha.length >= 8) {
+        modalSenhaEl.classList.remove('is-valid');
+        modalSenhaEl.classList.add('is-invalid');
+
+        if (senha.length < 8) {
+            senhaValidationEl.innerText = `A senha deve ter pelo menos 8 caracteres.`;
+        } else if (senha.indexOf(" ") !== -1) {
+            senhaValidationEl.innerText = 'A senha não deve conter espaços';
+        } else {
+            isLengthValid = true;
+            hasNoSpaces = true;
             modalSenhaEl.classList.remove('is-invalid');
             modalSenhaEl.classList.add('is-valid');
-            isLengthValid = true;
-        } else {
-            modalSenhaEl.classList.remove('is-valid');
-            modalSenhaEl.classList.add('is-invalid');
+            senhaValidationEl.innerText = '';
         }
 
-        // Senha igual confirmação
         if (senha === confirm && confirm.length > 0) {
             modalConfirmSenhaEl.classList.remove('is-invalid');
             modalConfirmSenhaEl.classList.add('is-valid');
@@ -131,7 +137,7 @@ export function init() {
             modalConfirmSenhaEl.classList.add('is-invalid');
         }
 
-        return isLengthValid && isConfirmValid;
+        return isLengthValid && isConfirmValid && hasNoSpaces;
     }
 
     function clearSenhaValidation() {

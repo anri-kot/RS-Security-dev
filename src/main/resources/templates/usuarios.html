@@ -197,13 +197,13 @@
                                 <div class="mb-3 d-none" id="senha-container">
                                     <label class="form-label" for="modal-usuario-senha" id="modal-usuario-senha-label">Nova Senha</label>
                                     <input type="password" name="senha" id="modal-usuario-senha" minlength="8" maxlength="24" class="form-control" disabled required>
-                                    <div class="invalid-feedback">
-                                        A senha deve ter pelo menos 6 caracteres.
+                                    <div id="senha-validation" class="invalid-feedback">
+                                        A senha deve ter pelo menos 8 caracteres.
                                     </div>
 
                                     <label class="form-label mt-3" for="modal-usuario-confirmSenha" id="modal-usuario-confirmSenha-label">Confirmar Nova Senha</label>
                                     <input type="password" name="confirmar-senha" id="modal-usuario-confirmSenha" minlength="8" maxlength="24" class="form-control" disabled required>
-                                    <div class="invalid-feedback">
+                                    <div id="confirm-validation" class="invalid-feedback">
                                         As senhas não coincidem.
                                     </div>
                                 </div>
