@@ -66,9 +66,9 @@
                                 <tr th:each="fornecedor : ${fornecedores}">
                                     <td th:text="${fornecedor.idFornecedor}"></td>
                                     <td th:text="${fornecedor.nome}"></td>
-                                    <td th:text="${fornecedor.cnpj}"></td>
+                                    <td th:text="${@formatterUtil.formatCnpj(fornecedor.cnpj)}"></td>
                                     <td th:text="${fornecedor.email}"></td>
-                                    <td th:text="${fornecedor.telefone}"></td>
+                                    <td th:text="${@formatterUtil.formatPhone(fornecedor.telefone)}"></td>
                                     <td class="text-end" sec:authorize="hasRole('ROLE_ADMIN')">
                                         <button class="btn btn-sm btn-outline-primary me-2" th:attr="data-id=${fornecedor.idFornecedor}"
                                             data-action="edit">
@@ -104,7 +104,7 @@
 
                         <div class="modal-body">
 
-                            <form autocomplete="off">
+                            <form id="modal-fornecedor-form" autocomplete="off">
                                 <div class="mb-3">
                                     <label class="form-label">ID</label>
                                     <input type="text" id="modal-fornecedor-idFornecedor" class="form-control" disabled>
@@ -112,19 +112,19 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Nome</label>
-                                    <input type="text" id="modal-fornecedor-nome" class="form-control" required>
+                                    <input type="text" name="nome" id="modal-fornecedor-nome" class="form-control" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">CNPJ</label>
-                                    <input type="text" id="modal-fornecedor-cnpj" class="form-control" required>
+                                    <input type="text" name="cnpj" maxlength="18" minlength="18" id="modal-fornecedor-cnpj" class="form-control" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Telefone</label>
-                                    <input type="text" id="modal-fornecedor-telefone" class="form-control" required>
+                                    <input type="text" name="telefone" maxlength="15" minlength="14" id="modal-fornecedor-telefone" class="form-control" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>
-                                    <input type="email" id="modal-fornecedor-email" class="form-control" required>
+                                    <input type="email" name="email" id="modal-fornecedor-email" minlength="3" maxlength="255" class="form-control" required>
                                 </div>
                             </form>
 

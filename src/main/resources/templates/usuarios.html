@@ -65,7 +65,7 @@
                                         <th scope="col">Telefone</th>
                                         <th scope="col" class="d-none d-lg-table-cell">Salário</th>
                                         <th scope="col">Permissões</th>
-                                        <th scope="col">Ações</th>
+                                        <th scope="col" class="text-center">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -78,7 +78,7 @@
                                             th:text="${#strings.abbreviate(usuario.sobrenome, 15)}"
                                             th:title="${usuario.sobrenome}"></td>
 
-                                        <td th:text="${usuario.cpf}"></td>
+                                        <td th:text="${@formatterUtil.formatCpf(usuario.cpf)}"></td>
 
                                         <td class="d-none d-lg-table-cell"
                                             th:text="${#strings.abbreviate(usuario.endereco, 20)}"
@@ -88,12 +88,12 @@
                                             th:text="${#strings.abbreviate(usuario.email, 20)}"
                                             th:title="${usuario.email}"></td>
 
-                                        <td th:text="${usuario.telefone}"></td>
+                                        <td th:text="${@formatterUtil.formatPhone(usuario.telefone)}"></td>
 
                                         <td class="d-none d-lg-table-cell"
-                                            th:text="${usuario.salario}"></td>
+                                            th:text="'R$ ' + ${#numbers.formatDecimal(usuario.salario, 1, 'POINT', 2, 'COMMA')}"></td>
 
-                                        <td>
+                                        <td class="text-center">
                                             <span th:if="${usuario.admin}" title="Administrador">
                                                 <i class="bi bi-shield-lock text-primary"></i>
                                             </span>
@@ -140,28 +140,28 @@
                             <form id="usuario-form">
                                 <div class="mb-3">
                                     <label class="form-label">ID</label>
-                                    <input type="text" id="modal-usuario-idUsuario" class="form-control" disabled required>
+                                    <input type="text" name="idUsuario" id="modal-usuario-idUsuario" class="form-control" disabled required>
                                     <input type="hidden" name="is-new" id="is-new">
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Username</label>
-                                    <input type="text" id="modal-usuario-username" class="form-control" maxlength="20" required>
+                                    <input type="text" name="username" id="modal-usuario-username" minlength="4" class="form-control" maxlength="20" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Nome</label>
-                                    <input type="text" id="modal-usuario-nome" class="form-control" maxlength="100" required>
+                                    <input type="text" name="nome" id="modal-usuario-nome" class="form-control" minlength="2" maxlength="70" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Sobrenome</label>
-                                    <input type="text" id="modal-usuario-sobrenome" class="form-control" maxlength="200" required>
+                                    <input type="text" name="sobrenome" id="modal-usuario-sobrenome" class="form-control" minlength="2" maxlength="100" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">CPF</label>
-                                    <input type="text" id="modal-usuario-cpf" class="form-control" maxlength="14" required>
+                                    <input type="text" name="cpf" id="modal-usuario-cpf" class="form-control" minlength="14" maxlength="14" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Endereço</label>
-                                    <input type="text" id="modal-usuario-endereco" class="form-control" maxlength="250" required>
+                                    <input type="text" id="modal-usuario-endereco" class="form-control" minlength="3" maxlength="250" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>
@@ -169,11 +169,11 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Telefone</label>
-                                    <input type="text" id="modal-usuario-telefone" class="form-control" maxlength="14" required>
+                                    <input type="text" id="modal-usuario-telefone" class="form-control" minlength="14" maxlength="15" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Salário</label>
-                                    <input type="number" id="modal-usuario-salario" step="0.1" class="form-control" required>
+                                    <input type="number" id="modal-usuario-salario" step="0.1" min="0.0" class="form-control" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Permissões</label>
@@ -196,14 +196,14 @@
 
                                 <div class="mb-3 d-none" id="senha-container">
                                     <label class="form-label" for="modal-usuario-senha" id="modal-usuario-senha-label">Nova Senha</label>
-                                    <input type="password" id="modal-usuario-senha" class="form-control" disabled required>
-                                    <div class="invalid-feedback">
-                                        A senha deve ter pelo menos 6 caracteres.
+                                    <input type="password" name="senha" id="modal-usuario-senha" minlength="8" maxlength="24" class="form-control" disabled required>
+                                    <div id="senha-validation" class="invalid-feedback">
+                                        A senha deve ter pelo menos 8 caracteres.
                                     </div>
 
                                     <label class="form-label mt-3" for="modal-usuario-confirmSenha" id="modal-usuario-confirmSenha-label">Confirmar Nova Senha</label>
-                                    <input type="password" id="modal-usuario-confirmSenha" class="form-control" disabled required>
-                                    <div class="invalid-feedback">
+                                    <input type="password" name="confirmar-senha" id="modal-usuario-confirmSenha" minlength="8" maxlength="24" class="form-control" disabled required>
+                                    <div id="confirm-validation" class="invalid-feedback">
                                         As senhas não coincidem.
                                     </div>
                                 </div>

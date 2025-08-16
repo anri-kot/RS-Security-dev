@@ -61,6 +61,16 @@ public class VendaService {
                 .toList();
     }
 
+    /**
+     * @param filter:
+     * - tipo: can be 'usuario', 'produtoNome', 'produtoId' or 'codigo', where usuario searches for username and codigo searches for codigoBarras
+     * - termo: queue for the selected 'tipo'
+     * - observacao
+     * - metodoPagamento
+     * - dataInicio
+     * - dataFim
+     * - data: searches for 'venda' registers in a specific date
+    */
     public List<VendaDTO> findAllByCustomMatcher(Map<String, String> filter) {
         filter.values().removeIf(String::isBlank);
 

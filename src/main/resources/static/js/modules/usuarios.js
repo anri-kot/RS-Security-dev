@@ -1,3 +1,4 @@
+import Formatter from "/js/formatter.js";
 export function init() {
     let lastSearch = null;
 
@@ -75,6 +76,14 @@ export function init() {
     radioChangePwTrue.addEventListener('change', toggleSenhaFields);
     radioChangePwFalse.addEventListener('change', toggleSenhaFields);
 
+    // formatting
+    modalCpfEl.addEventListener('input', e => {
+        e.target.value = Formatter.formatCpf(e.target.value);
+    });
+    modalTelefoneEl.addEventListener('input', e => {
+        e.target.value = Formatter.formatPhone(e.target.value);
+    });
+
     function toggleSenhaFields() {
         const doEnable = radioChangePwTrue.checked;
         if (doEnable) {
@@ -96,23 +105,29 @@ export function init() {
     function validateSenha() {
         if (modalSenhaEl.disabled === true && modalConfirmSenhaEl.disabled === true) return true;
 
-        const senha = modalSenhaEl.value.trim();
-        const confirm = modalConfirmSenhaEl.value.trim();
+        const senha = modalSenhaEl.value;
+        const confirm = modalConfirmSenhaEl;
+        const senhaValidationEl = document.getElementById('senha-validation');
 
         let isLengthValid = false;
         let isConfirmValid = false;
+        let hasNoSpaces = false;
 
-        // Senha >= 6 caracteres
-        if (senha.length >= 6) {
+        modalSenhaEl.classList.remove('is-valid');
+        modalSenhaEl.classList.add('is-invalid');
+
+        if (senha.length < 8) {
+            senhaValidationEl.innerText = `A senha deve ter pelo menos 8 caracteres.`;
+        } else if (senha.indexOf(" ") !== -1) {
+            senhaValidationEl.innerText = 'A senha não deve conter espaços';
+        } else {
+            isLengthValid = true;
+            hasNoSpaces = true;
             modalSenhaEl.classList.remove('is-invalid');
             modalSenhaEl.classList.add('is-valid');
-            isLengthValid = true;
-        } else {
-            modalSenhaEl.classList.remove('is-valid');
-            modalSenhaEl.classList.add('is-invalid');
+            senhaValidationEl.innerText = '';
         }
 
-        // Senha igual confirmação
         if (senha === confirm && confirm.length > 0) {
             modalConfirmSenhaEl.classList.remove('is-invalid');
             modalConfirmSenhaEl.classList.add('is-valid');
@@ -122,7 +137,7 @@ export function init() {
             modalConfirmSenhaEl.classList.add('is-invalid');
         }
 
-        return isLengthValid && isConfirmValid;
+        return isLengthValid && isConfirmValid && hasNoSpaces;
     }
 
     function clearSenhaValidation() {
@@ -331,15 +346,19 @@ export function init() {
         }
     }
 
+    function unmask(value) {
+        return value.trim().replace(/\D/g, '');
+    }
+
     function getUsuarioObj() {
         const idValue = modalIdUsuarioEl.value === "" ? null : parseInt(modalIdUsuarioEl.value);
         const idUsuario = idValue;
         const nome = modalNomeoEl.value.trim();
         const username = modalUsernameEl.value.trim();
         const sobrenome = modalSobrenomeEl.value.trim();
-        const cpf = modalCpfEl.value.trim();
+        const cpf = unmask(modalCpfEl.value);
         const endereco = modalEnderecoEl.value.trim();
-        const telefone = modalTelefoneEl.value.trim();
+        const telefone = unmask(modalTelefoneEl.value);
         const email = modalEmailEl.value.trim();
         const senha = modalSenhaEl.value;
         const salario = parseFloat(modalSalarioEl.value);

@@ -1,7 +1,13 @@
 export function init() {
+    let alreadySet = false;
 
     let total = 0;
     let lastSearch = '';
+    let lastEditId = null;
+    let itens = [];
+
+    let isVendaPage = location.pathname.includes('vendas');
+    const STORAGE_KEY = 'venda-form-draft';
 
     const filterEl = document.getElementById('filter');
     const searchBy = document.getElementById('search-type');
@@ -13,6 +19,7 @@ export function init() {
 
     let currentItemIndex = null;
 
+    const vendaFormEl = document.getElementById('venda-form');
     // Venda Modal fields
     const modalIdEl = document.getElementById('modal-venda-idVenda');
     const modalDataEl = document.getElementById('modal-venda-data');
@@ -31,6 +38,7 @@ export function init() {
     const modalCurrentProdutoEl = document.getElementById('current-product');
     const modalFuncionarioIdEl = document.getElementById('modal-venda-funcionario-id');
     const modalFuncionarioUsernameEl = document.getElementById('modal-venda-funcionario-username');
+    const modalFuncionarioValidationEl = document.getElementById('funcionario-validation');
     const selectedProdutoIdEl = document.getElementById('selected-product-id');
     const selectedProdutoNameEl = document.getElementById('selected-product-name')
     const addItemBtn = document.getElementById('add-button');
@@ -38,7 +46,23 @@ export function init() {
     const modalConfirmEl = document.getElementById('confirma-modal');
     const modalConfirmLabelEl = document.getElementById('confirmar-label');
     const modalConfirmMsgEl = document.getElementById('confirmar-mensagem');
+    const modalConfirmCancelButtonEl = document.getElementById('cancelar-acao');
     const modalConfirmOkButtonEl = document.getElementById('confirmar-acao');
+
+    restoreFormDraft();
+
+    // Keeps track of the current search and restores modal
+    document.addEventListener('htmx:afterSwap', (e) => {
+        isVendaPage = location.pathname.includes('vendas');
+        if (!isVendaPage) return;
+
+        if (!alreadySet) {
+            lastSearch = location.search;
+            restoreFormDraft();
+            alreadySet = true;
+        }
+
+    });
 
     // Keeps track of the current search
     document.addEventListener('htmx:afterSettle', (e) => {
@@ -126,8 +150,6 @@ export function init() {
 
     // MODALS
 
-    let itens = [];
-
     // VENDA MODAL
 
     // Listens to new Venda button
@@ -136,28 +158,30 @@ export function init() {
     });
 
     // Listens to edit/remove buttons
-    document.getElementById('cards-vendas').addEventListener('click', (e) => {
+    document.getElementById('cards-vendas').addEventListener('click', async (e) => {
         if (e.target.closest('button')) {
             const el = e.target.closest('button');
 
-            if (el.dataset.action == 'edit') {                
+            if (el.dataset.action == 'edit') {
                 showVendaModal(el.dataset.id);
-            } else if (el.dataset.action == 'delete') {                
-                showConfirmModal(el.dataset.id);
+            } else if (el.dataset.action == 'delete') {
+                const id = el.dataset.id;
+                const message = `Tem certeza que deseja deletar a venda número <strong>#${id}</strong>?`;
+
+                const confirmed = await showConfirmModal(id, 'delete', message);
+                if (confirmed) {
+                    deleteVenda(id);
+                }
+                
+                const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
+                confirmModal.hide();
             }
         }
     });
 
     // Updates arrow symbol on toggle collapse
     document.getElementById('show-items-btn').addEventListener('click', () => {
-        const iconEl = document.getElementById('show-items-icon');
-        if (iconEl.classList.contains('bi-chevron-down')) {
-            iconEl.classList.remove('bi-chevron-down');
-            iconEl.classList.add('bi-chevron-up');
-        } else {
-            iconEl.classList.remove('bi-chevron-up');
-            iconEl.classList.add('bi-chevron-down');
-        }
+        updateArrowToggle();
     });
 
     // Checks if DINHEIRO is selected
@@ -185,6 +209,113 @@ export function init() {
         }
     });
 
+    // Saves form to local storage
+    vendaFormEl.addEventListener('input', (e) => {
+        const el = e.target.closest('form');
+        saveFormDraft(el);
+    });
+
+    modalFuncionarioEl.addEventListener('input', () => {
+        validateFuncionario();
+    });
+
+    function updateArrowToggle() {
+        const iconEl = document.getElementById('show-items-icon');
+        if (iconEl.classList.contains('bi-chevron-down')) {
+            iconEl.classList.remove('bi-chevron-down');
+            iconEl.classList.add('bi-chevron-up');
+        } else {
+            iconEl.classList.remove('bi-chevron-up');
+            iconEl.classList.add('bi-chevron-down');
+        }
+    }
+
+    function validateFuncionario() {
+        const value = modalFuncionarioEl.value;
+        const nome = modalFuncionarioEl.dataset.nome;
+
+        if (value === nome) {
+            const id = parseInt(modalFuncionarioIdEl.value) || 0;
+            const username = modalFuncionarioUsernameEl.value;
+
+            if (id > 0 && username.length > 0) {
+                modalFuncionarioValidationEl.innerText = `ID: ${id} USERNAME: ${username}`;
+                modalFuncionarioValidationEl.classList.add("valid-feedback");
+                modalFuncionarioValidationEl.classList.remove("invalid-feedback");
+                modalFuncionarioEl.classList.add('is-valid');
+                modalFuncionarioEl.classList.remove('is-invalid');
+                return true;
+            }
+        }
+        modalFuncionarioEl.classList.add('is-invalid');
+        modalFuncionarioEl.classList.remove('is-valid');
+        modalFuncionarioValidationEl.innerText = 'Funcionário não selecionado ou inválido. Selecione novamente.';
+        modalFuncionarioValidationEl.classList.add('invalid-feedback');
+        modalFuncionarioValidationEl.classList.remove('valid-feedback');
+        return false;
+    }
+
+    function saveFormDraft() {
+        const draft = {
+            form: {
+                idVenda: document.querySelector("#modal-venda-idVenda").value,
+                data: document.querySelector("#modal-venda-data").value,
+                observacao: document.querySelector("#modal-venda-observacao").value,
+                metodoPagamento: document.querySelector("#modal-venda-metodoPagamento").value,
+                valorRecebido: document.querySelector("#modal-venda-valorRecebido").value,
+                troco: document.querySelector("#modal-venda-troco").value,
+                funcionario: { 
+                    id: parseInt(modalFuncionarioIdEl.value) || null,
+                    nome: modalFuncionarioEl.dataset.nome,
+                    username: modalFuncionarioUsernameEl.value
+                }
+            },
+            items: {
+                itens: itens
+            }
+        };
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    }
+
+    function restoreFormDraft() {
+        const draft = localStorage.getItem(STORAGE_KEY);
+        if (!draft) return;
+
+        try {
+            const parsed = JSON.parse(draft);
+
+            const form = parsed.form;
+            if (form) {
+                modalIdEl.value = form.idVenda || "";
+                modalDataEl.value = form.data || "";
+                modalObservacaoEl.value = form.observacao || "";
+                modalMetodoPagamentoEl.value = form.metodoPagamento || "";
+                modalValorRecebidoEl.value = form.valorRecebido || "";
+                modalTrocoEl.value = form.troco || "";
+                modalFuncionarioEl.value = form.funcionario.nome || "";
+                modalFuncionarioEl.dataset.nome = form.funcionario.nome || "";
+                modalFuncionarioIdEl.value = form.funcionario.id || "";
+                modalFuncionarioUsernameEl.value = form.funcionario.username || "";
+
+                const id = parseInt(form.idVenda) || 0;
+                lastEditId = id;
+            }
+
+            const itemsWrapper = parsed.items;
+            if (itemsWrapper && itemsWrapper.itens && Array.isArray(itemsWrapper.itens)) {
+                itens = itemsWrapper.itens; 
+                refreshItems(); 
+            }
+        } catch (e) {
+            console.error("Erro ao restaurar rascunho:", e);
+        }
+    }
+
+    function clearFormDraft() {
+        localStorage.removeItem(STORAGE_KEY);
+    }
+
     function updateTroco(receivedMoney) {
         const receivedMoneyCents = Math.round(receivedMoney * 100);
         const totalCents = Math.round(total * 100);
@@ -193,8 +324,7 @@ export function init() {
         if (total !== receivedMoney && troco < 0) {
             modalValorRecebidoEl.classList.add('is-invalid');
             modalTrocoEl.classList.add('is-invalid');
-            const vendaForm = document.getElementById('venda-form');
-            vendaForm.reportValidity();
+            vendaFormEl.reportValidity();
         } else {
             modalValorRecebidoEl.classList.remove('is-invalid');
             modalTrocoEl.classList.remove('is-invalid');
@@ -203,10 +333,31 @@ export function init() {
         modalTrocoEl.value = troco.toFixed(2);
     }
 
-    async function showVendaModal(id) {
-        clearVendaModalFields();
+    async function showVendaModal(id = 0) {
+        const isTheSame = lastEditId === (parseInt(id) || 0);
 
-        if (id || id > 0) {
+        if (lastEditId !== null) {
+            if (!isTheSame && itens.length > 0) {
+                let message;
+                if (lastEditId > 0) {
+                    message = `Você estava editando a venda de <strong>ID ${lastEditId}</strong>. Se continuar as alterações não serão aplicadas.`;
+                } else {
+                    message = `Você estava editando uma nova venda. Se continuar o registro será perdido.`;
+                }
+
+                const confirmed = await showConfirmModal(id, 'switch-edit', message);
+                if (!confirmed) {
+                    return;
+                }
+
+                lastEditId = null;
+                clearVendaModalFields();
+            }
+        } else {
+            clearVendaModalFields();
+        }
+
+        if (id > 0 && !isTheSame) {
             let venda;
 
             try {
@@ -222,8 +373,12 @@ export function init() {
             itens = venda.itens;
             populateVendaModal(venda);
         }
+        
+        lastEditId = parseInt(id);
         const vendaModal = bootstrap.Modal.getOrCreateInstance(vendaModalEl);
 
+        saveFormDraft();
+        validateFuncionario();
         vendaModal.show();
     }
 
@@ -237,6 +392,7 @@ export function init() {
         modalValorRecebidoEl.value = parseFloat(venda.valorRecebido).toFixed(2);
         modalTrocoEl.value = parseFloat(venda.troco).toFixed(2) || '';
         modalFuncionarioEl.value = `${venda.usuario.nome} ${venda.usuario.sobrenome}`;
+        modalFuncionarioEl.dataset.nome = modalFuncionarioEl.value;
         modalFuncionarioIdEl.value = venda.usuario.idUsuario;
         modalFuncionarioUsernameEl.value = venda.usuario.username;
 
@@ -252,9 +408,8 @@ export function init() {
     }
 
     function clearVendaFormFields() {
-        const vendaForm = document.getElementById('venda-form');
         modalTrocoEl.setAttribute('disabled', true);
-        vendaForm.querySelectorAll('input').forEach(el => {
+        vendaFormEl.querySelectorAll('input').forEach(el => {
             el.value = '';
 
             if (el.type.includes('date')) {
@@ -299,7 +454,12 @@ export function init() {
 
     // Listens for ADICIONAR button click
     addItemBtn.addEventListener('click', () => {
-        addUpdateItem();
+        const itemsFormEl = document.getElementById('items-form');
+        if (itemsFormEl.checkValidity()) {
+            addUpdateItem();
+        } else {
+            itemsFormEl.reportValidity();
+        }
     });
 
     // Validates funcionario
@@ -314,6 +474,13 @@ export function init() {
         const itemsForm = document.getElementById('items-form');
         itemsForm.querySelectorAll('input').forEach(el => el.value = '');
         modalCurrentProdutoEl.innerText = 'Aguardando selecionar produto...';
+
+        modalValorUnitarioEl.setAttribute('disabled', true);
+        modalQuantidadeEl.setAttribute('disabled', true);
+        modalDescontoEl.setAttribute('disabled', true);
+        modalDescontoEl.value = '0';
+
+        addItemBtn.setAttribute('disabled', true);
     }
 
     function addUpdateItem() {
@@ -340,11 +507,12 @@ export function init() {
             });
         }
 
+        saveFormDraft();
         refreshItems();
         clearItemsFormFields();
     }
 
-    function refreshItems() {
+    function refreshItems() {        
         modalItensEl.innerHTML = '';
         let oldTotalCents = 0;
         let totalCents = 0;
@@ -376,7 +544,7 @@ export function init() {
 
         const currentValue = parseFloat(modalValorRecebidoEl.value);
         if (modalMetodoPagamentoEl.value !== 'DINHEIRO') {
-            
+
             if (currentValue < total) {
                 modalValorRecebidoEl.value = total.toFixed(2);
             }
@@ -449,7 +617,7 @@ export function init() {
             deleteButton.classList.add('btn', 'btn-sm', 'btn-outline-danger');
             deleteButton.setAttribute('title', 'Excluir');
             deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
-                        
+
             editButton.dataset.idProduto = ID;
             deleteButton.dataset.idProduto = ID;
 
@@ -457,6 +625,9 @@ export function init() {
                 const itemIndex = itens.findIndex(it => it.produto && it.produto.idProduto === ID);
                 currentItemIndex = itemIndex;
                 populateItemFields(itens[itemIndex]);
+                
+                bootstrap.Collapse.getOrCreateInstance("#modal-venda-items-container").show();
+                updateArrowToggle();
             });
 
             deleteButton.addEventListener('click', () => {
@@ -487,31 +658,53 @@ export function init() {
 
         modalQuantidadeEl.value = item.quantidade || 1;
         modalValorUnitarioEl.value = parseFloat(item.valorUnitario || item.produto.precoAtual || '0.05').toFixed(2);
+        modalValorUnitarioEl.setAttribute('min', item.valorUnitario);
         if (item.desconto && item.desconto !== 0) {
             modalDescontoEl.value = parseFloat(item.desconto || '0.00').toFixed(2);
         }
-        document.getElementById('add-button').removeAttribute('disabled');
+
+        modalValorUnitarioEl.removeAttribute('disabled');
+        modalQuantidadeEl.removeAttribute('disabled');
+        modalDescontoEl.removeAttribute('disabled');
+        addItemBtn.removeAttribute('disabled');
+
         selectedProdutoIdEl.value = item.produto.idProduto;
         selectedProdutoNameEl.value = item.produto.nome;
     }
 
     // CONFIRM MODAL
 
-    modalConfirmOkButtonEl.addEventListener('click', (e) => {
-        deleteVenda(e.target.dataset.id);
-        const modal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
-        modal.hide();
-    });
+    function showConfirmModal(id, action, message) {
+        return new Promise((resolve) => {
+            const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
 
-    function showConfirmModal(id) {
-        const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
-        if (!id) return;
+            modalConfirmLabelEl.innerText = `Tem certeza de que deseja continuar?`;
+            modalConfirmMsgEl.innerHTML = message;
 
-        modalConfirmLabelEl.innerText = 'Confirmar delete';
-        modalConfirmOkButtonEl.dataset.id = id;
-        modalConfirmMsgEl.innerHTML = `Tem certeza que deseja deletar a venda número <strong>#${id}</strong>?`;
+            modalConfirmOkButtonEl.dataset.id = id;
+            modalConfirmOkButtonEl.dataset.action = action;
 
-        confirmModal.show();
+            const okHandler = () => {
+                cleanUp();
+                resolve(true);
+            };
+
+            const cancelHandler = () => {
+                cleanUp();
+                resolve(false)
+            };
+
+            const cleanUp = () => {
+                modalConfirmOkButtonEl.removeEventListener('click', okHandler);
+                modalConfirmCancelButtonEl.removeEventListener('click', cancelHandler);
+                confirmModal.hide();
+            };
+
+            modalConfirmOkButtonEl.addEventListener('click', okHandler);
+            modalConfirmCancelButtonEl.addEventListener('click', cancelHandler);
+
+            confirmModal.show();
+        });
     }
 
     /* === DROPDOWNS === */
@@ -520,7 +713,7 @@ export function init() {
 
     // Listens for DROPDOWN clicks
     dropdownsIds.forEach((id) => {
-        document.getElementById(id).addEventListener('click', (e) => {            
+        document.getElementById(id).addEventListener('click', (e) => {
             const itemEl = e.target.closest('li');
             e.target.classList.remove('show');
             clickDropdown(itemEl, id);
@@ -558,7 +751,7 @@ export function init() {
 
     // checks if search field is blank or < 3 before request
     document.body.addEventListener("htmx:beforeRequest", (event) => {
-
+        if (!isVendaPage) return;
         if (event.target.id === searchProduct.id) {
             const value = event.target.value.trim();
 
@@ -573,6 +766,7 @@ export function init() {
 
     // Updated dropdown on htmx requests
     document.body.addEventListener('htmx:afterSwap', (event) => {
+        if (!isVendaPage) return;
         if (event.target.id === autocompleteProdutoOptions.id) {
             lastQuery = searchProduct.value.trim();
             updateDropdown('produto');
@@ -586,6 +780,7 @@ export function init() {
                 modalFuncionarioEl.setAttribute('data-nome', itemEl.dataset.nome);
                 modalFuncionarioIdEl.value = itemEl.dataset.idUsuario;
                 modalFuncionarioUsernameEl.value = itemEl.dataset.username;
+                validateFuncionario();
                 break;
             case autocompleteProdutoOptions.id:
                 const idProduto = parseInt(itemEl.dataset.idProduto);
@@ -603,7 +798,6 @@ export function init() {
                     currentItemIndex = null;
                 };
 
-                document.getElementById('add-button').removeAttribute('disabled');
                 selectedProdutoIdEl.value = idProduto;
                 selectedProdutoNameEl.value = itemEl.dataset.nomeProduto;
                 break;
@@ -655,6 +849,10 @@ export function init() {
 
     document.getElementById('confirm-register').addEventListener('click', (e) => {
         const id = parseInt(modalIdEl.value) || 0;
+        if (!vendaFormEl.checkValidity() || !validateFuncionario()) {
+            vendaFormEl.reportValidity();
+            return;
+        }
 
         modalFuncionarioEl.querySelectorAll('option').forEach(opt => {
             if (opt.value === modalFuncionarioEl.value) {
@@ -700,6 +898,7 @@ export function init() {
                 alert('Ação executada com sucesso.');
                 refreshVendas();
                 vendaModal.hide();
+                clearFormDraft();
             }
         } catch (e) {
             console.error('Erro inesperado:', e);

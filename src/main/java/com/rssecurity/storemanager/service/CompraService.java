@@ -289,9 +289,11 @@ public class CompraService {
             case "DELETE" -> {
                 // Subtracts from the stock
                 for (ItemCompraDTO item : compraDTO.itens()) {
-                    Long idProduto = item.produto().idProduto();
-                    Integer quantidade = item.quantidade();
-                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
+                    if (item.produto() != null) {
+                        Long idProduto = item.produto().idProduto();
+                        Integer quantidade = item.quantidade();
+                        stockArranges.merge(idProduto, -quantidade, Integer::sum);
+                    }
                 }
             }
 

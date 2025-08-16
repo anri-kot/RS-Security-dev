@@ -1,6 +1,8 @@
 package com.rssecurity.storemanager.excel.headers;
 
-public enum FornecedorExcelHeader {
+import com.rssecurity.storemanager.util.FormatterUtil;
+
+public enum FornecedorExcelHeader implements ExcelHeader {
     ID("id"),
     NOME("nome"),
     CNPJ("cnpj"),
@@ -15,5 +17,19 @@ public enum FornecedorExcelHeader {
     
     public String getHeaderName() {
         return headerName;
+    }
+
+    @Override
+    public String getKey() {
+        return switch (this) {
+            case ID -> "idFornecedor";
+            default -> FormatterUtil.formatCamelCase(headerName);
+        };
+    }
+
+    // Has no numeric fields
+    @Override
+    public boolean isNumeric() {
+        return false;
     }
 }

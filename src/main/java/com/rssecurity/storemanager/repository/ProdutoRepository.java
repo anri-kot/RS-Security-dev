@@ -27,4 +27,6 @@ public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     Page<Produto> findByCodigoBarrasContains(String codigoBarras, Pageable p);
 
     Page<Produto> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String nome, Long categoria, Pageable p);
+
+    boolean existsByCodigoBarras(String codigoBarras);
 }

@@ -1,6 +1,15 @@
+// ======== INIT + STATE ========
 export function init() {
+    let alreadySet = false;
 
-    let lastSearch = '';
+    let lastSearch = location.search;
+    let lastEditId = null;
+    let itens = [];
+    let total = 0;
+    let currentItemIndex = null;
+    let lastQuery = null;
+
+    const STORAGE_KEY = 'compra-form-draft';
 
     // ================== ELEMENTS ==================
     // ===== MAIN SEARCH
@@ -13,6 +22,7 @@ export function init() {
     // ===== MODALS
     // Compra
     const compraModalEl = document.getElementById('compra-modal');
+    const compraFormEl = document.getElementById('compra-form');
     const modalIdEl = document.getElementById('modal-compra-idCompra');
     const modalDataEl = document.getElementById('modal-compra-data');
     const modalObservacaoEl = document.getElementById('modal-compra-observacao');
@@ -25,9 +35,11 @@ export function init() {
     const modalValorUnitarioEl = document.getElementById('modal-compra-valorUnitario');
     const modalCurrentProdutoEl = document.getElementById('current-product');
     const modalFornecedorIdEl = document.getElementById('modal-compra-fornecedor-id');
+    const modalFornecedorNomeEl = document.getElementById('modal-compra-fornecedor-nome');
     const selectedProdutoIdEl = document.getElementById('selected-product-id');
     const selectedProdutoNameEl = document.getElementById('selected-product-name')
     const addItemBtn = document.getElementById('add-button');
+    const modalFornecedorValidationEl = document.getElementById('fornecedor-validation')
     // Compra Items Search
     const itemSearchTypeEl = document.getElementById('item-search-type');
     const itemSearchProduct = document.getElementById('search-product');
@@ -39,10 +51,20 @@ export function init() {
     const modalConfirmLabelEl = document.getElementById('confirmar-label');
     const modalConfirmMsgEl = document.getElementById('confirmar-mensagem');
     const modalConfirmOkButtonEl = document.getElementById('confirmar-acao');
+    const modalConfirmCancelButtonEl = document.getElementById('cancelar-acao');
 
-    // Keeps track of the current search
-    document.addEventListener('htmx:afterSettle', (e) => {
-        lastSearch = location.search;
+    restoreFormDraft();
+
+    // Keeps track of the current search and restores modal
+    document.addEventListener('htmx:afterSwap', (e) => {
+        if (!location.pathname.includes('compras')) return;
+
+        if (!alreadySet) {
+            lastSearch = location.search;
+            restoreFormDraft();
+            alreadySet = true;
+        }
+
     });
 
     // ================== MAIN SEARCH ==================
@@ -128,43 +150,149 @@ export function init() {
 
     /* ================== COMPRA MODAL ================== */
 
-    let itens = [];
-    let total = 0;
-
     // Listens to new Compra button
     document.getElementById('new-compra').addEventListener('click', () => {
         showCompraModal();
     });
 
     // Listens to edit/remove buttons
-    document.getElementById('cards-compras').addEventListener('click', (e) => {
+    document.getElementById('cards-compras').addEventListener('click', async (e) => {
         if (e.target.closest('button')) {
             const el = e.target.closest('button');
 
             if (el.dataset.action == 'edit') {
                 showCompraModal(el.dataset.id);
             } else if (el.dataset.action == 'delete') {
-                showConfirmModal(el.dataset.id);
+                const id = el.dataset.id;
+                const message = `Tem certeza que deseja deletar a compra número <strong>#${id}</strong>?`;
+                
+                const confirmed = await showConfirmModal(id, 'delete', message);
+                if (confirmed) {
+                    deleteCompra(id);
+                }
+                
+                const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
+                confirmModal.hide();
             }
         }
     });
 
     // Updates arrow symbol on toggle collapse
     document.getElementById('show-items-btn').addEventListener('click', () => {
-        const iconEl = document.getElementById('show-items-icon');
-        if (iconEl.classList.contains('bi-chevron-down')) {
-            iconEl.classList.remove('bi-chevron-down');
-            iconEl.classList.add('bi-chevron-up');
-        } else {
-            iconEl.classList.remove('bi-chevron-up');
-            iconEl.classList.add('bi-chevron-down');
-        }
+        updateArrowToggle();
     });
 
-    async function showCompraModal(id) {
-        clearCompraModalFields();
+    // Saves form to local storage
+    compraFormEl.addEventListener('input', (e) => {
+        const el = e.target.closest('form');
+        saveFormDraft(el);
+    });
 
-        if (id || id > 0) {
+    // Validates fornecedor
+    modalFornecedorEl.addEventListener('input', () => {
+        validateFornecedor();
+    });
+
+    function validateFornecedor() {        
+        const value = modalFornecedorEl.value;
+        const nome = modalFornecedorEl.dataset.nome;
+        const idFornecedor = modalFornecedorEl.dataset.idFornecedor;
+
+        if (value !== nome || idFornecedor !== modalFornecedorIdEl.value) {
+            modalFornecedorValidationEl.classList.add('invalid-feedback');
+            modalFornecedorValidationEl.innerText = "Fornecedor não selecionado ou inválido. Selecione novamente";
+            modalFornecedorEl.classList.add("is-invalid");
+            return false;
+        } else {
+            modalFornecedorValidationEl.innerText = `ID selecionado: ${idFornecedor}`;
+            modalFornecedorValidationEl.classList.remove('invalid-feedback');
+            modalFornecedorValidationEl.classList.add('valid-feedback');
+            modalFornecedorEl.classList.remove("is-invalid");
+            modalFornecedorEl.classList.add("is-valid");
+            return true
+        }
+    }
+
+    function saveFormDraft() {
+        const draft = {
+            form: {
+                idCompra: document.querySelector("#modal-compra-idCompra").value,
+                data: document.querySelector("#modal-compra-data").value,
+                observacao: document.querySelector("#modal-compra-observacao").value,
+                fornecedor: document.querySelector("#modal-compra-fornecedor").value,
+                nomeFornecedor: document.querySelector("#modal-compra-fornecedor").dataset.nome,
+                datasetIdFornecedor: document.querySelector("#modal-compra-fornecedor").dataset.idFornecedor,
+                idFornecedor: document.querySelector("#modal-compra-fornecedor-id").value
+            },
+            items: {
+                itens: itens
+            }
+        };
+
+        lastEditId = parseInt(modalIdEl.value) || 0;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+    }
+
+    function restoreFormDraft() {
+        const draft = localStorage.getItem(STORAGE_KEY);
+        if (!draft) return;
+
+        try {
+            const parsed = JSON.parse(draft);
+
+            const form = parsed.form;
+            if (form) {
+                modalIdEl.value = form.idCompra || "";
+                modalDataEl.value = form.data || "";
+                modalObservacaoEl.value = form.observacao || "";
+                modalFornecedorEl.value = form.fornecedor || "";
+                modalFornecedorEl.dataset.nome = form.nomeFornecedor || "";
+                modalFornecedorEl.dataset.idFornecedor = form.datasetIdFornecedor || "";
+                modalFornecedorIdEl.value = form.idFornecedor || "";
+
+                const id = parseInt(form.idCompra) || 0;
+                lastEditId = id;
+            }
+
+            const itemsWrapper = parsed.items;
+            if (itemsWrapper && itemsWrapper.itens && Array.isArray(itemsWrapper.itens)) {
+                itens = itemsWrapper.itens; 
+                refreshItems(); 
+            }
+        } catch (e) {
+            console.error("Erro ao restaurar rascunho:", e);
+        }
+    }
+
+    function clearFormDraft() {
+        localStorage.removeItem(STORAGE_KEY);
+    }
+
+    async function showCompraModal(id = 0) {
+        const isTheSame = lastEditId === (parseInt(id) || 0);
+
+        if (lastEditId !== null) {
+            if (!isTheSame && itens.length > 0) {
+                let message;
+                if (lastEditId > 0) {
+                    message = `Você estava editando a compra de <strong>ID ${lastEditId}</strong>. Se continuar as alterações não serão aplicadas.`;
+                } else {
+                    message = `Você estava editando uma nova compra. Se continuar o registro será perdido.`;
+                }
+
+                const confirmed = await showConfirmModal(id, 'switch-edit', message);
+                if (!confirmed) {
+                    return;
+                }
+
+                lastEditId = null;
+                clearCompraModalFields();
+            }
+        } else {
+            clearCompraModalFields();
+        }
+
+        if (id > 0 && !isTheSame) {
             let compra;
 
             try {
@@ -180,9 +308,13 @@ export function init() {
             itens = compra.itens;
             populateCompraModal(compra);
         }
+
+        lastEditId = parseInt(id);
         const compraModal = bootstrap.Modal.getOrCreateInstance(compraModalEl);
 
+        saveFormDraft();
         compraModal.show();
+        validateFornecedor();
     }
 
     function populateCompraModal(compra) {
@@ -191,6 +323,8 @@ export function init() {
         modalObservacaoEl.value = compra.observacao;
         modalFornecedorEl.value = compra.fornecedor.nome;
         modalFornecedorIdEl.value = compra.fornecedor.idFornecedor;
+        modalFornecedorEl.dataset.idFornecedor = compra.fornecedor.idFornecedor;
+        modalFornecedorEl.dataset.nome = compra.fornecedor.nome;
 
         refreshItems();
     }
@@ -201,7 +335,7 @@ export function init() {
             el.value = '';
             if (el.type.includes('date')) {
                 const today = new Date();
-                today.setHours(12, 0, 0, 0);
+                today.setHours(today.getHours(), 0, 0, 0);
 
                 const year = today.getFullYear();
                 const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -214,9 +348,11 @@ export function init() {
         });
         modalItensEl.innerHTML = '';
         modalItemsTotalEl.innerText = 'R$ 0,00';
-        
+
         modalItemsTotalOldEl.innerHTML = '';
         modalItemsTotalOldEl.classList.add('d-none');
+
+        validateFornecedor();
     }
 
     function clearCompraModalFields() {
@@ -228,8 +364,6 @@ export function init() {
     }
 
     // ===== COMPRA ITEMS
-
-    let currentItemIndex = null;
 
     // Cancel submit
     document.getElementById('items-form').addEventListener('submit', e => e.preventDefault());
@@ -247,22 +381,34 @@ export function init() {
         addUpdateItem();
     });
 
-    // Validates fornecedor
-    modalFornecedorEl.addEventListener('change', (e) => {
-        const value = e.target.value;
-        if (value !== e.target.dataset.nome) {
-            modalFornecedorEl.setAttribute('isvalid', false);
+    function updateArrowToggle() {
+        const iconEl = document.getElementById('show-items-icon');
+        if (iconEl.classList.contains('bi-chevron-down')) {
+            iconEl.classList.remove('bi-chevron-down');
+            iconEl.classList.add('bi-chevron-up');
+        } else {
+            iconEl.classList.remove('bi-chevron-up');
+            iconEl.classList.add('bi-chevron-down');
         }
-    });
+    }
 
     function clearItemsFormFields() {
         const itemsForm = document.getElementById('items-form');
         itemsForm.querySelectorAll('input').forEach(el => el.value = '');
+        addItemBtn.setAttribute('disabled', true);
+        modalQuantidadeEl.setAttribute('disabled', true);
+        modalValorUnitarioEl.setAttribute('disabled', true);
         modalCurrentProdutoEl.innerText = 'Aguardando selecionar produto...';
     }
 
     function addUpdateItem() {
-        const idProduto = parseInt(selectedProdutoIdEl.value);
+        const itemsForm = document.getElementById('items-form');
+        if (!itemsForm.checkValidity()) {
+            itemsForm.reportValidity();
+            return;
+        }
+
+        const idProduto = parseInt(selectedProdutoIdEl.value) || null;
         const nome = selectedProdutoNameEl.value;
         const quantidade = parseInt(modalQuantidadeEl.value);
         const valorUnitario = parseFloat(modalValorUnitarioEl.value);
@@ -281,6 +427,7 @@ export function init() {
             });
         }
 
+        saveFormDraft();
         refreshItems();
         clearItemsFormFields();
     }
@@ -290,9 +437,12 @@ export function init() {
 
         modalQuantidadeEl.value = item.quantidade || 1;
         modalValorUnitarioEl.value = parseFloat(item.valorUnitario || item.produto.precoAtual || '0.05').toFixed(2);
-        document.getElementById('add-button').removeAttribute('disabled');
         selectedProdutoIdEl.value = item.produto.idProduto;
         selectedProdutoNameEl.value = item.produto.nome;
+
+        addItemBtn.removeAttribute('disabled');
+        modalQuantidadeEl.removeAttribute('disabled');
+        modalValorUnitarioEl.removeAttribute('disabled');
     }
 
     function refreshItems() {
@@ -300,14 +450,14 @@ export function init() {
         let totalCents = 0;
         let oldTotalCents = 0;
         let hasDeletedProduto = false;
-    
+
         itens.forEach(item => {
-            modalItensEl.appendChild(renderCompraItem(item));
-    
+            modalItensEl.prepend(renderCompraItem(item));
+
             const unitPriceCents = Math.round(parseFloat(item.valorUnitario) * 100);
             const quantity = parseInt(item.quantidade);
             const itemTotalCents = unitPriceCents * quantity;
-    
+
             if (item.produto) {
                 totalCents += itemTotalCents;
             } else {
@@ -315,13 +465,13 @@ export function init() {
                 hasDeletedProduto = true;
             }
         });
-    
+
         total = totalCents / 100;
         modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', {
             style: 'currency',
             currency: 'BRL'
         });
-    
+
         if (hasDeletedProduto) {
             const oldTotal = oldTotalCents / 100;
             modalItemsTotalOldEl.innerText = oldTotal.toLocaleString('pt-BR', {
@@ -361,7 +511,7 @@ export function init() {
             nomeEl.textContent = item.produto.nome;
             qtdPrecoEl.textContent = `Qtd. ${item.quantidade} × R$ ${item.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
         }
-        
+
 
         mainContainer.appendChild(nomeEl);
         mainContainer.appendChild(qtdPrecoEl);
@@ -388,7 +538,7 @@ export function init() {
             deleteButton.classList.add('btn', 'btn-sm', 'btn-outline-danger');
             deleteButton.setAttribute('title', 'Excluir');
             deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
-                        
+
             editButton.dataset.idProduto = ID;
             deleteButton.dataset.idProduto = ID;
 
@@ -396,6 +546,9 @@ export function init() {
                 const itemIndex = itens.findIndex(it => it.produto && it.produto.idProduto === ID);
                 currentItemIndex = itemIndex;
                 populateItemFields(itens[itemIndex]);
+
+                bootstrap.Collapse.getOrCreateInstance("#modal-compra-items-container").show();
+                updateArrowToggle();
             });
 
             deleteButton.addEventListener('click', () => {
@@ -424,26 +577,40 @@ export function init() {
 
     /* ================== CONFIRM MODAL ================== */
 
-    modalConfirmOkButtonEl.addEventListener('click', (e) => {
-        deleteCompra(e.target.dataset.id);
-        const modal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
-        modal.hide();
-    });
+    function showConfirmModal(id, action, message) {
+        return new Promise((resolve) => {
+            const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
 
-    function showConfirmModal(id) {
-        const confirmModal = bootstrap.Modal.getOrCreateInstance(modalConfirmEl);
-        if (!id) return;
+            modalConfirmLabelEl.innerText = `Tem certeza de que deseja continuar?`;
+            modalConfirmMsgEl.innerHTML = message;
 
-        modalConfirmLabelEl.innerText = 'Confirmar delete';
-        modalConfirmOkButtonEl.dataset.id = id;
-        modalConfirmMsgEl.innerHTML = `Tem certeza que deseja deletar a compra número <strong>#${id}</strong>?`;
+            modalConfirmOkButtonEl.dataset.id = id;
+            modalConfirmOkButtonEl.dataset.action = action;
 
-        confirmModal.show();
+            const okHandler = () => {
+                cleanUp();
+                resolve(true);
+            };
+
+            const cancelHandler = () => {
+                cleanUp();
+                resolve(false)
+            };
+
+            const cleanUp = () => {
+                modalConfirmOkButtonEl.removeEventListener('click', okHandler);
+                modalConfirmCancelButtonEl.removeEventListener('click', cancelHandler);
+                confirmModal.hide();
+            };
+
+            modalConfirmOkButtonEl.addEventListener('click', okHandler);
+            modalConfirmCancelButtonEl.addEventListener('click', cancelHandler);
+
+            confirmModal.show();
+        });
     }
 
     /* ================== DROPDOWNS ================== */
-
-    let lastQuery = null;
 
     const dropdowns = {
         fornecedor: itemAutocompleteFornecedorOptions,
@@ -514,7 +681,11 @@ export function init() {
         if (dropdownId === dropdowns.fornecedor.id) {
             modalFornecedorEl.value = dataset.nome;
             modalFornecedorEl.dataset.nome = dataset.nome;
-            modalFornecedorIdEl.value = dataset.idUsuario;
+            modalFornecedorEl.dataset.idFornecedor = dataset.idFornecedor
+            modalFornecedorIdEl.value = dataset.idFornecedor;
+
+            validateFornecedor();
+            saveFormDraft();
 
         } else if (dropdownId === dropdowns.produto.id) {
             const idProduto = parseInt(dataset.idProduto);
@@ -533,10 +704,6 @@ export function init() {
                     currentItemIndex = null;
                 }
             }
-
-            document.getElementById('add-button').removeAttribute('disabled');
-            selectedProdutoIdEl.value = idProduto;
-            selectedProdutoNameEl.value = dataset.nomeProduto;
 
         } else if (dropdownId === dropdowns.term.id) {
             searchTermEl.value = dataset.nomeProduto;
@@ -576,7 +743,7 @@ export function init() {
 
     /* ================== INSERT, UPDATE, DELETE ================== */
 
-    document.getElementById('confirm-register').addEventListener('click', (e) => {
+    document.getElementById('confirm-register').addEventListener('click', () => {
         const id = parseInt(modalIdEl.value) || 0;
 
         modalFornecedorEl.querySelectorAll('option').forEach(opt => {
@@ -586,7 +753,29 @@ export function init() {
             }
         });
 
+        if (!compraFormEl.checkValidity() || !validateFornecedor()) {
+            compraFormEl.reportValidity();
+            return;
+        }
+
         sendCompra(id);
+    });
+
+    document.getElementById('cancel-register').addEventListener('click', async () => {
+        if (itens.length <= 0) return;
+
+        const id = parseInt(modalIdEl.value) || 0;
+        let message;
+        message = `Tem certeza de que deseja cancelar o registro? Os inseridos no formulário serão perdidos.<br>Caso deseje sair temporariamente, clique em cancelar ou fora da janela.`;
+        const confirm = await showConfirmModal(id, 'cancel-register', message);
+
+        if (confirm) {
+            lastEditId = null;
+            clearFormDraft();
+        } else {
+            const modal = bootstrap.Modal.getOrCreateInstance(compraModalEl);
+            modal.show();
+        }
     });
 
     async function sendCompra(id) {
@@ -622,6 +811,8 @@ export function init() {
             } else {
                 // alert('Ação executada com sucesso.');
                 refreshCompras();
+                clearCompraModalFields();
+                clearFormDraft();
                 compraModal.hide();
             }
         } catch (e) {
@@ -648,6 +839,7 @@ export function init() {
             } else {
                 // alert('Ação executada com sucesso.');
                 refreshCompras();
+                return;
             }
         } catch (e) {
             console.error('Erro inesperado:', e);

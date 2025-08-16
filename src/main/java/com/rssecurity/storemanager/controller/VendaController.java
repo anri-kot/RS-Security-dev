@@ -6,7 +6,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,15 +23,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rssecurity.storemanager.dto.VendaDTO;
+import com.rssecurity.storemanager.excel.writter.VendaExcelWritter;
 import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.service.FileDownloadService;
 import com.rssecurity.storemanager.service.VendaService;
-
 
 @RestController
 @RequestMapping("/api/venda")
 public class VendaController {
     @Autowired
     private VendaService service;
+    @Autowired
+    private FileDownloadService downloadService;
+    @Autowired
+    private VendaExcelWritter exportService;
 
     // SEARCH
 
@@ -85,6 +94,17 @@ public class VendaController {
     @GetMapping("/search/usuario/username")
     public ResponseEntity<List<VendaDTO>> findByUsuario_Username(@RequestParam String username) {
         return ResponseEntity.ok(service.findByUsuario_Username(username));
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<Resource> exportVendas(@RequestParam Map<String, String> params) {
+        List<VendaDTO> vendas = service.findAllByCustomMatcher(params);
+        Workbook wb = exportService.export(vendas);
+        Resource resource = downloadService.workbookToResource(wb);
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=vendas.xlsx")
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .body(resource);
     }
 
     // ACTIONS

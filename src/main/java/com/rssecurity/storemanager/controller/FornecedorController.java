@@ -1,9 +1,13 @@
 package com.rssecurity.storemanager.controller;
 
 import com.rssecurity.storemanager.dto.FornecedorDTO;
+import com.rssecurity.storemanager.excel.writter.FornecedorExcelWritter;
 import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.service.FileDownloadService;
 import com.rssecurity.storemanager.service.FornecedorService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,9 +17,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/fornecedor")
 public class FornecedorController {
+    private final FornecedorService service;
+    private final FileDownloadService downloadService;
+    private final FornecedorExcelWritter excelWritter;
 
-    @Autowired
-    private FornecedorService service;
+    public FornecedorController(FornecedorService service, FileDownloadService downloadService, FornecedorExcelWritter excelWritter) {
+        this.service = service;
+        this.downloadService = downloadService;
+        this.excelWritter = excelWritter;
+    }
 
     @GetMapping
     public ResponseEntity<List<FornecedorDTO>> findAll() {
@@ -47,6 +57,18 @@ public class FornecedorController {
     public ResponseEntity<List<FornecedorDTO>> findByEmailContains(@RequestParam(required = false) String email) {
         return ResponseEntity.ok(service.findByEmailContains(email));
     }
+
+    @GetMapping("/export")
+    public ResponseEntity<Resource> export() {
+        List<FornecedorDTO> fornecedores = service.findAll();
+        Resource resource = downloadService.workbookToResource(excelWritter.export(fornecedores));
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=fornecedores.xlsx")
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .body(resource);
+    }
+
+    // ACTIONS
 
     @PostMapping
     public ResponseEntity<FornecedorDTO> create(@RequestBody FornecedorDTO fornecedor) {

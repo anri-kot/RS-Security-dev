@@ -1,3 +1,8 @@
+/* modal fix */
+div.modal div.modal-backdrop {
+    z-index: 0;
+}
+
 .sidebar {
     background: #f8f9fa;
     width: 250px;
@@ -42,14 +47,14 @@
 }
 
 .logout-btn {
-    color: #6c757d;
-    border-color: #6c757d;
+    /* color: #6c757d;
+    border-color: #6c757d; */
     transition: color 0.2s, border-color 0.2s;
 }
 
 .logout-btn:hover, 
 .logout-btn:focus {
-    color: #dc3545 !important;
+    color: #f3e9ea !important;
     border-color: #dc3545 !important;
     text-decoration: none;
 }

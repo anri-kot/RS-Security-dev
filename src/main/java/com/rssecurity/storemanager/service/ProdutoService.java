@@ -1,7 +1,9 @@
 package com.rssecurity.storemanager.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -115,8 +117,12 @@ public class ProdutoService {
         if (produto.idProduto() != null) {
             throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
         }
-        Produto created = repository.save(mapper.toEntity(produto));
-        return mapper.toDTO(created);
+        try {
+            Produto created = repository.save(mapper.toEntity(produto));
+            return mapper.toDTO(created);
+        } catch (DataIntegrityViolationException e) {
+            throw new BadRequestException("Código de barras inserido já existe em outro registro.");
+        }
     }
 
     @Transactional
@@ -128,6 +134,19 @@ public class ProdutoService {
 
         if (!produtosWithId.isEmpty()) {
             throw new BadRequestException("Alguns produtos têm ID definido: " + produtosWithId);
+        }
+
+        List<String> produtosWithExistingCodigo = new ArrayList<>();
+        for (ProdutoDTO produto : produtos) {
+            String codigoBarras = produto.codigoBarras();
+            if (codigoBarras != null) {
+                if (repository.existsByCodigoBarras(codigoBarras) || produtosWithExistingCodigo.contains(codigoBarras)) {
+                    produtosWithExistingCodigo.add(produto.nome() + " | " + codigoBarras);
+                }
+            }
+        }
+        if (!produtosWithExistingCodigo.isEmpty()) {
+            throw new BadRequestException("Alguns produtos tem códigos de barras repetidos ou já existentes no banco:\n" + produtosWithExistingCodigo);
         }
 
         List<Produto> entities = produtos.stream()
