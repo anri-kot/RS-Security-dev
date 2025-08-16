@@ -39,7 +39,7 @@ public class ProdutoExcelWritter extends ExcelWritter<ProdutoDTO> {
                 String key = header.getKey();
                 Object value;
 
-                if (key.contains("Categoria")) {
+                if (key.contains("Categoria") && catMap != null) {
                     value = catMap.getOrDefault(key, catMap
                         .getOrDefault(key.replace("Categoria", ""), null));
                 } else {

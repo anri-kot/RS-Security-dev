@@ -79,7 +79,7 @@
                                         <td th:text="${produto.estoque}"></td>
                                         <td>
                                             <span class="badge bg-info text-dark"
-                                                th:text="${produto.categoria.nome}"></span>
+                                                th:text="${produto.categoria} ? ${produto.categoria.nome} : ''"></span>
                                         </td>
                                         <td sec:authorize="hasRole('ROLE_ADMIN')">
                                             <button class="btn btn-sm btn-outline-primary me-2" th:attr="data-id=${produto.idProduto}"

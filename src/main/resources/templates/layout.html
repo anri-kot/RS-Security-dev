@@ -98,6 +98,12 @@
                         <span class="ms-2">Importar</span>
                     </a>
                 </li>
+                <li sec:authorize="hasRole('ROLE_ADMIN')">
+                    <a href="/exportar" data-page="exportar" class="nav-link link-dark" id="exportar">
+                        <i class="bi bi-download"></i>
+                        <span class="ms-2">Exportar</span>
+                    </a>
+                </li>
             </ul>
 
             <div class="user-info mt-auto d-flex flex-column align-items-center justify-content-center">

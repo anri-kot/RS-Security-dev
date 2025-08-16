@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exportar</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container py-4" th:fragment="content" data-page-id="exportar">
+            <section class="mt-4">
+                <h1 class="mb-3">Exportar para excel</h1>
+                <div id="error-container"></div>
+                <form class="row g-3 align-items-end" id="export-form" method="GET">
+                    <div class="col-md-6">
+                        <label for="tabela" class="form-label">Selecionar qual tabela exportar</label>
+                        <select id="tabela" class="form-select" required>
+                            <option value="">Selecione uma tabela</option>
+                            <option value="produto">Produtos</option>
+                            <option value="categoria">Categorias</option>
+                            <option value="fornecedor">Fornecedores</option>
+                            <option value="compra">Compras</option>
+                            <option value="venda">Vendas</option>
+                        </select>
+                    </div>
+                    <div class="col-md-auto">
+                        <button type="button" class="btn btn-outline-secondary" id="export-btn">
+                            <i class="bi bi-download me-1"></i> Exportar
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+        </div>
+    </div>
+</body>
+
+</html>
