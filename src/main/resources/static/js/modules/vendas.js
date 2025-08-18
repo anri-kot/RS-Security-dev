@@ -434,7 +434,6 @@ export function init() {
 
     // MODAL ITEMS
 
-    let lastQuery;
     const searchType = document.getElementById('item-search-type');
     const searchProduct = document.getElementById('search-product');
     const autocompleteProdutoOptions = document.getElementById('autocomplete-produto-options');
@@ -758,7 +757,7 @@ export function init() {
             if (value.length < 1) {
                 event.preventDefault();
                 return;
-            } else if (searchType.value !== 'id' && (value.length < 3 || lastQuery === value)) {
+            } else if (searchType.value !== 'id' && (value.length < 3)) {
                 event.preventDefault();
             }
         }
@@ -768,7 +767,6 @@ export function init() {
     document.body.addEventListener('htmx:afterSwap', (event) => {
         if (!isVendaPage) return;
         if (event.target.id === autocompleteProdutoOptions.id) {
-            lastQuery = searchProduct.value.trim();
             updateDropdown('produto');
         }
     });
@@ -852,14 +850,16 @@ export function init() {
         if (!vendaFormEl.checkValidity() || !validateFuncionario()) {
             vendaFormEl.reportValidity();
             return;
+        } else if (itens.length <= 0) {
+            modalItensEl.innerHTML =
+            `
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                Não há itens na compra!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            `;
+            return;
         }
-
-        modalFuncionarioEl.querySelectorAll('option').forEach(opt => {
-            if (opt.value === modalFuncionarioEl.value) {
-                modalFuncionarioEl.dataset.username = opt.dataset.username;
-                return;
-            }
-        });
 
         sendVenda(id);
     });

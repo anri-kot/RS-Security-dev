@@ -756,6 +756,15 @@ export function init() {
         if (!compraFormEl.checkValidity() || !validateFornecedor()) {
             compraFormEl.reportValidity();
             return;
+        } else if (itens.length <= 0) {
+            modalItensEl.innerHTML = 
+            `
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                Não há itens na compra!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            `;
+            return;
         }
 
         sendCompra(id);

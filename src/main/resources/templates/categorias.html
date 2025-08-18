@@ -51,14 +51,14 @@
                                 <tr>
                                     <th scope="col">ID</th>
                                     <th scope="col">Nome</th>
-                                    <th sec:authorize="hasRole('ROLE_ADMIN')" scope="col">Ações</th>
+                                    <th sec:authorize="hasRole('ROLE_ADMIN')" scope="col" class="text-end">Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:each="cat : ${categorias}">
                                     <td th:text="${cat.idCategoria}"></td>
                                     <td th:text="${cat.nome}"></td>
-                                    <td sec:authorize="hasRole('ROLE_ADMIN')">
+                                    <td sec:authorize="hasRole('ROLE_ADMIN')" class="text-end">
                                         <button class="btn btn-sm btn-outline-primary me-2"
                                             th:attr="data-id=${cat.idCategoria}" data-action="edit">
                                             <i class="bi bi-pencil"></i>
