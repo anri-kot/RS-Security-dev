@@ -37,6 +37,8 @@ public record UsuarioDTO(
         @Pattern(regexp = "^\\d+$", message = "deve conter apenas números")
         String telefone,
         BigDecimal salario,
+        @NotNull(message = "Campo 'ativo' não definido")
+        Boolean ativo,
         @NotNull(message = "permissões devem ser definidas")
         Boolean admin
 ) {

@@ -25,6 +25,7 @@ public class Usuario {
     private String endereco;
     private String telefone;
     private BigDecimal salario;
+    private Boolean ativo;
     @Column(name = "admin")
     private Boolean admin;
 
@@ -32,7 +33,7 @@ public class Usuario {
     public Usuario() {
     }
 
-    public Usuario(Long idUsuario, String username, String senha, String nome, String sobrenome, String cpf, String email, String endereco, String telefone, BigDecimal salario, Boolean admin) {
+    public Usuario(Long idUsuario, String username, String senha, String nome, String sobrenome, String cpf, String email, String endereco, String telefone, BigDecimal salario, Boolean ativo, Boolean admin) {
         this.idUsuario = idUsuario;
         this.username = username;
         this.senha = senha;
@@ -43,6 +44,7 @@ public class Usuario {
         this.endereco = endereco;
         this.telefone = telefone;
         this.salario = salario;
+        this.ativo = ativo;
         this.admin = admin;
     }
 
@@ -126,7 +128,15 @@ public class Usuario {
         this.salario = salario;
     }
 
-    public Boolean getAdmin() {
+    public Boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
+    public Boolean isAdmin() {
         return admin;
     }
 

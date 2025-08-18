@@ -16,6 +16,7 @@ export function init() {
     const modalEmailEl = document.getElementById('modal-usuario-email');
     const modalTelefoneEl = document.getElementById('modal-usuario-telefone');
     const modalSalarioEl = document.getElementById('modal-usuario-salario');
+    const modalAtivoEl = document.getElementById('modal-usuario-ativo');
     const modalAdminEl = document.getElementById('modal-usuario-admin');
     // === SENHA
     const updateSenhaContainerEl = document.getElementById('update-senha-container');
@@ -31,7 +32,7 @@ export function init() {
     const confirmModalEl = document.getElementById('confirm-modal');
     const confirmActionEl = document.getElementById('confirmar-acao');
 
-    let toDelete = 0;
+    let toUpdate = 0;
 
     document.addEventListener('DOMContentLoaded', () => lastSearch = location.search);
     document.addEventListener('htmx:afterSwap', () => lastSearch = location.search);
@@ -45,8 +46,8 @@ export function init() {
 
         if (action === 'edit') {
             showUsuarioModal(id);
-        } else if (action === 'delete') {
-            showConfirmModal('delete', id);
+        } else if (action === 'disable' || action === 'enable') {
+            showConfirmModal(action, id);
         }
     });
 
@@ -196,6 +197,7 @@ export function init() {
         modalEmailEl.value = usuario.email;
         modalTelefoneEl.value = usuario.telefone;
         modalSalarioEl.value = usuario.salario;
+        modalAtivoEl.value = usuario.ativo;
         modalAdminEl.value = usuario.admin;
     }
 
@@ -245,8 +247,9 @@ export function init() {
         
         if (action === 'addUpdate') {
             addUpdateUsuario();
-        } else if (action === 'delete') {
-            deleteUsuario(toDelete);
+        } else if (action === 'disable' || action === 'enable') {
+            const status = action === 'enable';
+            updateUsuarioAtivo(toUpdate, status);
         }
         const modal = bootstrap.Modal.getOrCreateInstance(confirmModalEl);
         modal.hide();
@@ -261,7 +264,7 @@ export function init() {
         }
         const modal = bootstrap.Modal.getOrCreateInstance(confirmModalEl);
         confirmActionEl.dataset.action = action;
-        toDelete = id;
+        toUpdate = id;
         
         modal.show();
     }
@@ -309,18 +312,19 @@ export function init() {
         }
     }
 
-    async function deleteUsuario(id) {
-        toDelete = 0;
+    async function updateUsuarioAtivo(id, status) {
+        toUpdate = 0;
 
         try {
             const url = `/api/usuario/${id}`;
-            const method = 'DELETE';
+            const method = 'PATCH';
             const response = await fetch(url, {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'HX-Request': 'true'
-                }
+                },
+                body: JSON.stringify({ status: status})
             });
             if (!response.ok) {
                 let errorMsg = 'Erro desconhecido';
@@ -362,6 +366,7 @@ export function init() {
         const email = modalEmailEl.value.trim();
         const senha = modalSenhaEl.value;
         const salario = parseFloat(modalSalarioEl.value);
+        const ativo = modalAtivoEl.value === 'true';
         const admin = modalAdminEl.value === 'true';
 
         const changePw = document.querySelector('input[name="modal-usuario-changePw"]:checked')?.value === 'true';
@@ -378,6 +383,7 @@ export function init() {
                 email: email,
                 salario: salario,
                 admin: admin,
+                ativo: ativo,
                 senha: senha
             },
             changePw: changePw

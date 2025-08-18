@@ -1,14 +1,27 @@
 package com.rssecurity.storemanager.controller;
 
-import com.rssecurity.storemanager.dto.UsuarioDTO;
-import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
-import com.rssecurity.storemanager.exception.ConflictException;
-import com.rssecurity.storemanager.service.UsuarioService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.net.URI;
 import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.rssecurity.storemanager.dto.UsuarioDTO;
+import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
+import com.rssecurity.storemanager.dto.UsuarioStatusDTO;
+import com.rssecurity.storemanager.exception.ConflictException;
+import com.rssecurity.storemanager.service.UsuarioService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/usuario")
@@ -62,12 +75,18 @@ public class UsuarioController {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }
 
-        if (changePw) {
+        if (!changePw) {
             service.updateWithoutPassword(idUsuario, usuario);
         } else {
             service.update(idUsuario, usuario);
         }
 
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{idUsuario}")
+    public ResponseEntity<Void> setUsuarioAtivo(@PathVariable Long idUsuario, @RequestBody @Valid UsuarioStatusDTO usuStatus) {
+        service.updateAtivoByUsername(idUsuario, usuStatus.status());
         return ResponseEntity.noContent().build();
     }
 

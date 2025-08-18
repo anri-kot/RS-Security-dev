@@ -23,6 +23,8 @@ import com.rssecurity.storemanager.mapper.UsuarioMapper;
 import com.rssecurity.storemanager.model.Usuario;
 import com.rssecurity.storemanager.repository.UsuarioRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class UsuarioService implements UserDetailsService {
 
@@ -41,7 +43,7 @@ public class UsuarioService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
 
         List<GrantedAuthority> authorities = new ArrayList<>();
-        if (usuario.getAdmin()) {
+        if (usuario.isAdmin()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         } else {
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
@@ -140,6 +142,7 @@ public class UsuarioService implements UserDetailsService {
 
     // CREATE / UPDATE / DELETE
 
+    @Transactional
     public UsuarioDTO create(UsuarioDTO usuario) {
         if (usuario.idUsuario() != null) {
             throw new BadRequestException("Campo ID não deve ser fornecido ou deve ser nulo.");
@@ -150,6 +153,7 @@ public class UsuarioService implements UserDetailsService {
         return mapper.toDTO(repository.save(entity));
     }
 
+    @Transactional
     public void update(Long id, UsuarioDTO usuario) {
         if (!repository.existsById(id)) {
             throw new ResourceNotFoundException("Usuario não encontrado. ID: " + id);
@@ -158,6 +162,7 @@ public class UsuarioService implements UserDetailsService {
         repository.save(toUpdate);
     }
 
+    @Transactional
     public void updateWithoutPassword(Long id, UsuarioDTO usuario) {
         Usuario oldUsuario = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. ID: " + id));
@@ -167,11 +172,20 @@ public class UsuarioService implements UserDetailsService {
         repository.save(toUpdate);
     }
 
+    @Transactional
     public void deleteById(Long idUsuario) {
         if (!repository.existsById(idUsuario)) {
             throw new ResourceNotFoundException("Usuario não encontrado. ID: " + idUsuario);
         }
         repository.deleteById(idUsuario);
+    }
+
+    @Transactional
+    public void updateAtivoByUsername(Long idUsuario, boolean status) {
+        Usuario usu = repository.findById(idUsuario)
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario não encontrado. ID: " + idUsuario));
+
+        repository.updateAtivoByUsername(status, usu.getUsername());
     }
 
     private void validateCreate(UsuarioDTO usuario) {
