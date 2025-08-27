@@ -304,7 +304,7 @@ export function init() {
 
     // Listens to metodoPagamento
     document.getElementById('metodoPagamento').addEventListener('change', (e) => {
-        if (e.target.value = 'DINHEIRO') {
+        if (e.target.value === 'DINHEIRO') {
             valorRecebidoEl.value = total.toFixed(2);
             valorRecebidoEl.removeAttribute('disabled');
 
