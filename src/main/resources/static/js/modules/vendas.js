@@ -918,10 +918,8 @@ export function init() {
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                console.error(errorData);
-                const errorMsg = errorData.message;
-                document.getElementById('error-container').innerHTML = errorMsg;
+                const errorData = await response.text();
+                document.getElementById('error-container').innerHTML = errorData;
                 return;
             } else {
                 alert('Ação executada com sucesso.');

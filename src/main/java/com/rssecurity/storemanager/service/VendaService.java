@@ -265,9 +265,10 @@ public class VendaService {
 
     @Transactional
     public void deleteById(Long idVenda) {
-        if (!repository.existsById(idVenda)) {
-            throw new ResourceNotFoundException("Venda não encontrada. ID: " + idVenda);
-        }
+        Venda venda = repository.findById(idVenda)
+            .orElseThrow(() -> new ResourceNotFoundException("Venda não encontrada. ID: " + idVenda));
+        
+        updateStock(mapper.toDTO(venda), "DELETE", null);
 
         repository.deleteById(idVenda);
     }
@@ -292,7 +293,7 @@ public class VendaService {
                 for (ItemVendaDTO item : vendaDTO.itens()) {
                     Long idProduto = item.produto().idProduto();
                     Integer quantidade = item.quantidade();
-                    stockArranges.merge(idProduto, -quantidade, Integer::sum);
+                    stockArranges.merge(idProduto, quantidade, Integer::sum);
                 }
             }
 
@@ -342,6 +343,7 @@ public class VendaService {
             Produto produto = produtoRepository.findById(idProduto)
                     .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado: " + idProduto));
 
+            validateProduto(produto, delta);
             produto.setEstoque(produto.getEstoque() + delta);
             produtoRepository.save(produto);
         }
@@ -438,8 +440,6 @@ public class VendaService {
                     item.setDesconto(itemDto.desconto());
                     item.setVenda(entity);
 
-                    validateProduto(produto, item);
-
                     return item;
                 }).toList();
     }
@@ -477,8 +477,8 @@ public class VendaService {
     }
 
     // TODO: Assign MIN_STOCK to user preferences
-    private void validateProduto(Produto produtoInStock, ItemVenda item) {
-        if ((produtoInStock.getEstoque() - item.getQuantidade()) < 0) {
+    private void validateProduto(Produto produtoInStock, int quantity) {
+        if ((produtoInStock.getEstoque() + quantity) < 0) {
             throw new BadRequestException("Estoque insuficiente para o produto: " + produtoInStock.getNome());
         }
     }

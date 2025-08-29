@@ -291,7 +291,7 @@ export function init() {
     function populateModal(produto, quantidade, valorUnitario, desconto) {
         document.getElementById("modal-produto-id").value = produto.idProduto;
         document.getElementById("modal-produto-nome").value = produto.nome;
-        document.getElementById("modal-produto-categoria").value = produto.categoria.nome;
+        document.getElementById("modal-produto-categoria").value = produto.categoria ? produto.categoria.nome : '';
         document.getElementById("modal-produto-preco").value = parseFloat(valorUnitario).toFixed(2);
         document.getElementById("modal-produto-desconto").value = parseFloat(desconto) || '0';
         document.getElementById("modal-produto-quantidade").value = quantidade;
