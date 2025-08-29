@@ -12,10 +12,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Sort;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Sort;
 
 import com.rssecurity.storemanager.dto.CompraDTO;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
@@ -23,13 +22,11 @@ import com.rssecurity.storemanager.mapper.CompraMapper;
 import com.rssecurity.storemanager.mapper.ProdutoMapper;
 import com.rssecurity.storemanager.model.Compra;
 import com.rssecurity.storemanager.repository.CompraRepository;
-import com.rssecurity.storemanager.repository.ItemCompraRepository;
 import com.rssecurity.storemanager.repository.ProdutoRepository;
 
 class CompraServiceTest {
 
     private CompraRepository compraRepository;
-    private ItemCompraRepository itemRepository;
     private CompraMapper compraMapper;
     private ProdutoMapper produtoMapper;
     private CompraService compraService;
@@ -38,7 +35,6 @@ class CompraServiceTest {
     @BeforeEach
     void setUp() {
         compraRepository = mock(CompraRepository.class);
-        itemRepository = mock(ItemCompraRepository.class);
         compraMapper = mock(CompraMapper.class);
         produtoMapper = mock(ProdutoMapper.class);
         produtoRepository = mock(ProdutoRepository.class);

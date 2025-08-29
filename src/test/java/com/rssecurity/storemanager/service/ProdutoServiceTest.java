@@ -40,7 +40,6 @@ class ProdutoServiceTest {
         Produto entity = new Produto(); // preenche se quiser
         Produto saved = new Produto();  // pode simular que foi salvo
 
-        CategoriaDTO outCategoria = new CategoriaDTO(2L, "Vigilancia");
         ProdutoDTO output = new ProdutoDTO(1L, "CAMERA SPX", null, new BigDecimal("50.00"), "Camera de alta definicao", 30, inCategoria);
 
         when(mapper.toEntity(input)).thenReturn(entity);

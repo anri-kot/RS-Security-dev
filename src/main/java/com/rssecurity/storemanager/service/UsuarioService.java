@@ -19,7 +19,6 @@ import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ConflictException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
-import com.rssecurity.storemanager.exception.UserDeniedException;
 import com.rssecurity.storemanager.mapper.UsuarioMapper;
 import com.rssecurity.storemanager.model.Usuario;
 import com.rssecurity.storemanager.repository.UsuarioRepository;

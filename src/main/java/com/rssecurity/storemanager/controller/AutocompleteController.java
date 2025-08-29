@@ -1,24 +1,16 @@
 package com.rssecurity.storemanager.controller;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.dto.UsuarioResumoDTO;
-import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.service.FornecedorService;
 import com.rssecurity.storemanager.service.ProdutoService;
 import com.rssecurity.storemanager.service.UsuarioService;
@@ -28,14 +20,12 @@ import com.rssecurity.storemanager.service.VendaService;
 public class AutocompleteController {
 
     private ProdutoService produtoService;
-    private VendaService vendaService;
     private UsuarioService usuarioService;
     private FornecedorService fornecedorService;
 
     public AutocompleteController(ProdutoService produtoService, VendaService vendaService,
             UsuarioService usuarioService, FornecedorService fornecedorService) {
         this.produtoService = produtoService;
-        this.vendaService = vendaService;
         this.usuarioService = usuarioService;
         this.fornecedorService = fornecedorService;
     }

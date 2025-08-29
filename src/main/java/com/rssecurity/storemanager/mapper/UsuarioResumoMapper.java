@@ -17,5 +17,6 @@ public interface UsuarioResumoMapper {
     @Mapping(target = "salario", ignore = true)
     @Mapping(target = "senha", ignore = true)
     @Mapping(target = "telefone", ignore = true)
+    @Mapping(target = "ativo", ignore = true)
     Usuario toEntity(UsuarioResumoDTO dto);
 }
