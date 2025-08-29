@@ -1,16 +1,50 @@
 <div th:fragment="resultado" id="resultado-relatorio">
     <div th:if="${erro != null}" class="alert alert-danger" th:text="${erro}"></div>
 
+    <div th:if${total != null}>
+        <div class="row text-center mb-3">
+            <div class="col">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="bi bi-cart fs-3 text-primary"></i>
+                        <h6 class="mt-2">Total de Vendas</h6>
+                        <h4 th:text="${vendas.getContent().size()}"></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="bi bi-cash-stack fs-3 text-success"></i>
+                        <h6 class="mt-2">Faturado</h6>
+                        <h4>R$ <span th:text="${#numbers.formatDecimal(total,1,'POINT',2,'COMMA')}"></span></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <i class="bi bi-credit-card fs-3 text-danger"></i>
+                        <h6 class="mt-2">Gasto no mês</h6>
+                        <h4>R$ <span th:text="${#numbers.formatDecimal(monthlyTotal,1,'POINT',2,'COMMA')}"></span></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div th:if="${total != null}" class="card">
         <div class="card-body">
-            <div class="d-flex justify-content-between">
+            
+            
+            <!-- <div class="d-flex justify-content-between">
                 <h5 class="card-title">Resumo</h5>
                 <h5 th:text="${interval ?: 'HOJE'}"></h3>
             </div>
             <ul class="list-group mb-3">
                 <li class="list-group-item">Total de vendas: <span th:text="${vendas.getContent().size()}"></span></li>
                 <li class="list-group-item">Total faturado: R$ <span th:text="${#numbers.formatDecimal(total, 1, 'POINT', 2, 'COMMA')}"></span></li>
-            </ul>
+                <li class="list-group-item">Total gasto no mês: R$ <span th:text="${#numbers.formatDecimal(monthlyTotal, 1, 'POINT', 2, 'COMMA')}"></span></li>
+            </ul> -->
 
             <h5 class="card-title">Vendas</h5>
             <table class="table table-bordered table-striped">
@@ -26,15 +60,25 @@
                 <tbody>
                     <tr th:each="v : ${vendas}">
                         <td class="text-center">
-                            <a th:href="@{/vendas(tipo=idVenda,termo=${v.idVenda})}"><i class="bi bi-receipt"></i></a>
+                            <a th:href="@{/vendas(tipo=idVenda,termo=${v.idVenda})}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-receipt"></i>
+                            </a>
                         </td>
-                        <td th:text="${#temporals.format(v.data, 'dd/MM/yyyy HH:mm')}"></td>
                         <td>
-                            <span th:text="${#numbers.formatDecimal(v.liquido, 1, 'POINT', 2, 'COMMA')}"></span>
+                            <span th:text="${#temporals.format(v.data, 'dd/MM/yyyy')}"></span><br>
+                            <small class="text-muted" th:text="${#temporals.format(v.data, 'HH:mm')}"></small>
                         </td>
-                        
-                        <td th:text="${v.metodoPagamento}"></td>
-                        <td th:text="${v.observacao}"></td>
+                        <td class="fw-bold text-success">
+                            R$ <span th:text="${#numbers.formatDecimal(v.liquido,1,'POINT',2,'COMMA')}"></span>
+                        </td>
+                        <td>
+                            <span th:class="${v.metodoPagamento == 'PIX' ? 'badge bg-success' 
+                                            : (v.metodoPagamento == 'CARTAO_CREDITO' ? 'badge bg-primary' 
+                                            : 'badge bg-secondary')}">
+                                <span th:text="${v.metodoPagamento}"></span>
+                            </span>
+                        </td>
+                        <td th:text="${v.observacao ?: '-'}"></td>
                     </tr>
                 </tbody>
             </table>

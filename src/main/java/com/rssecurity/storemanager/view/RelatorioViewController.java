@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rssecurity.storemanager.dto.VendaDTO;
+import com.rssecurity.storemanager.service.CompraService;
 import com.rssecurity.storemanager.service.VendaService;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -23,10 +24,12 @@ import jakarta.servlet.http.HttpServletRequest;
 public class RelatorioViewController {
 
     private final VendaService vendaService;
+    private final CompraService compraService;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-YYYY");
 
-    public RelatorioViewController(VendaService vendaService) {
+    public RelatorioViewController(VendaService vendaService, CompraService compraService) {
         this.vendaService = vendaService;
+        this.compraService = compraService;
     }
     
     @GetMapping
@@ -73,8 +76,11 @@ public class RelatorioViewController {
         Map<String, Object> modelMap = new HashMap<>();
         int page = currentPage - 1;
         try {
+            LocalDate now = LocalDate.now();
             LocalDate startDate = LocalDate.parse(startDateString);
             LocalDate endDate = LocalDate.parse(endDateString);
+            LocalDate startMonth = now.minusDays(now.getDayOfMonth());
+            LocalDate endMonth = startMonth.plusMonths(1).minusDays(1);
     
             Map<String, String> dateFilter = new HashMap<>();
             dateFilter.put("dataInicio", startDateString);
@@ -82,11 +88,13 @@ public class RelatorioViewController {
     
             Page<VendaDTO> vendas = vendaService.findAllByCustomMatcher(page, size, dateFilter);
             BigDecimal total = vendaService.calculateTotalVendaValueBetween(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
+            BigDecimal monthlyTotal = compraService.calculateTotalCompraValueBetween(startMonth, endMonth);
     
             modelMap.put("vendas", vendas);
             modelMap.put("start", startDateString);
             modelMap.put("end", endDateString);
             modelMap.put("total", total);
+            modelMap.put("monthlyTotal", monthlyTotal);
             modelMap.put("currentPage", currentPage);
             modelMap.put("totalPages", vendas.getTotalPages());
             modelMap.put("target", "compras");

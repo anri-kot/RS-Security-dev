@@ -1,6 +1,5 @@
 export function init() {
 
-    let lastQuery = '';
     let total = 0;
     let cart = [];
     let tempProduto = null;
@@ -14,6 +13,9 @@ export function init() {
     const searchType = document.getElementById('search-type');
     const descontoToTotalEl = document.getElementById('desconto-to-total-input');
     const descontoToTotalButtonEl = document.getElementById('desconto-to-total-btn');
+    const addBtnEl = document.getElementById('add-button');
+    const searchFormEl = document.querySelector('#search-form');
+    const selectedIdEl = document.querySelector('#selected-id');
 
     const dinheiroFields = document.getElementById('dinheiro-fields');
 
@@ -26,7 +28,7 @@ export function init() {
             const value = event.target.value.trim();
             const isNomeSearch = searchType.value === 'nome';
 
-            if ((isNomeSearch && value.length < 1) || (isNomeSearch && (value.length < 3 || lastQuery === value))) {
+            if ((isNomeSearch && value.length < 1) || (isNomeSearch && (value.length < 3))) {
                 event.preventDefault();
             }
         }
@@ -35,9 +37,14 @@ export function init() {
     // Atualiza dropdown após o HTMX responder
     document.body.addEventListener('htmx:afterSwap', (event) => {
         if (event.target.id === autocompleteOptions.id) {
-            lastQuery = searchProduct.value.trim();
             updateDropdown();
         }
+    });
+
+    // Desativa enquanto item não estiver selecionado
+    searchProduct.addEventListener('input', () => {
+        addBtnEl.setAttribute('disabled', true);
+        selectedIdEl.value = '';
     });
 
     // Lida com cliques (seleção OU fechamento)
@@ -102,11 +109,15 @@ export function init() {
         }
     });
 
+    searchFormEl.addEventListener('reset', () => {
+        addBtnEl.setAttribute('disabled', true);
+    });
+
     // SHOW MODAL
-    document.querySelector('#search-form').addEventListener('submit', (event) => {
+    searchFormEl.addEventListener('submit', (event) => {
 
         event.preventDefault();
-        const selectedId = document.querySelector('#selected-id').value;
+        const selectedId = selectedIdEl.value;
 
         showProdutoModal(selectedId);
     });
@@ -126,8 +137,9 @@ export function init() {
     });
 
     function selectProduto(idProduto, nomeProduto) {
-        document.querySelector('#selected-id').value = idProduto;
+        selectedIdEl.value = idProduto;
         document.querySelector('#search-product').value = nomeProduto;
+        addBtnEl.removeAttribute('disabled');
 
         showProdutoModal(idProduto);
 
@@ -230,6 +242,8 @@ export function init() {
             tempProduto = null;
 
             addProductToCart(produto, quantidade, preco, desconto);
+            searchFormEl.reset();
+            addBtnEl.setAttribute('disabled', true);
 
             const modal = bootstrap.Modal.getInstance(modalElement);
             modal.hide();
@@ -386,7 +400,7 @@ export function init() {
         });
 
         try {
-            const response = await fetch('/pdv/finalizar', {
+            const response = await fetch('/api/venda/pdv', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -396,8 +410,7 @@ export function init() {
             });
 
             if (response.ok) {
-                const text = await response.text();
-                alert(text);
+                alert("Venda realizada com sucesso.");
                 cart = [];
                 obs = '';
                 observacao.value = '';
@@ -405,10 +418,8 @@ export function init() {
                 renderCart();
                 sellModal.hide();
             } else {
-                const errorData = await response.json();
-                const errorMsg = errorData.message;
-                console.error(`Erro ${errorData.status}: ${errorMsg}`);
-                document.getElementById('error-container').innerHTML = `Erro ao salvar produto: ${errorMsg}`;
+                const errorData = await response.text();
+                document.getElementById('error-container').innerHTML = errorData;
                 observacao.value = '';
                 sellModal.hide();
                 return;

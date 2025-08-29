@@ -1,5 +1,6 @@
 package com.rssecurity.storemanager.controller;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,16 +80,6 @@ public class AutocompleteController {
         model.addAttribute("results", results);
 
         return "fragments/autocomplete :: options";
-    }
-
-    @PostMapping("/pdv/finalizar")
-    @ResponseBody
-    public ResponseEntity<String> pdvVenda(@RequestBody VendaDTO venda, Authentication authentication) {
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String username = userDetails.getUsername();
-        VendaDTO created = vendaService.create(venda, username);
-
-        return ResponseEntity.ok().body(created.observacao());
     }
 
     @GetMapping("/vendas/autocomplete")

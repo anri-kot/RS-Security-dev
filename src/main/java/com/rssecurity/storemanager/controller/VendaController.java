@@ -12,6 +12,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rssecurity.storemanager.dto.VendaDTO;
@@ -112,6 +115,16 @@ public class VendaController {
     @PostMapping
     public ResponseEntity<VendaDTO> create(@RequestBody VendaDTO venda) {
         VendaDTO created = service.create(venda);
+        URI location = URI.create("/api/venda/" + created.idVenda());
+
+        return ResponseEntity.created(location).body(created);
+    }
+
+    @PostMapping("/pdv")
+    public ResponseEntity<VendaDTO> pdvVenda(@RequestBody VendaDTO venda, Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String username = userDetails.getUsername();
+        VendaDTO created = service.create(venda, username);
         URI location = URI.create("/api/venda/" + created.idVenda());
 
         return ResponseEntity.created(location).body(created);

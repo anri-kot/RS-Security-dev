@@ -1,7 +1,9 @@
 package com.rssecurity.storemanager.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +125,10 @@ public class CompraService {
         return repository.findByFornecedor_NomeContaining(nome).stream()
                 .map(mapper::toDTO)
                 .toList();
+    }
+
+    public BigDecimal calculateTotalCompraValueBetween(LocalDate start, LocalDate end) {
+        return repository.calculateTotalCompraValueBetween(start.atStartOfDay(), end.atTime(LocalTime.MAX));
     }
 
     // ACTIONS

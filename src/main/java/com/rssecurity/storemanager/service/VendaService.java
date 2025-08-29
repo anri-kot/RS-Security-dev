@@ -478,8 +478,7 @@ public class VendaService {
 
     // TODO: Assign MIN_STOCK to user preferences
     private void validateProduto(Produto produtoInStock, ItemVenda item) {
-        final int MIN_STOCK = 1;
-        if ((produtoInStock.getEstoque() - item.getQuantidade()) < MIN_STOCK) {
+        if ((produtoInStock.getEstoque() - item.getQuantidade()) < 0) {
             throw new BadRequestException("Estoque insuficiente para o produto: " + produtoInStock.getNome());
         }
     }

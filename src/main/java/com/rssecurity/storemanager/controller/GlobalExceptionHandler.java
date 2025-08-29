@@ -73,7 +73,8 @@ public class GlobalExceptionHandler {
     private ResponseEntity<?> handleError(HttpServletRequest request, String message, HttpStatus status) {
         String url = request.getRequestURL().toString();
         if (isHtmx(request) && url.contains("/api/")) {
-            String html = "<div class='alert alert-danger alert-dismissible'>" + message + "</div>";
+            String html = "<div class='alert alert-danger alert-dismissible'>" + message +
+                "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>";
             return ResponseEntity.status(status).body(html);
         } else if (!url.contains(("/api/"))) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro 404 - Página não encontrada");
