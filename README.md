@@ -1,11 +1,12 @@
-SISTEMA DE GESTÃO – VERSÃO BETA
+SISTEMA DE GESTÃO
 ================================
-
-Esta é a versão beta do sistema de gestão web, desenvolvido em Java (Spring Boot) com interface web responsiva utilizando Bootstrap e HTMX.
-
-O objetivo desta versão é permitir testes iniciais e coleta de feedback sobre o funcionamento geral da aplicação.
-
 ---
+<a href="https://github.com/anri-kot/RSLauncher/releases/tag/v1.0">RSLauncher</a>
+---
+
+✅ LATEST COMPILED JAR + LAUNCHER + CONFIG
+-----------------------------------------
+[Google Drive because github upload takes too long](https://drive.google.com/drive/folders/1-CSCsjLD6uJXqseimPuQmP1A-2jjEFHQ?usp=sharing)
 
 ✅ FUNCIONALIDADES ATUALMENTE DISPONÍVEIS
 -----------------------------------------
