@@ -58,7 +58,7 @@ public class RelatorioViewController {
     ) {
         model.addAllAttributes(buildModel(start, end, currentPage, size));
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
-                ? "relatorios :: resultado"
+                ? "relatorios :: content"
                 : "relatorios";
     }
 

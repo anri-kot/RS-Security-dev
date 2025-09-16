@@ -107,7 +107,7 @@ export function init() {
         if (modalSenhaEl.disabled === true && modalConfirmSenhaEl.disabled === true) return true;
 
         const senha = modalSenhaEl.value;
-        const confirm = modalConfirmSenhaEl;
+        const confirm = modalConfirmSenhaEl.value;
         const senhaValidationEl = document.getElementById('senha-validation');
 
         let isLengthValid = false;

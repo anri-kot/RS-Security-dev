@@ -33,7 +33,9 @@ public class CompraExcelWritter extends ExcelWritter<CompraDTO> {
         for (CompraDTO compra : compras) {
             Map<String,Object> compraMap = RecordUtils.recordToMap(compra);
             List<Map<String,Object>> itemsMap = (List<Map<String,Object>>) compraMap.get("itens");
-            Map<String,Object> fornMap = (Map<String, Object>) compraMap.get("fornecedor");
+            Map<String,Object> fornMap = (Map<String, Object>) compraMap.get("fornecedor") != null
+                ? (Map<String, Object>) compraMap.get("fornecedor")
+                : new HashMap<>();
 
             for (Map<String,Object> itemMap : itemsMap) {
                 Map<String,Object> produtoMap = itemMap.get("produto") != null
