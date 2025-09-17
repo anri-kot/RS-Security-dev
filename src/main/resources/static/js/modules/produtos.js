@@ -97,7 +97,7 @@ export function init() {
         const categoria = (() => {
             const value = document.getElementById('modal-produto-categoria-id').value;
             if (value.length === 0) return null;
-            return value;
+            return { idCategoria: value };
         })();
 
         const precoAtual = parseFloat(document.getElementById('modal-produto-preco').value);
