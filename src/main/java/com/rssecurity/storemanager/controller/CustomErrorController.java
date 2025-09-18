@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.controller;
 
 import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -12,6 +13,12 @@ public class CustomErrorController implements ErrorController {
     
     @RequestMapping("/error")
     public String handleError(HttpServletRequest request) {
+        Object exception = request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+
+        if (exception instanceof DataAccessException) {
+            return "error/database-down";
+        }
+
         Object statusCode = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
 
         if (statusCode != null) {

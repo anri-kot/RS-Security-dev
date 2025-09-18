@@ -1,9 +1,12 @@
 package com.rssecurity.storemanager.controller;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.hibernate.exception.JDBCConnectionException;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -63,7 +66,8 @@ public class GlobalExceptionHandler {
         StringBuilder message = new StringBuilder();
 
         ex.getBindingResult().getFieldErrors().forEach(error -> {
-            if (!message.isEmpty()) message.append(", ");
+            if (!message.isEmpty())
+                message.append(", ");
             message.append(error.getField() + ": " + error.getDefaultMessage());
         });
 
@@ -71,13 +75,15 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<?> handleError(HttpServletRequest request, String message, HttpStatus status) {
-        String url = request.getRequestURL().toString();
-        if (isHtmx(request) && url.contains("/api/")) {
-            String html = "<div class='alert alert-danger alert-dismissible'>" + message +
-                "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>";
-            return ResponseEntity.status(status).body(html);
-        } else if (!url.contains(("/api/"))) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro 404 - Página não encontrada");
+        if (request != null) {
+            String url = request.getRequestURL().toString();
+            if (isHtmx(request) && url.contains("/api/")) {
+                String html = "<div class='alert alert-danger alert-dismissible'>" + message +
+                        "<button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button></div>";
+                return ResponseEntity.status(status).body(html);
+            } else if (!url.contains(("/api/"))) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Erro 404 - Página não encontrada");
+            }
         }
 
         Map<String, Object> errorDetails = new HashMap<>();
