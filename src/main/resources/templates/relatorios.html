@@ -24,7 +24,31 @@
 
             <div class="card mb-3">
                 <div class="card-body">
-                    <form hx-get="/relatorios/vendas" hx-target="#resultado-relatorio" hx-swap="innerHTML" hx-push-url="true"
+                    <div class="row g-3 d-flex justify-content-center">
+                        <div class="col-6 text-center">
+                            <h5>Vendas</h5>
+                            <hr>
+                            <div>
+                                <button class="btn btn-sm btn-outline-primary">Hoje</button>
+                                <button class="btn btn-sm btn-outline-primary">Este mês</button>
+                                <button class="btn btn-sm btn-outline-primary">Este semestre</button>
+                                <button class="btn btn-sm btn-outline-primary">Este ano</button>
+                                <button class="btn btn-sm btn-outline-primary">Customizado</button>
+                            </div>
+                        </div>
+
+                        <div class="col-6 text-center">
+                            <h5>Compras</h5>
+                            <hr>
+                            <button class="btn btn-sm btn-outline-primary">Hoje</button>
+                            <button class="btn btn-sm btn-outline-primary">Este mês</button>
+                            <button class="btn btn-sm btn-outline-primary">Este semestre</button>
+                            <button class="btn btn-sm btn-outline-primary">Este ano</button>
+                            <button class="btn btn-sm btn-outline-primary">Customizado</button>
+                        </div>
+                    </div>
+
+                    <!-- <form hx-get="/relatorios/vendas" hx-target="#resultado-relatorio" hx-swap="innerHTML" hx-push-url="true"
                         class="row g-3">
                         <div class="col-md-4">
                             <label for="start">Data inicial</label>
@@ -37,11 +61,36 @@
                         <div class="col-md-4 align-self-end">
                             <button type="submit" class="btn btn-primary">Buscar</button>
                         </div>
-                    </form>
+                    </form> -->
                 </div>
             </div>
 
             <div th:fragment="resultado" th:replace="~{fragments/relatorio :: resultado}"></div>
+
+            <div class="modal fade" id="relatorioModal" tabindex="-1" aria-labelledby="relatorioModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Relatório</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <h3>Isso é um modal</h3>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                            <button class="btn btn-success" id="confirm-register"
+                                data-action="confirm-modal">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
     </div>
