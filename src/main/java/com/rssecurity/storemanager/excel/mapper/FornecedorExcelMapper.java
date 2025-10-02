@@ -9,10 +9,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 
-import com.rssecurity.storemanager.dto.FornecedorDTO;
 import com.rssecurity.storemanager.excel.headers.FornecedorExcelHeader;
 import com.rssecurity.storemanager.excel.reader.ExcelRowReader;
-import com.rssecurity.storemanager.exception.BadRequestException;
+import com.rssecurity.storemanager.fornecedor.dto.FornecedorDTO;
+import com.rssecurity.storemanager.infra.exception.BadRequestException;
 
 public class FornecedorExcelMapper {
     private final Map<String, Integer> headerIndexMap = new HashMap<>();

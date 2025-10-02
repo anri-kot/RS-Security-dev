@@ -6,8 +6,8 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.excel.mapper.ProdutoExcelMapper;
+import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
 
 public class ProdutoExcelReader {
 

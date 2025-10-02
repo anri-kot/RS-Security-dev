@@ -11,7 +11,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 
-import com.rssecurity.storemanager.exception.BadRequestException;
+import com.rssecurity.storemanager.infra.exception.BadRequestException;
 
 public class ExcelRowReader {
     private final String DATE_FORMAT = "dd-MM-yyyy";

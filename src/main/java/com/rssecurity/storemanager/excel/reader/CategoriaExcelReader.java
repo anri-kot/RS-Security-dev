@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import com.rssecurity.storemanager.dto.CategoriaDTO;
+import com.rssecurity.storemanager.categoria.dto.CategoriaDTO;
 import com.rssecurity.storemanager.excel.mapper.CategoriaExcelMapper;
 
 public class CategoriaExcelReader {

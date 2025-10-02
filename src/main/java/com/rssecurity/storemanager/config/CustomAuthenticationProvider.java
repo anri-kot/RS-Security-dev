@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.rssecurity.storemanager.service.UsuarioService;
+import com.rssecurity.storemanager.usuario.service.UsuarioService;
 
 @Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {

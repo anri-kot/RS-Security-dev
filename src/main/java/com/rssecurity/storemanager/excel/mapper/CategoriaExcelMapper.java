@@ -7,10 +7,10 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 
-import com.rssecurity.storemanager.dto.CategoriaDTO;
+import com.rssecurity.storemanager.categoria.dto.CategoriaDTO;
 import com.rssecurity.storemanager.excel.headers.CategoriaExcelHeader;
 import com.rssecurity.storemanager.excel.reader.ExcelRowReader;
-import com.rssecurity.storemanager.exception.BadRequestException;
+import com.rssecurity.storemanager.infra.exception.BadRequestException;
 
 public class CategoriaExcelMapper {
     private final Map<String, Integer> headerIndexMap = new HashMap<>();

@@ -11,12 +11,12 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 
-import com.rssecurity.storemanager.dto.CompraKey;
-import com.rssecurity.storemanager.dto.ItemCompraDTO;
-import com.rssecurity.storemanager.dto.ProdutoDTO;
+import com.rssecurity.storemanager.compra.dto.CompraKey;
+import com.rssecurity.storemanager.compra.dto.ItemCompraDTO;
 import com.rssecurity.storemanager.excel.headers.CompraExcelHeader;
 import com.rssecurity.storemanager.excel.reader.ExcelRowReader;
-import com.rssecurity.storemanager.exception.BadRequestException;
+import com.rssecurity.storemanager.infra.exception.BadRequestException;
+import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
 
 public class CompraExcelMapper {
     private final Map<String, Integer> headerIndexMap = new HashMap<>();

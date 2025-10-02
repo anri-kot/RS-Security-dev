@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
 
-import com.rssecurity.storemanager.exception.BadRequestException;
+import com.rssecurity.storemanager.infra.exception.BadRequestException;
 
 public class DateTimeUtil {
     

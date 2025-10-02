@@ -1,10 +1,10 @@
 package com.rssecurity.storemanager.excel.mapper;
 
-import com.rssecurity.storemanager.dto.CategoriaDTO;
-import com.rssecurity.storemanager.dto.ProdutoDTO;
+import com.rssecurity.storemanager.categoria.dto.CategoriaDTO;
 import com.rssecurity.storemanager.excel.headers.ProdutoExcelHeader;
 import com.rssecurity.storemanager.excel.reader.ExcelRowReader;
-import com.rssecurity.storemanager.exception.BadRequestException;
+import com.rssecurity.storemanager.infra.exception.BadRequestException;
+import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
 
 import org.apache.poi.ss.usermodel.*;
 
