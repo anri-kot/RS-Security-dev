@@ -28,44 +28,32 @@
                         <div class="col-6 text-center">
                             <h5>Vendas</h5>
                             <hr>
-                            <div>
-                                <button class="btn btn-sm btn-outline-primary">Hoje</button>
-                                <button class="btn btn-sm btn-outline-primary">Este mês</button>
-                                <button class="btn btn-sm btn-outline-primary">Este semestre</button>
-                                <button class="btn btn-sm btn-outline-primary">Este ano</button>
-                                <button class="btn btn-sm btn-outline-primary">Customizado</button>
+                            <div id="venda-options">
+                                <button class="btn btn-sm btn-outline-primary" value="today">Hoje</button>
+                                <button class="btn btn-sm btn-outline-primary" value="month">Este mês</button>
+                                <button class="btn btn-sm btn-outline-primary" value="semester">Este semestre</button>
+                                <button class="btn btn-sm btn-outline-primary" value="year">Este ano</button>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#relatorioModal" data-bs-tabela="venda">Customizado</button>
                             </div>
                         </div>
 
                         <div class="col-6 text-center">
                             <h5>Compras</h5>
                             <hr>
-                            <button class="btn btn-sm btn-outline-primary">Hoje</button>
-                            <button class="btn btn-sm btn-outline-primary">Este mês</button>
-                            <button class="btn btn-sm btn-outline-primary">Este semestre</button>
-                            <button class="btn btn-sm btn-outline-primary">Este ano</button>
-                            <button class="btn btn-sm btn-outline-primary">Customizado</button>
+                            <div id="compra-options">
+                                <button class="btn btn-sm btn-outline-primary" value="today">Hoje</button>
+                                <button class="btn btn-sm btn-outline-primary" value="month">Este mês</button>
+                                <button class="btn btn-sm btn-outline-primary" value="semester">Este semestre</button>
+                                <button class="btn btn-sm btn-outline-primary" value="year">Este ano</button>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#relatorioModal" data-bs-tabela="compra">Customizado</button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- <form hx-get="/relatorios/vendas" hx-target="#resultado-relatorio" hx-swap="innerHTML" hx-push-url="true"
-                        class="row g-3">
-                        <div class="col-md-4">
-                            <label for="start">Data inicial</label>
-                            <input type="date" class="form-control" th:value="${start} ?: ''" name="start" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="end">Data final</label>
-                            <input type="date" class="form-control" th:value="${end} ?: ''" name="end" required>
-                        </div>
-                        <div class="col-md-4 align-self-end">
-                            <button type="submit" class="btn btn-primary">Buscar</button>
-                        </div>
-                    </form> -->
                 </div>
             </div>
 
-            <div th:fragment="resultado" th:replace="~{fragments/relatorio :: resultado}"></div>
+            <div id="resultado-relatorio" th:fragment="resultado" th:replace="~{fragments/relatorio :: resultado}"></div>
 
             <div class="modal fade" id="relatorioModal" tabindex="-1" aria-labelledby="relatorioModalLabel"
                 aria-hidden="true">

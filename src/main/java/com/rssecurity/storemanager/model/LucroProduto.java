@@ -16,6 +16,8 @@ public class LucroProduto {
     private BigDecimal custo;
     private BigDecimal lucro;
 
+    public LucroProduto(){}
+
     public LucroProduto(Long idProduto, String nome, BigDecimal receita, BigDecimal custo, BigDecimal lucro) {
         this.idProduto = idProduto;
         this.nome = nome;

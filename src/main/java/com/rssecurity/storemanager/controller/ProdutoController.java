@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rssecurity.storemanager.dto.LucroProdutoDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.excel.writter.ProdutoExcelWritter;
 import com.rssecurity.storemanager.exception.ConflictException;
@@ -76,6 +77,16 @@ public class ProdutoController {
             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=produtos.xlsx")
             .contentType(MediaType.APPLICATION_OCTET_STREAM)
             .body(resource);
+    }
+
+    @GetMapping("/lucro/{idProduto}")
+    public ResponseEntity<LucroProdutoDTO> findLucroByIdProduto(@PathVariable Long idProduto) {
+        return ResponseEntity.ok(service.findLucroByIdProduto(idProduto));
+    }
+
+    @GetMapping("/lucro")
+    public ResponseEntity<List<LucroProdutoDTO>> findAllLucroByIdProduto(@RequestParam List<Long> ids) {
+        return ResponseEntity.ok(service.findAllLucroProdutoById(ids));
     }
 
     // ACTIONS

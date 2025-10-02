@@ -9,11 +9,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.rssecurity.storemanager.dto.LucroProdutoDTO;
 import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.exception.BadRequestException;
 import com.rssecurity.storemanager.exception.ResourceNotFoundException;
+import com.rssecurity.storemanager.mapper.LucroProdutoMapper;
 import com.rssecurity.storemanager.mapper.ProdutoMapper;
+import com.rssecurity.storemanager.model.LucroProduto;
 import com.rssecurity.storemanager.model.Produto;
+import com.rssecurity.storemanager.repository.LucroProdutoRepository;
 import com.rssecurity.storemanager.repository.ProdutoRepository;
 
 import jakarta.transaction.Transactional;
@@ -22,12 +26,14 @@ import jakarta.transaction.Transactional;
 public class ProdutoService {
     private final ProdutoRepository repository;
     private final ProdutoMapper mapper;
+    private final LucroProdutoRepository lucroRepository;
 
     // SEARCH
 
-    public ProdutoService(ProdutoRepository repository, ProdutoMapper mapper) {
+    public ProdutoService(ProdutoRepository repository, ProdutoMapper mapper, LucroProdutoRepository lucroRepository) {
         this.repository = repository;
         this.mapper = mapper;
+        this.lucroRepository = lucroRepository;
     }
 
     public List<ProdutoDTO> findAll() {
@@ -75,6 +81,18 @@ public class ProdutoService {
     public List<ProdutoDTO> findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(String termo, Long categoria) {
         return repository.findByNomeContainsIgnoreCaseAndCategoria_IdCategoria(termo, categoria).stream()
                 .map(mapper::toDTO)
+                .toList();
+    }
+
+    public LucroProdutoDTO findLucroByIdProduto(Long idProduto) {
+        LucroProduto lucro = lucroRepository.findById(idProduto)
+                .orElseThrow(() -> new ResourceNotFoundException("Lucro do produto de ID " + idProduto + " não encontrado."));
+        return LucroProdutoMapper.toDTO(lucro);
+    }
+
+    public List<LucroProdutoDTO> findAllLucroProdutoById(List<Long> ids) {
+        return lucroRepository.findAllById(ids).stream()
+                .map(LucroProdutoMapper::toDTO)
                 .toList();
     }
 
