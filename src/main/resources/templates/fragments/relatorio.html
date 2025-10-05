@@ -1,7 +1,9 @@
 <div th:fragment="resultado" id="resultado-relatorio">
+    
+
     <div th:if="${erro != null}" class="alert alert-danger" th:text="${erro}"></div>
 
-    <div th:if${total != null}>
+    <div th:if="${relatorio != null && relatorio.total != null}" th:with="vendas=${relatorio.vendas}">
         <div class="row text-center mb-3">
             <div class="col">
                 <div class="card shadow-sm border-0">
@@ -17,7 +19,7 @@
                     <div class="card-body">
                         <i class="bi bi-cash-stack fs-3 text-success"></i>
                         <h6 class="mt-2">Faturado Hoje</h6>
-                        <h4>R$ <span th:text="${#numbers.formatDecimal(total,1,'POINT',2,'COMMA')}"></span></h4>
+                        <h4>R$ <span th:text="${#numbers.formatDecimal(relatorio.total,1,'POINT',2,'COMMA')}"></span></h4>
                     </div>
                 </div>
             </div>
@@ -26,13 +28,13 @@
                     <div class="card-body">
                         <i class="bi bi-credit-card fs-3 text-danger"></i>
                         <h6 class="mt-2">Gasto no mês</h6>
-                        <h4>R$ <span th:text="${#numbers.formatDecimal(monthlyTotal,1,'POINT',2,'COMMA')}"></span></h4>
+                        <h4>R$ <span th:text="${#numbers.formatDecimal(relatorio.monthlyTotal,1,'POINT',2,'COMMA')}"></span></h4>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div th:if="${total != null}" class="card">
+    <div th:if="${relatorio != null && relatorio.total != null}" th:with="vendas=${relatorio.vendas}" class="card">
         <div class="card-body">
 
             <h5 class="card-title">Vendas</h5>
@@ -66,7 +68,7 @@
                         </td>
 
                         <td>
-                            <span th:text="${lucroVenda.get(v.idVenda)}"></span>
+                            <!-- <span th:text="${lucroVenda.get(v.idVenda)}"></span> -->
                         </td>
                         
                         <td>

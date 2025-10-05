@@ -11,14 +11,14 @@ import org.springframework.stereotype.Service;
 
 import com.rssecurity.storemanager.infra.exception.BadRequestException;
 import com.rssecurity.storemanager.infra.exception.ResourceNotFoundException;
-import com.rssecurity.storemanager.produto.dto.LucroProdutoDTO;
 import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
 import com.rssecurity.storemanager.produto.mapper.LucroProdutoMapper;
 import com.rssecurity.storemanager.produto.mapper.ProdutoMapper;
-import com.rssecurity.storemanager.produto.model.LucroProduto;
 import com.rssecurity.storemanager.produto.model.Produto;
 import com.rssecurity.storemanager.produto.repository.LucroProdutoRepository;
 import com.rssecurity.storemanager.produto.repository.ProdutoRepository;
+import com.rssecurity.storemanager.relatorio.dto.LucroProdutoDTO;
+import com.rssecurity.storemanager.relatorio.model.LucroProduto;
 
 import jakarta.transaction.Transactional;
 

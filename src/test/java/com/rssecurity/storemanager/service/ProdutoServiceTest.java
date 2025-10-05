@@ -1,11 +1,13 @@
 package com.rssecurity.storemanager.service;
 
-import com.rssecurity.storemanager.dto.CategoriaDTO;
-import com.rssecurity.storemanager.dto.ProdutoDTO;
-import com.rssecurity.storemanager.exception.BadRequestException;
-import com.rssecurity.storemanager.mapper.ProdutoMapper;
-import com.rssecurity.storemanager.model.Produto;
-import com.rssecurity.storemanager.repository.ProdutoRepository;
+import com.rssecurity.storemanager.categoria.dto.CategoriaDTO;
+import com.rssecurity.storemanager.infra.exception.BadRequestException;
+import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
+import com.rssecurity.storemanager.produto.mapper.ProdutoMapper;
+import com.rssecurity.storemanager.produto.model.Produto;
+import com.rssecurity.storemanager.produto.repository.ProdutoRepository;
+import com.rssecurity.storemanager.produto.service.ProdutoService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

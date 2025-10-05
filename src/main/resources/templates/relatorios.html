@@ -11,13 +11,12 @@
     <div layout:fragment="content">
 
         <div class="container py-4" th:fragment="content" data-page-id="relatorios">
-
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="mb-0">Relatórios de Vendas</h1>
-                <a th:if="${vendas.totalElements > 0}" th:href="@{/api/venda/export(dataInicio=${start},dataFim=${end})}">
+                <a th:if="${relatorio != null && relatorio.vendas.totalElements > 0}" th:href="@{/api/venda/export(dataInicio=${dataInicio},dataFim=${dataFim})}">
                     <button id="new-compra" class="btn btn-success">Exportar</button>
                 </a>
-                <a th:unless="${vendas.totalElements > 0}">
+                <a th:unless="${relatorio != null && relatorio.vendas.totalElements > 0}">
                     <button id="new-compra" class="btn btn-success" disabled>Exportar</button>
                 </a>          
             </div>

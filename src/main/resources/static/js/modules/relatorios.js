@@ -13,68 +13,54 @@ export function init() {
     class DatePeriod {
         constructor(start, end) {
             this.start = start,
-                this.end = end
+            this.end = end
         }
     }
 
     function getSelectedDate(selected) {
         const today = new Date();
-        let period;
-        let start, end;
-
+    
+        const formatDate = (date) =>
+            date.toISOString().split('T')[0];
+    
+        let startDate, endDate;
+    
         switch (selected) {
             case 'TODAY': {
-                const date = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
-                period = new DatePeriod(date, date);
+                startDate = new Date(today);
+                endDate = new Date(today);
                 break;
             }
-
+    
             case 'MONTH': {
-                const endOfMonth = new Date(today);
-                endOfMonth.setMonth(today.getMonth() + 1, 0);
-                start = `${today.getFullYear()}-${today.getMonth() + 1}-01`;
-                end = `${today.getFullYear()}-${today.getMonth() + 1}-${endOfMonth.getDate()}`;
-                period = new DatePeriod(start, end);
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                 break;
             }
-
+    
             case 'SEMESTER': {
-                let startOfSemester = new Date(today);
-                let endOfSemester = new Date(today);
-
-                if (today.getMonth() <= 5) {
-                    startOfSemester.setMonth(0, 1);
-                    endOfSemester.setMonth(6, 0);
-                } else {
-                    startOfSemester.setMonth(6, 1);
-                    endOfSemester.setMonth(12, 0);
-                }
-
-                start = `${startOfSemester.getFullYear()}-${startOfSemester.getMonth() + 1}-01`;
-                end = `${endOfSemester.getFullYear()}-${endOfSemester.getMonth() + 1}-${endOfSemester.getDate()}`;
-                period = new DatePeriod(start, end);
+                const isFirstSemester = today.getMonth() < 6;
+                startDate = new Date(today.getFullYear(), isFirstSemester ? 0 : 6, 1);
+                endDate = new Date(today.getFullYear(), isFirstSemester ? 6 : 12, 0);
                 break;
             }
-
+    
             case 'YEAR': {
-                const endOfYear = new Date(today);
-                endOfYear.setMonth(12, 0);
-                start = `${today.getFullYear()}-01-01`;
-                end = `${today.getFullYear()}-12-${endOfYear.getDate()}`;
-                period = new DatePeriod(start, end);
+                startDate = new Date(today.getFullYear(), 0, 1);
+                endDate = new Date(today.getFullYear(), 12, 0);
                 break;
             }
-
+    
             default:
                 throw new Error("Período selecionado inválido");
         }
-
-        return period;
-    }
+    
+        return new DatePeriod(formatDate(startDate), formatDate(endDate));
+    }    
 
     // start, end: yyyy-mm-dd
     async function loadRelatorioVendaByDate(period) {
-        const url = `/relatorios/vendas?start=${period.start}&end=${period.end}`
+        const url = `/relatorios/vendas?dataInicio=${period.start}&dataFim=${period.end}`
         try {
             //htmx.ajax('GET', url, { target: '#conteudo' });
             window.location.href = url;

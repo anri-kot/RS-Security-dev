@@ -13,7 +13,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.rssecurity.storemanager.model.Venda;
+import com.rssecurity.storemanager.venda.model.Venda;
+import com.rssecurity.storemanager.venda.repository.VendaRepository;
 
 @DataJpaTest
 @ActiveProfiles("test")

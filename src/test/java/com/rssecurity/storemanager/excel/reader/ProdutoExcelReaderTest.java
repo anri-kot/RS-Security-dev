@@ -12,7 +12,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 
-import com.rssecurity.storemanager.dto.ProdutoDTO;
+import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
 
 class ProdutoExcelReaderTest {
 

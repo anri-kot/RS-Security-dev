@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rssecurity.storemanager.excel.service.FileDownloadService;
 import com.rssecurity.storemanager.excel.writter.ProdutoExcelWritter;
 import com.rssecurity.storemanager.infra.exception.ConflictException;
-import com.rssecurity.storemanager.produto.dto.LucroProdutoDTO;
 import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
 import com.rssecurity.storemanager.produto.service.ProdutoService;
+import com.rssecurity.storemanager.relatorio.dto.LucroProdutoDTO;
 
 import jakarta.validation.Valid;
 

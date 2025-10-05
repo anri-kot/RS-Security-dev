@@ -1,7 +1,7 @@
 package com.rssecurity.storemanager.produto.mapper;
 
-import com.rssecurity.storemanager.produto.dto.LucroProdutoDTO;
-import com.rssecurity.storemanager.produto.model.LucroProduto;
+import com.rssecurity.storemanager.relatorio.dto.LucroProdutoDTO;
+import com.rssecurity.storemanager.relatorio.model.LucroProduto;
 
 public class LucroProdutoMapper {
     

@@ -16,13 +16,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
 
-import com.rssecurity.storemanager.dto.CompraDTO;
-import com.rssecurity.storemanager.exception.ResourceNotFoundException;
-import com.rssecurity.storemanager.mapper.CompraMapper;
-import com.rssecurity.storemanager.mapper.ProdutoMapper;
-import com.rssecurity.storemanager.model.Compra;
-import com.rssecurity.storemanager.repository.CompraRepository;
-import com.rssecurity.storemanager.repository.ProdutoRepository;
+import com.rssecurity.storemanager.compra.dto.CompraDTO;
+import com.rssecurity.storemanager.compra.mapper.CompraMapper;
+import com.rssecurity.storemanager.compra.model.Compra;
+import com.rssecurity.storemanager.compra.repository.CompraRepository;
+import com.rssecurity.storemanager.compra.service.CompraService;
+import com.rssecurity.storemanager.infra.exception.ResourceNotFoundException;
+import com.rssecurity.storemanager.produto.mapper.ProdutoMapper;
+import com.rssecurity.storemanager.produto.repository.ProdutoRepository;
 
 class CompraServiceTest {
 
