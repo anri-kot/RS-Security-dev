@@ -1,4 +1,4 @@
-package com.rssecurity.storemanager.relatorio;
+package com.rssecurity.storemanager.relatorio.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
