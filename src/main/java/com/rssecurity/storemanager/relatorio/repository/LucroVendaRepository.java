@@ -1,0 +1,21 @@
+package com.rssecurity.storemanager.relatorio.repository;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import com.rssecurity.storemanager.relatorio.model.LucroVenda;
+
+@Repository
+public interface LucroVendaRepository extends JpaRepository<LucroVenda, Long> {
+    @Query("""
+        SELECT SUM(lv.lucroTotal)
+        FROM LucroVenda lv
+        WHERE lv.data BETWEEN :start AND :end
+    """)
+    BigDecimal calcularLucroTotal(@Param("start") LocalDateTime dataInicio, @Param("end") LocalDateTime dataFim);
+}

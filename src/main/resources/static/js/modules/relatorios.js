@@ -13,50 +13,50 @@ export function init() {
     class DatePeriod {
         constructor(start, end) {
             this.start = start,
-            this.end = end
+                this.end = end
         }
     }
 
     function getSelectedDate(selected) {
         const today = new Date();
-    
+
         const formatDate = (date) =>
             date.toISOString().split('T')[0];
-    
+
         let startDate, endDate;
-    
+
         switch (selected) {
             case 'TODAY': {
                 startDate = new Date(today);
                 endDate = new Date(today);
                 break;
             }
-    
+
             case 'MONTH': {
                 startDate = new Date(today.getFullYear(), today.getMonth(), 1);
                 endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                 break;
             }
-    
+
             case 'SEMESTER': {
                 const isFirstSemester = today.getMonth() < 6;
                 startDate = new Date(today.getFullYear(), isFirstSemester ? 0 : 6, 1);
                 endDate = new Date(today.getFullYear(), isFirstSemester ? 6 : 12, 0);
                 break;
             }
-    
+
             case 'YEAR': {
                 startDate = new Date(today.getFullYear(), 0, 1);
                 endDate = new Date(today.getFullYear(), 12, 0);
                 break;
             }
-    
+
             default:
                 throw new Error("Período selecionado inválido");
         }
-    
+
         return new DatePeriod(formatDate(startDate), formatDate(endDate));
-    }    
+    }
 
     // start, end: yyyy-mm-dd
     async function loadRelatorioVendaByDate(period) {

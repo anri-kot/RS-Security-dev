@@ -65,10 +65,10 @@ public class FormatterUtil {
         return builder.toString();
     }
 
-    public static String formatInterval(String start, String end) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-YYYY");
-        String str1 = LocalDate.parse(start).format(formatter).toString();
-        String str2 = LocalDate.parse(end).format(formatter).toString();
+    public static String formatInterval(LocalDate start, LocalDate end) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String str1 = start.format(formatter).toString();
+        String str2 = end.format(formatter).toString();
         return str1 + " - " + str2;
     }
 }

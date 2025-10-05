@@ -4,13 +4,18 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import com.rssecurity.storemanager.compra.service.CompraService;
+import com.rssecurity.storemanager.relatorio.dto.LucroVendaDTO;
 import com.rssecurity.storemanager.relatorio.dto.RelatorioViewDTO;
+import com.rssecurity.storemanager.relatorio.service.LucroVendaService;
 import com.rssecurity.storemanager.util.FormatterUtil;
 import com.rssecurity.storemanager.venda.dto.VendaDTO;
 import com.rssecurity.storemanager.venda.service.VendaService;
@@ -19,10 +24,12 @@ import com.rssecurity.storemanager.venda.service.VendaService;
 public class RelatorioFacade {
     private final VendaService vendaService;
     private final CompraService compraService;
+    private final LucroVendaService lucroVendaService;
 
-    public RelatorioFacade(VendaService vendaService, CompraService compraService) {
+    public RelatorioFacade(VendaService vendaService, CompraService compraService, LucroVendaService lucroVendaService) {
         this.vendaService = vendaService;
         this.compraService = compraService;
+        this.lucroVendaService = lucroVendaService;
     }
 
     /**
@@ -47,19 +54,24 @@ public class RelatorioFacade {
             Page<VendaDTO> vendas = vendaService.findAllByCustomMatcher(page, size, dateFilter);
             BigDecimal total = vendaService.calculateTotalVendaValueBetween(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX));
             BigDecimal monthlyTotal = compraService.calculateTotalCompraValueBetween(startMonth, endMonth);
+
+            List<Long> vendaIds = vendas.getContent().stream().map(VendaDTO::idVenda).toList();
+            Map<Long, LucroVendaDTO> lucroVendas = lucroVendaService.findAllById(vendaIds).stream()
+                    .collect(Collectors.toMap(LucroVendaDTO::idVenda, Function.identity()));
+            BigDecimal lucroTotal = lucroVendaService.calculateLucroTotal(startDate, endDate);
     
 
             dto.setVendas(vendas);
             dto.setTotal(total);
             dto.setMonthlyTotal(monthlyTotal);
             dto.setTarget("compras");
+            dto.setLucroVendas(lucroVendas);
+            dto.setLucroTotal(lucroTotal);
 
-            if (!startDateString.equals(endDateString)) {
-                try {
-                    dto.setInterval(FormatterUtil.formatInterval(startDateString, endDateString));
-                } catch (Exception e) {
-                    throw new RuntimeException("Formato de data inválido: " + startDateString + " " + endDateString);
-                }
+            try {
+                dto.setInterval(FormatterUtil.formatInterval(startDate, endDate));
+            } catch (Exception e) {
+                throw new RuntimeException("Formato de data inválido: " + startDateString + " " + endDateString);
             }
 
             return dto;

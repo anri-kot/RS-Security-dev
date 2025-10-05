@@ -1,13 +1,6 @@
 package com.rssecurity.storemanager.relatorio.controller;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,28 +8,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.rssecurity.storemanager.compra.service.CompraService;
-import com.rssecurity.storemanager.produto.service.ProdutoService;
-import com.rssecurity.storemanager.relatorio.dto.LucroProdutoDTO;
 import com.rssecurity.storemanager.relatorio.dto.RelatorioViewDTO;
 import com.rssecurity.storemanager.relatorio.facade.RelatorioFacade;
-import com.rssecurity.storemanager.venda.dto.ItemVendaDTO;
-import com.rssecurity.storemanager.venda.dto.VendaDTO;
-import com.rssecurity.storemanager.venda.service.VendaService;
 
 import jakarta.servlet.http.HttpServletRequest;
-
-/* TODO: Refactor this class into DTO, RelatorioService and Utils */
 
 @Controller
 @RequestMapping("/relatorios")
 public class RelatorioViewController {
 
-    private final ProdutoService produtoService;
     private final RelatorioFacade relatorioFacade;
 
-    public RelatorioViewController(ProdutoService produtoService, RelatorioFacade relatorioFacade) {
-        this.produtoService = produtoService;
+    public RelatorioViewController(RelatorioFacade relatorioFacade) {
         this.relatorioFacade = relatorioFacade;
     }
 

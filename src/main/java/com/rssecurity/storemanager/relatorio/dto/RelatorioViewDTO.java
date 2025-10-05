@@ -1,6 +1,7 @@
 package com.rssecurity.storemanager.relatorio.dto;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.data.domain.Page;
@@ -13,6 +14,8 @@ public class RelatorioViewDTO {
     private BigDecimal monthlyTotal;
     private String target;
     private String interval;
+    private Map<Long, LucroVendaDTO> lucroVendas;
+    private BigDecimal lucroTotal;
 
     private String erro = null;
 
@@ -23,6 +26,8 @@ public class RelatorioViewDTO {
                 "monthlyTotal: " + monthlyTotal.toString() +
                 "target: " + target +
                 "interval: " + interval +
+                "lucroVendas: " + lucroVendas.size() +
+                "lucroTotal: " + lucroTotal +
                 "erro: " + Objects.requireNonNullElse(erro, "none");
     }
 
@@ -74,6 +79,21 @@ public class RelatorioViewDTO {
         this.erro = erro;
     }
 
+    public Map<Long, LucroVendaDTO> getLucroVendas() {
+        return lucroVendas;
+    }
+
+    public void setLucroVendas(Map<Long, LucroVendaDTO> lucroVendas) {
+        this.lucroVendas = lucroVendas;
+    }
+
+    public BigDecimal getLucroTotal() {
+        return lucroTotal;
+    }
+
+    public void setLucroTotal(BigDecimal lucroTotal) {
+        this.lucroTotal = lucroTotal;
+    }
     /*
      * modelMap.put("vendas", vendas);
      * modelMap.put("total", total);
