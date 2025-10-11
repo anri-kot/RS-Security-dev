@@ -185,15 +185,13 @@ export function init() {
         total = 0;
         let totalCents = 0;
         cart.forEach((item, index) => {
-            const unitPriceCents = Math.round(item.valorUnitario * 100);
-            const quantity = item.quantidade;
-            const discountPercent = item.desconto ?? 0;
-            const discount = (item.desconto ?? 0) / 100;
+            const unitPrice = parseFloat(item.valorUnitario) || 0;
+            const quantity = parseInt(item.quantidade, 10) || 0;
+            const discountPercent = parseFloat(item.desconto ?? 0); // Ex: 3.0 = 3%
 
-            const fullPriceCents = quantity * unitPriceCents;
-            const discountCents = Math.round(fullPriceCents * (discountPercent / 100));
-            const finalPriceCents = fullPriceCents - discountCents;
-            const finalPrice = finalPriceCents / 100;
+            const fullPriceCents = unitPrice * quantity * 100;
+            const discountMultiplier = 1 - (discountPercent / 100);
+            const finalPriceCents = Math.round(fullPriceCents * discountMultiplier);
 
             totalCents += finalPriceCents;
 

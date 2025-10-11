@@ -132,13 +132,10 @@
                                 <div class="mb-3">
                                     <label class="form-label">Categoria</label>
                                     <select id="modal-produto-categoria-id" class="form-select me-2">
-                                        <option value="">Selecione uma categoria</option>
+                                        <option value="">Nenhuma</option>
                                         <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}"
                                             th:text="${cat.nome}"></option>
                                     </select>
-                                    <div class="invalid-feedback">
-                                        Você deve selecionar uma categoria.
-                                    </div>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Preço (R$)</label>

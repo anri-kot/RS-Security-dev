@@ -56,12 +56,6 @@ export function init() {
 
     function validateProdutoForm() {
         const form = document.getElementById('modal-produto-form');
-        const idCategoriaEl = document.getElementById('modal-produto-categoria-id');
-        const idCategoria = parseInt(idCategoriaEl.value) || null;
-
-        if (idCategoria === null) {
-            idCategoriaEl.classList.add('is-invalid')
-        }
 
         const isValid = form.checkValidity();
         if (!isValid) form.reportValidity();
