@@ -32,7 +32,7 @@
                                 <button class="btn btn-sm btn-outline-primary" value="month">Este mês</button>
                                 <button class="btn btn-sm btn-outline-primary" value="semester">Este semestre</button>
                                 <button class="btn btn-sm btn-outline-primary" value="year">Este ano</button>
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#relatorioModal" data-bs-tabela="venda">Customizado</button>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#relatorioModal" data-bs-tabela="Venda">Customizado</button>
                             </div>
                         </div>
 
@@ -44,7 +44,7 @@
                                 <button class="btn btn-sm btn-outline-primary" value="month">Este mês</button>
                                 <button class="btn btn-sm btn-outline-primary" value="semester">Este semestre</button>
                                 <button class="btn btn-sm btn-outline-primary" value="year">Este ano</button>
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#relatorioModal" data-bs-tabela="compra">Customizado</button>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#relatorioModal" data-bs-tabela="Compra">Customizado</button>
                             </div>
                         </div>
                     </div>
@@ -66,13 +66,27 @@
                         </div>
 
                         <div class="modal-body">
-                            <h3>Isso é um modal</h3>
+                            <p>Selecione o período desejado</p>
+                            <form id="relatorio-form">
+                                <div class="row">
+                                    <div class="col">
+                                        <label class="form-label" for="dataInicio">Início</label>
+                                        <input class="form-control" type="date" name="dataInicio" id="dataInicio" required>
+                                    </div>
+    
+                                    <div class="col">
+                                        <label for="dataFim" class="form-label">Fim</label>
+                                        <input class="form-control" type="date" name="dataFim" id="dataFim" required>
+                                    </div>
+                                </div>
+                                <small id="periodoError" class="text-danger d-none">Período inválido. Data inicial deve ser menor ou igual à data final</small>
+                            </form>
                         </div>
                         
                         <div class="modal-footer">
                             <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
                             <button class="btn btn-success" id="confirm-register"
-                                data-action="confirm-modal">Confirmar</button>
+                                data-action="confirm-modal" data-source="">Confirmar</button>
                         </div>
                     </div>
                 </div>

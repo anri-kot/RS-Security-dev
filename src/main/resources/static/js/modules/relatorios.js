@@ -1,6 +1,20 @@
 export function init() {
     const DEFAULT_DATE_OPTIONS = ['TODAY', 'MONTH', 'SEMESTER', 'YEAR'];
     const vendaOptionsEl = document.getElementById('venda-options');
+    const relatorioModalEl = document.getElementById('relatorioModal');
+
+    const dataInicioEl = relatorioModalEl.querySelector('#dataInicio');
+    const dataFimEl = relatorioModalEl.querySelector('#dataFim');
+
+    const formatDate = (date) =>
+        date.toISOString().split('T')[0];
+
+    class DatePeriod {
+        constructor(start, end) {
+            this.start = start,
+                this.end = end
+        }
+    }
 
     vendaOptionsEl.addEventListener('click', async (e) => {
         const selected = e.target.value.toUpperCase();
@@ -10,18 +24,35 @@ export function init() {
         }
     });
 
-    class DatePeriod {
-        constructor(start, end) {
-            this.start = start,
-                this.end = end
-        }
+    if (relatorioModalEl) {        
+        const confirmBtnEl = relatorioModalEl.querySelector('#confirm-register');
+
+        relatorioModalEl.addEventListener('show.bs.modal', event => {
+            
+            const button = event.relatedTarget;
+            const tabelaName = button.getAttribute('data-bs-tabela');
+
+            const modalTitleEl = relatorioModalEl.querySelector('.modal-title');
+            modalTitleEl.textContent = tabelaName;
+            confirmBtnEl.setAttribute('data-source', tabelaName.toLowerCase());
+        });
+
+        confirmBtnEl.addEventListener('click', e => {
+            if (!validateModal()) return;
+            const source = e.target.getAttribute('data-source').toLowerCase();
+
+            if (source.length === 0) return;
+
+            if (source === 'venda') {
+                loadRelatorioVendaByDate( getModalPeriod() )
+            } else {
+                // TODO: leadRelatorioCompraByDate
+            }
+        });
     }
 
     function getSelectedDate(selected) {
         const today = new Date();
-
-        const formatDate = (date) =>
-            date.toISOString().split('T')[0];
 
         let startDate, endDate;
 
@@ -56,6 +87,39 @@ export function init() {
         }
 
         return new DatePeriod(formatDate(startDate), formatDate(endDate));
+    }
+
+    function getModalPeriod() {
+        const dataInicio = dataInicioEl.value;
+        const dataFim = dataFimEl.value;
+        return new DatePeriod(formatDate(new Date(dataInicio)), formatDate(new Date(dataFim)));
+    }
+
+    function validateModal() {
+        const form = relatorioModalEl.querySelector('form');
+        const periodoErrorEl = relatorioModalEl.querySelector('#periodoError');
+
+        let isValid = form.checkValidity();
+
+        if (isValid) {
+            const dataInicio = new Date(dataInicioEl.value);
+            const dataFim = new Date(dataFimEl.value);
+    
+            isValid = isValid && (dataInicio <= dataFim);
+        }
+
+        if (!isValid) {
+            periodoErrorEl.classList.remove('d-none');
+            dataInicioEl.classList.add('is-invalid');
+            dataFimEl.classList.add('is-invalid');
+        } else {
+            periodoErrorEl.classList.add('d-none');
+            dataInicioEl.classList.remove('is-invalid');
+            dataFimEl.classList.remove('is-invalid');
+            // prossegue com o envio ou lógica normal
+        }
+
+        return isValid;
     }
 
     // start, end: yyyy-mm-dd
