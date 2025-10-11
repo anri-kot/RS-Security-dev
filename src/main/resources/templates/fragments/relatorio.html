@@ -18,7 +18,7 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <i class="bi bi-cash-stack fs-3 text-success"></i>
-                        <h6 class="mt-2" th:text="'Faturado ' + ${dataInicio == dataFim ? 'Hoje' : 'no período'}">Faturado</h6>
+                        <h6 class="mt-2" >Faturalmento em Custo Médio</h6>
                         <h4>R$ <span th:text="${#numbers.formatDecimal(relatorio.lucroTotal,1,'POINT',2,'COMMA')}"></span></h4>
                     </div>
                 </div>
@@ -27,8 +27,8 @@
                 <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <i class="bi bi-credit-card fs-3 text-danger"></i>
-                        <h6 class="mt-2">Gasto no mês</h6>
-                        <h4>R$ <span th:text="${#numbers.formatDecimal(relatorio.monthlyTotal,1,'POINT',2,'COMMA')}"></span></h4>
+                        <h6 class="mt-2">Custo Médio Total</h6>
+                        <h4>R$ <span th:text="${#numbers.formatDecimal(relatorio.custoTotal,1,'POINT',2,'COMMA')}"></span></h4>
                     </div>
                 </div>
             </div>
@@ -47,6 +47,14 @@
                         <th>Data</th>
                         <th>Receita</th>
                         <th>
+                            Média Custo
+                            <i class="bi bi-info-circle"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="A média de custo se refere à soma da média dos gastos em cada produto.">
+                            </i>
+                        </th>
+                        <th>
                             Média Lucro
                             <i class="bi bi-info-circle"
                                 data-bs-toggle="tooltip"
@@ -55,7 +63,7 @@
                             </i>
                         </th>
                         <th class="text-center">%</th>
-                        <th>Método</th>
+                        <th>Pagamento</th>
                         <th>Observação</th>
                     </tr>
                 </thead>
@@ -75,6 +83,12 @@
                         
                         <td class="fw-bold text-secondary">
                             R$ <span th:text="${#numbers.formatDecimal(v.liquido,1,'POINT',2,'COMMA')}"></span>
+                        </td>
+
+                        <td th:with="lucroVenda=${relatorio.lucroVendas.get(v.idVenda)}" class="fw-bold">
+                            <span class="text-danger" th:if="${lucroVenda.lucroPercentual != null}"
+                                th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.custoTotal, 1, 'POINT', 2, 'COMMA')}">
+                            </span>
                         </td>
 
                         <td th:with="lucroVenda=${relatorio.lucroVendas.get(v.idVenda)}" class="fw-bold">

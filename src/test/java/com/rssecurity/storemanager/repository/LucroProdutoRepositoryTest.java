@@ -11,7 +11,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.rssecurity.storemanager.produto.repository.LucroProdutoRepository;
-import com.rssecurity.storemanager.relatorio.model.LucroProduto;
+import com.rssecurity.storemanager.relatorio.model.LucroCompra;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -23,13 +23,13 @@ class LucroProdutoRepositoryTest {
     @Test
     void deveRetornarLucroProdutos() {
         // Act
-        List<LucroProduto> lucros = repository.findAll();
+        List<LucroCompra> lucros = repository.findAll();
 
         // Assert
         assertThat(lucros).isNotEmpty();
 
         // Validar produto específico (exemplo id_produto = 1)
-        LucroProduto camisetas = lucros.stream()
+        LucroCompra camisetas = lucros.stream()
                 .filter(lp -> lp.getIdProduto() == 1L)
                 .findFirst()
                 .orElseThrow();

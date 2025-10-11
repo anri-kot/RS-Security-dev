@@ -8,21 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.rssecurity.storemanager.relatorio.model.LucroVenda;
+import com.rssecurity.storemanager.relatorio.model.LucroCompra;
 
 @Repository
-public interface LucroVendaRepository extends JpaRepository<LucroVenda, Long> {
+public interface LucroCompraRepository extends JpaRepository<LucroCompra, Long> {
     @Query("""
-        SELECT SUM(lv.lucroTotal)
-        FROM LucroVenda lv
-        WHERE lv.data BETWEEN :start AND :end
-    """)
-    BigDecimal calcularLucroTotal(@Param("start") LocalDateTime dataInicio, @Param("end") LocalDateTime dataFim);
-
-    @Query("""
-        SELECT SUM(lv.custoTotal)
-        FROM LucroVenda lv
-        WHERE lv.data BETWEEN :start AND :end
+        SELECT SUM(lc.custoTotal)
+        FROM LucroCompra lc
+        WHERE lc.data BETWEEN :start AND :end
     """)
     BigDecimal calcularCustoTotal(@Param("start") LocalDateTime dataInicio, @Param("end") LocalDateTime dataFim);
 }

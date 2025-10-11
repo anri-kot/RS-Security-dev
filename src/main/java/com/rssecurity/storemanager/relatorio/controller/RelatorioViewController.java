@@ -70,4 +70,6 @@ public class RelatorioViewController {
                 : "relatorios";
     }
 
+    // TODO: implement compra view at relatorios
+
 }

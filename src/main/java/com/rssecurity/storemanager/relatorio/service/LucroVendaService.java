@@ -42,4 +42,8 @@ public class LucroVendaService {
     public BigDecimal calculateLucroTotal(LocalDate dataInicio, LocalDate dataFim) {
         return repository.calcularLucroTotal(dataInicio.atStartOfDay(), dataFim.atTime(LocalTime.MAX));
     }
+
+    public BigDecimal calculateCustoTotal(LocalDate dataInicio, LocalDate dataFim) {
+        return repository.calcularCustoTotal(dataInicio.atStartOfDay(), dataFim.atTime(LocalTime.MAX));
+    }
 }

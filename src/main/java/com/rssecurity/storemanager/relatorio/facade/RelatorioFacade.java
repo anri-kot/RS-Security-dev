@@ -59,6 +59,7 @@ public class RelatorioFacade {
             Map<Long, LucroVendaDTO> lucroVendas = lucroVendaService.findAllById(vendaIds).stream()
                     .collect(Collectors.toMap(LucroVendaDTO::idVenda, Function.identity()));
             BigDecimal lucroTotal = lucroVendaService.calculateLucroTotal(startDate, endDate);
+            BigDecimal custoTotal = lucroVendaService.calculateCustoTotal(startDate, endDate);
     
 
             dto.setVendas(vendas);
@@ -67,6 +68,7 @@ public class RelatorioFacade {
             dto.setTarget("compras");
             dto.setLucroVendas(lucroVendas);
             dto.setLucroTotal(lucroTotal);
+            dto.setCustoTotal(custoTotal);
 
             try {
                 dto.setInterval(FormatterUtil.formatInterval(startDate, endDate));

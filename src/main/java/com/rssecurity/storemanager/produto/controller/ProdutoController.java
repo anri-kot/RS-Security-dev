@@ -22,7 +22,7 @@ import com.rssecurity.storemanager.excel.writter.ProdutoExcelWritter;
 import com.rssecurity.storemanager.infra.exception.ConflictException;
 import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
 import com.rssecurity.storemanager.produto.service.ProdutoService;
-import com.rssecurity.storemanager.relatorio.dto.LucroProdutoDTO;
+import com.rssecurity.storemanager.relatorio.dto.LucroCompraDTO;
 
 import jakarta.validation.Valid;
 
@@ -80,12 +80,12 @@ public class ProdutoController {
     }
 
     @GetMapping("/lucro/{idProduto}")
-    public ResponseEntity<LucroProdutoDTO> findLucroByIdProduto(@PathVariable Long idProduto) {
+    public ResponseEntity<LucroCompraDTO> findLucroByIdProduto(@PathVariable Long idProduto) {
         return ResponseEntity.ok(service.findLucroByIdProduto(idProduto));
     }
 
     @GetMapping("/lucro")
-    public ResponseEntity<List<LucroProdutoDTO>> findAllLucroByIdProduto(@RequestParam List<Long> ids) {
+    public ResponseEntity<List<LucroCompraDTO>> findAllLucroByIdProduto(@RequestParam List<Long> ids) {
         return ResponseEntity.ok(service.findAllLucroProdutoById(ids));
     }
 

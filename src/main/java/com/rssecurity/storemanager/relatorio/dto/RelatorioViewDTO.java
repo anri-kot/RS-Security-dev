@@ -16,6 +16,7 @@ public class RelatorioViewDTO {
     private String interval;
     private Map<Long, LucroVendaDTO> lucroVendas;
     private BigDecimal lucroTotal;
+    private BigDecimal custoTotal;
 
     private String erro = null;
 
@@ -28,6 +29,7 @@ public class RelatorioViewDTO {
                 "interval: " + interval +
                 "lucroVendas: " + lucroVendas.size() +
                 "lucroTotal: " + lucroTotal +
+                "custoTotal: " + custoTotal +
                 "erro: " + Objects.requireNonNullElse(erro, "none");
     }
 
@@ -94,11 +96,12 @@ public class RelatorioViewDTO {
     public void setLucroTotal(BigDecimal lucroTotal) {
         this.lucroTotal = lucroTotal;
     }
-    /*
-     * modelMap.put("vendas", vendas);
-     * modelMap.put("total", total);
-     * modelMap.put("monthlyTotal", monthlyTotal);
-     */
 
-     
+    public BigDecimal getCustoTotal() {
+        return custoTotal;
+    }
+
+    public void setCustoTotal(BigDecimal custoTotal) {
+        this.custoTotal = custoTotal;
+    } 
 }
