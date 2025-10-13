@@ -1,5 +1,8 @@
 package com.rssecurity.storemanager.util;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -60,5 +63,12 @@ public class FormatterUtil {
             builder.append(word);
         }
         return builder.toString();
+    }
+
+    public static String formatInterval(LocalDate start, LocalDate end) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        String str1 = start.format(formatter).toString();
+        String str2 = end.format(formatter).toString();
+        return str1 + " - " + str2;
     }
 }

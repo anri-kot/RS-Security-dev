@@ -10,34 +10,101 @@
 
     <div layout:fragment="content">
 
-        <div class="container py-4" th:fragment="content" data-page-id="relatorios">
-
+        <div class="container py-4" th:fragment="content" data-page-id="relatorios" th:with="relatorio = ${view.relatorio}">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="mb-0">Relatórios de Vendas</h1>
-                <a th:if="${vendas.totalElements > 0}" th:href="@{/api/venda/export(dataInicio=${start},dataFim=${end})}">
-                    <button id="new-compra" class="btn btn-success">Exportar</button>
-                </a>
-                <a th:unless="${vendas.totalElements > 0}">
-                    <button id="new-compra" class="btn btn-success" disabled>Exportar</button>
-                </a>          
+                <h1 class="mb-0">Relatórios</h1>
+              
+                <div th:if="${relatorio != null}"
+                     th:with="
+                       endpoint=${view.target == 'vendas' ? '/api/venda/export' : '/api/compra/export'},
+                       available=${view.target == 'vendas' ?
+                                   (relatorio.vendas != null and relatorio.vendas.totalElements > 0) :
+                                   (relatorio.compras != null and relatorio.compras.totalElements > 0)}
+                     ">
+              
+                  <span th:if="${available}">
+                    <a th:href="@{${endpoint}(dataInicio=${view.dataInicio},dataFim=${view.dataFim})}">
+                      <button class="btn btn-success">Exportar</button>
+                    </a>
+                  </span>
+              
+                  <span th:unless="${available}">
+                    <button class="btn btn-success" disabled>Exportar</button>
+                  </span>
+              
+                </div>
+              </div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row g-3 d-flex justify-content-center">
+                        <div class="col-6 text-center">
+                            <h5>Vendas</h5>
+                            <hr>
+                            <div id="venda-options">
+                                <button class="btn btn-sm btn-outline-primary" value="today">Hoje</button>
+                                <button class="btn btn-sm btn-outline-primary" value="month">Este mês</button>
+                                <button class="btn btn-sm btn-outline-primary" value="semester">Este semestre</button>
+                                <button class="btn btn-sm btn-outline-primary" value="year">Este ano</button>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#relatorioModal" data-bs-tabela="Venda">Customizado</button>
+                            </div>
+                        </div>
+
+                        <div class="col-6 text-center">
+                            <h5>Compras</h5>
+                            <hr>
+                            <div id="compra-options">
+                                <button class="btn btn-sm btn-outline-primary" value="today">Hoje</button>
+                                <button class="btn btn-sm btn-outline-primary" value="month">Este mês</button>
+                                <button class="btn btn-sm btn-outline-primary" value="semester">Este semestre</button>
+                                <button class="btn btn-sm btn-outline-primary" value="year">Este ano</button>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="" data-bs-target="#relatorioModal" data-bs-tabela="Compra">Customizado</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
 
-            <form hx-get="/relatorios/vendas" hx-target="#resultado-relatorio" hx-swap="innerHTML" hx-push-url="true"
-                class="row g-3 mt-4 mb-4">
-                <div class="col-md-4">
-                    <label for="start">Data inicial</label>
-                    <input type="date" class="form-control" th:value="${start} ?: ''" name="start" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="end">Data final</label>
-                    <input type="date" class="form-control" th:value="${end} ?: ''" name="end" required>
-                </div>
-                <div class="col-md-4 align-self-end">
-                    <button type="submit" class="btn btn-primary">Buscar</button>
-                </div>
-            </form>
+            <div id="resultado-relatorio" th:fragment="resultado" th:replace="~{fragments/relatorio-vendas-fragment :: resultado}"></div>
 
-            <div th:fragment="resultado" th:replace="~{fragments/relatorio :: resultado}"></div>
+            <div class="modal fade" id="relatorioModal" tabindex="-1" aria-labelledby="relatorioModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                            <h5 class="modal-title">Relatório</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Fechar"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <p>Selecione o período desejado</p>
+                            <form id="relatorio-form">
+                                <div class="row">
+                                    <div class="col">
+                                        <label class="form-label" for="dataInicio">Início</label>
+                                        <input class="form-control" type="date" name="dataInicio" id="dataInicio" required>
+                                    </div>
+    
+                                    <div class="col">
+                                        <label for="dataFim" class="form-label">Fim</label>
+                                        <input class="form-control" type="date" name="dataFim" id="dataFim" required>
+                                    </div>
+                                </div>
+                                <small id="periodoError" class="text-danger d-none">Período inválido. Data inicial deve ser menor ou igual à data final</small>
+                            </form>
+                        </div>
+                        
+                        <div class="modal-footer">
+                            <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                            <button class="btn btn-success" id="confirm-register"
+                                data-action="confirm-modal" data-source="">Confirmar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
         </div>
     </div>

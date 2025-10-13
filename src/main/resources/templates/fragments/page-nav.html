@@ -1,21 +1,21 @@
 <!-- page-nav.html -->
 <div th:fragment="page-nav" id="page-nav">
-    <nav class="d-flex justify-content-center mt-4" th:if="${totalPages > 0}">
+    <nav class="d-flex justify-content-center mt-4" th:if="${view.totalPages > 0}">
         <ul class="pagination" id="pages-container">
-            <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'" th:data-page="${currentPage - 1}">
+            <li class="page-item" th:classappend="${view.currentPage == 1} ? 'disabled'" th:data-page="${view.currentPage - 1}">
                 <a class="page-link" href="#">Anterior</a>
             </li>
-            <li class="page-item" th:each="i : ${#numbers.sequence(1, totalPages)}"
-                th:classappend="${currentPage == i} ? 'active'" th:data-page="${i}">
+            <li class="page-item" th:each="i : ${#numbers.sequence(1, view.totalPages)}"
+                th:classappend="${view.currentPage == i} ? 'active'" th:data-page="${i}">
                 <a class="page-link" th:text="${i}" href="#"></a>
             </li>
-            <li class="page-item" th:classappend="${currentPage >= totalPages} ? 'disabled'"
-                th:data-page="${currentPage + 1}">
+            <li class="page-item" th:classappend="${view.currentPage >= view.totalPages} ? 'disabled'"
+                th:data-page="${view.currentPage + 1}">
                 <a class="page-link" href="#">Próximo</a>
             </li>
         </ul>
     </nav>
-    <div th:if="${totalPages == 0}" class="text-center text-muted mt-4">
+    <div th:if="${view.totalPages == 0}" class="text-center text-muted mt-4">
         Nenhum resultado.
     </div>
 </div>

@@ -39,9 +39,11 @@
               <input type="hidden" id="selected-id" value="${idProduto}">
 
               <div class="dropdown-menu w-100" id="autocomplete-options"></div>
+              <div class="not-selected-alert"></div>
             </div>
 
-            <button type="submit" class="btn btn-primary" id="add-button">Adicionar</button>
+            <button type="submit" class="btn btn-primary me-2" id="add-button" disabled>Adicionar</button>
+            <button type="reset" class="btn btn-outline-secondary" title="Limpar"><i class="bi-arrow-counterclockwise"></i></button>
           </form>
         </div>
       </div>

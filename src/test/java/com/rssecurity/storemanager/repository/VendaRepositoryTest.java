@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 
-import com.rssecurity.storemanager.model.Venda;
+import com.rssecurity.storemanager.venda.model.Venda;
+import com.rssecurity.storemanager.venda.repository.VendaRepository;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -54,8 +54,6 @@ public class VendaRepositoryTest {
         em.persist(outroDia);
 
         em.flush();
-
-        List<Venda> vendas = repository.findAll();
 
         BigDecimal total = repository.calculateTotalVendaValueBetween(start, end);
         assertEquals(0, total.compareTo(new BigDecimal("350")));

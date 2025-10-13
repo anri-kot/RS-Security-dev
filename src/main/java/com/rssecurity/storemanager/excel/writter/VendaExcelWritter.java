@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.rssecurity.storemanager.dto.VendaDTO;
 import com.rssecurity.storemanager.excel.headers.ExcelHeader;
 import com.rssecurity.storemanager.excel.headers.VendaExcelHeader;
 import com.rssecurity.storemanager.util.RecordUtils;
+import com.rssecurity.storemanager.venda.dto.VendaDTO;
 
 @Component
 public class VendaExcelWritter extends ExcelWritter<VendaDTO> {

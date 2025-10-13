@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.rssecurity.storemanager.exception.RecordConversionException;
+import com.rssecurity.storemanager.infra.exception.RecordConversionException;
 
 public class RecordUtils {
     public static Map<String, Object> recordToMap(Object record) {

@@ -1,11 +1,13 @@
 package com.rssecurity.storemanager.service;
 
-import com.rssecurity.storemanager.dto.CategoriaDTO;
-import com.rssecurity.storemanager.dto.ProdutoDTO;
-import com.rssecurity.storemanager.exception.BadRequestException;
-import com.rssecurity.storemanager.mapper.ProdutoMapper;
-import com.rssecurity.storemanager.model.Produto;
-import com.rssecurity.storemanager.repository.ProdutoRepository;
+import com.rssecurity.storemanager.categoria.dto.CategoriaDTO;
+import com.rssecurity.storemanager.infra.exception.BadRequestException;
+import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
+import com.rssecurity.storemanager.produto.mapper.ProdutoMapper;
+import com.rssecurity.storemanager.produto.model.Produto;
+import com.rssecurity.storemanager.produto.repository.ProdutoRepository;
+import com.rssecurity.storemanager.produto.service.ProdutoService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -40,7 +42,6 @@ class ProdutoServiceTest {
         Produto entity = new Produto(); // preenche se quiser
         Produto saved = new Produto();  // pode simular que foi salvo
 
-        CategoriaDTO outCategoria = new CategoriaDTO(2L, "Vigilancia");
         ProdutoDTO output = new ProdutoDTO(1L, "CAMERA SPX", null, new BigDecimal("50.00"), "Camera de alta definicao", 30, inCategoria);
 
         when(mapper.toEntity(input)).thenReturn(entity);

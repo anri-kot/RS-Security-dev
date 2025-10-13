@@ -7,9 +7,9 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.rssecurity.storemanager.dto.ProdutoDTO;
 import com.rssecurity.storemanager.excel.headers.ExcelHeader;
 import com.rssecurity.storemanager.excel.headers.ProdutoExcelHeader;
+import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
 import com.rssecurity.storemanager.util.RecordUtils;
 
 @Component

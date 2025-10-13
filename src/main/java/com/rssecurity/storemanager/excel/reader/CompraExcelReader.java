@@ -8,11 +8,11 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import com.rssecurity.storemanager.dto.CompraDTO;
-import com.rssecurity.storemanager.dto.CompraKey;
-import com.rssecurity.storemanager.dto.FornecedorDTO;
-import com.rssecurity.storemanager.dto.ItemCompraDTO;
+import com.rssecurity.storemanager.compra.dto.CompraDTO;
+import com.rssecurity.storemanager.compra.dto.CompraKey;
+import com.rssecurity.storemanager.compra.dto.ItemCompraDTO;
 import com.rssecurity.storemanager.excel.mapper.CompraExcelMapper;
+import com.rssecurity.storemanager.fornecedor.dto.FornecedorDTO;
 
 public class CompraExcelReader {
     

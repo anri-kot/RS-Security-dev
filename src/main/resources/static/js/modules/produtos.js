@@ -56,12 +56,6 @@ export function init() {
 
     function validateProdutoForm() {
         const form = document.getElementById('modal-produto-form');
-        const idCategoriaEl = document.getElementById('modal-produto-categoria-id');
-        const idCategoria = parseInt(idCategoriaEl.value) || null;
-
-        if (idCategoria === null) {
-            idCategoriaEl.classList.add('is-invalid')
-        }
 
         const isValid = form.checkValidity();
         if (!isValid) form.reportValidity();
@@ -88,8 +82,18 @@ export function init() {
         const isNew = (!isNewField) || isNewField.value === 'true';        
 
         const nome = document.getElementById('modal-produto-nome').value;
-        const codigoBarras = document.getElementById('modal-produto-codigo').value;
-        const categoriaId= parseInt(document.getElementById('modal-produto-categoria-id').value);
+
+        const codigoBarras = (() => {
+            const value = document.getElementById('modal-produto-codigo').value;
+            if (value.length === 0) return null;
+            return value;
+        })();
+        const categoria = (() => {
+            const value = document.getElementById('modal-produto-categoria-id').value;
+            if (value.length === 0) return null;
+            return { idCategoria: value };
+        })();
+
         const precoAtual = parseFloat(document.getElementById('modal-produto-preco').value);
         const descricao = document.getElementById('modal-produto-descricao').value;
         const estoque = parseInt(document.getElementById('modal-produto-estoque').value);
@@ -114,9 +118,7 @@ export function init() {
             descricao: descricao,
             precoAtual: precoAtual,
             estoque: estoque,
-            categoria: {
-                idCategoria: categoriaId,
-            }
+            categoria: categoria
         });
 
         try {
@@ -199,7 +201,7 @@ export function init() {
         document.getElementById('is-new').value = 'false';
         document.getElementById('modal-produto-nome').value = produto.nome;
         document.getElementById('modal-produto-codigo').value = produto.codigoBarras;
-        document.getElementById('modal-produto-categoria-id').value = produto.categoria.idCategoria;
+        document.getElementById('modal-produto-categoria-id').value = produto.categoria ? produto.categoria.idCategoria : '';
         document.getElementById('modal-produto-preco').value = produto.precoAtual.toFixed(2);
         document.getElementById('modal-produto-descricao').value = produto.descricao;
         document.getElementById('modal-produto-estoque').value = produto.estoque;

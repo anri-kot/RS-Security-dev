@@ -40,18 +40,18 @@
         <form th:action="@{/auth/login}" method="post">
             <div class="mb-3">
                 <label for="username" class="form-label">Usuário</label>
-                <input type="text" id="username" name="username" class="form-control" required>
+                <input type="text" id="username" name="username" minlength="4" class="form-control" required>
             </div>
 
             <div class="mb-3">
                 <label for="password" class="form-label">Senha</label>
-                <input type="password" id="password" name="password" class="form-control" required>
+                <input type="password" id="password" name="password" minlength="4" class="form-control" required>
             </div>
 
             <button type="submit" class="btn btn-primary w-100">Entrar</button>
         </form>
 
-        <div th:if="${param.error}" class="alert alert-danger mt-3" role="alert">
+        <div th:if="${error}" th:text="${error}" class="alert alert-danger mt-3" role="alert">
             Usuário ou senha inválidos.
         </div>
         <div th:if="${param.logout}" class="alert alert-success mt-3" role="alert">

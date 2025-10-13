@@ -69,7 +69,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="usuario : ${usuarios}">
+                                    <tr th:each="usuario : ${view.usuarios}" th:classappend="${usuario.ativo} ? '' : 'table-active'">
                                         <td th:text="${usuario.idUsuario}"></td>
                                         <td th:text="${usuario.username}"></td>
                                         <td th:text="${usuario.nome}"></td>
@@ -108,10 +108,10 @@
                                                     data-action="edit">
                                                 <i class="bi bi-pencil"></i>
                                             </button>
-                                            <button class="btn btn-sm btn-outline-danger"
-                                                    th:attr="data-id=${usuario.idUsuario}"
-                                                    data-action="delete">
-                                                <i class="bi bi-trash"></i>
+                                            <button class="btn btn-sm btn-outline-danger" th:title="${usuario.ativo} ? 'Desativar' : 'Ativar'"
+                                                    th:attr="data-id=${usuario.idUsuario}, data-action=${usuario.ativo  ? 'disable' : 'enable'}">
+                                                    <i th:if="${usuario.ativo}" class="bi bi-x-circle-fill"></i>
+                                                    <i th:unless="${usuario.ativo}" class="bi bi-check-circle-fill"></i>
                                             </button>
                                         </td>
                                     </tr>
@@ -175,6 +175,14 @@
                                     <label class="form-label">Salário</label>
                                     <input type="number" id="modal-usuario-salario" step="0.1" min="0.0" class="form-control" required>
                                 </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-select" id="modal-usuario-ativo" required>
+                                        <option value="true">Ativado</option>
+                                        <option value="false">Desativado</option>
+                                    </select>
+                                </div>
+
                                 <div class="mb-3">
                                     <label class="form-label">Permissões</label>
                                     <select class="form-select" id="modal-usuario-admin">

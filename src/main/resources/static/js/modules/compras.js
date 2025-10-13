@@ -198,18 +198,21 @@ export function init() {
         const nome = modalFornecedorEl.dataset.nome;
         const idFornecedor = modalFornecedorEl.dataset.idFornecedor;
 
-        if (value !== nome || idFornecedor !== modalFornecedorIdEl.value) {
-            modalFornecedorValidationEl.classList.add('invalid-feedback');
-            modalFornecedorValidationEl.innerText = "Fornecedor não selecionado ou inválido. Selecione novamente";
-            modalFornecedorEl.classList.add("is-invalid");
-            return false;
-        } else {
+        const isSameNome = value === nome;
+        const isSameId = idFornecedor === modalFornecedorIdEl.value;
+
+        if (value.length > 0 && (isSameId && isSameNome)) {
             modalFornecedorValidationEl.innerText = `ID selecionado: ${idFornecedor}`;
             modalFornecedorValidationEl.classList.remove('invalid-feedback');
             modalFornecedorValidationEl.classList.add('valid-feedback');
             modalFornecedorEl.classList.remove("is-invalid");
             modalFornecedorEl.classList.add("is-valid");
-            return true
+            return true;
+        } else {
+            modalFornecedorValidationEl.classList.add('invalid-feedback');
+            modalFornecedorValidationEl.innerText = "Fornecedor não selecionado ou inválido. Selecione novamente";
+            modalFornecedorEl.classList.add("is-invalid");
+            return false;
         }
     }
 
@@ -321,10 +324,12 @@ export function init() {
         modalIdEl.value = compra.idCompra;
         modalDataEl.value = compra.data;
         modalObservacaoEl.value = compra.observacao;
-        modalFornecedorEl.value = compra.fornecedor.nome;
-        modalFornecedorIdEl.value = compra.fornecedor.idFornecedor;
-        modalFornecedorEl.dataset.idFornecedor = compra.fornecedor.idFornecedor;
-        modalFornecedorEl.dataset.nome = compra.fornecedor.nome;
+
+        modalFornecedorEl.value = compra.fornecedor ? compra.fornecedor.nome : '';
+        modalFornecedorIdEl.value = compra.fornecedor ? compra.fornecedor.idFornecedor : '';
+        modalFornecedorEl.dataset.idFornecedor = modalFornecedorIdEl.value;
+
+        modalFornecedorEl.dataset.nome = compra.fornecedor ? compra.fornecedor.nome : '';
 
         refreshItems();
     }
@@ -447,6 +452,27 @@ export function init() {
 
     function refreshItems() {
         modalItensEl.innerHTML = '';
+        // let totalCents = 0;
+        // let oldTotalCents = 0;
+        // let hasDeletedProduto = false;
+
+        // itens.forEach(item => {
+        //     modalItensEl.prepend(renderCompraItem(item));
+
+        //     const unitPriceCents = Math.round(parseFloat(item.valorUnitario) * 100);
+        //     const quantity = parseInt(item.quantidade);
+        //     const itemTotalCents = unitPriceCents * quantity;
+
+        //     if (item.produto) {
+        //         totalCents += itemTotalCents;
+        //     } else {
+        //         oldTotalCents += itemTotalCents + totalCents;
+        //         hasDeletedProduto = true;
+        //     }
+        // });
+
+        // total = totalCents / 100;
+
         let totalCents = 0;
         let oldTotalCents = 0;
         let hasDeletedProduto = false;
@@ -454,19 +480,21 @@ export function init() {
         itens.forEach(item => {
             modalItensEl.prepend(renderCompraItem(item));
 
-            const unitPriceCents = Math.round(parseFloat(item.valorUnitario) * 100);
-            const quantity = parseInt(item.quantidade);
-            const itemTotalCents = unitPriceCents * quantity;
+            const unitPrice = parseFloat(item.valorUnitario) || 0;
+            const quantity = parseInt(item.quantidade, 10) || 0;
+
+            const itemTotalCents = Math.round(unitPrice * quantity * 100);
 
             if (item.produto) {
                 totalCents += itemTotalCents;
             } else {
-                oldTotalCents += itemTotalCents + totalCents;
+                oldTotalCents += itemTotalCents;
                 hasDeletedProduto = true;
             }
         });
 
-        total = totalCents / 100;
+        const total = totalCents / 100;
+
         modalItemsTotalEl.innerText = total.toLocaleString('pt-BR', {
             style: 'currency',
             currency: 'BRL'
@@ -755,6 +783,15 @@ export function init() {
 
         if (!compraFormEl.checkValidity() || !validateFornecedor()) {
             compraFormEl.reportValidity();
+            return;
+        } else if (itens.length <= 0) {
+            modalItensEl.innerHTML = 
+            `
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                Não há itens na compra!
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            `;
             return;
         }
 
