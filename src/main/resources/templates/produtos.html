@@ -30,7 +30,7 @@
                         <label for="idCategoria">Filtrar:</label>
                         <select id="categoria" name="idCategoria" class="form-select me-2 w-auto">
                             <option value="">Todas Categorias</option>
-                            <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nome}">
+                            <option th:each="cat : ${view.categorias}" th:value="${cat.idCategoria}" th:text="${cat.nome}">
                             </option>
                         </select>
 
@@ -69,7 +69,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="produto : ${produtos}">
+                                    <tr th:each="produto : ${view.produtos}">
                                         <td th:text="${produto.idProduto}"></td>
                                         <td th:text="${produto.nome}"></td>
                                         <td th:text="${produto.codigoBarras}"></td>
@@ -133,7 +133,7 @@
                                     <label class="form-label">Categoria</label>
                                     <select id="modal-produto-categoria-id" class="form-select me-2">
                                         <option value="">Nenhuma</option>
-                                        <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}"
+                                        <option th:each="cat : ${view.categorias}" th:value="${cat.idCategoria}"
                                             th:text="${cat.nome}"></option>
                                     </select>
                                 </div>

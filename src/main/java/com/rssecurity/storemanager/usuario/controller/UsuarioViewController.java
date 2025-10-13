@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rssecurity.storemanager.usuario.dto.UsuarioDTO;
+import com.rssecurity.storemanager.usuario.dto.UsuarioViewDTO;
 import com.rssecurity.storemanager.usuario.service.UsuarioService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,14 +42,16 @@ public class UsuarioViewController {
 
         Page<UsuarioDTO> usuariosPage = handleSearch(termo, tipo, page, pageSize);
 
-        model.addAttribute("usuarios", usuariosPage);
-        model.addAttribute("currentPage", currentPage);
-        model.addAttribute("totalPages", usuariosPage.getTotalPages());
-        model.addAttribute("target", "usuarios");
+        model.addAttribute("view", 
+                getView(currentPage, usuariosPage.getTotalPages(), pageSize, usuariosPage));
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "usuarios :: content"
                 : "usuarios";
+    }
+
+    private UsuarioViewDTO getView(int currentPage, int totalPages, int size, Page<UsuarioDTO> usuariosPage) {
+        return new UsuarioViewDTO(usuariosPage.getContent(), currentPage, totalPages, size);
     }
 
     private Page<UsuarioDTO> handleSearch(String termo, String tipo, int page, int size) {

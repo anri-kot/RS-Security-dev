@@ -55,7 +55,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:each="cat : ${categorias}">
+                                <tr th:each="cat : ${view.categorias}">
                                     <td th:text="${cat.idCategoria}"></td>
                                     <td th:text="${cat.nome}"></td>
                                     <td sec:authorize="hasRole('ROLE_ADMIN')" class="text-end">

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.rssecurity.storemanager.categoria.service.CategoriaService;
 import com.rssecurity.storemanager.infra.exception.ResourceNotFoundException;
 import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
+import com.rssecurity.storemanager.produto.dto.ProdutoViewDTO;
 import com.rssecurity.storemanager.produto.service.ProdutoService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,15 +46,19 @@ public class ProdutoViewController {
         model.addAttribute("categorias", categoriaService.findAll());
 
         Page<ProdutoDTO> produtosPage = handleSearch(tipo, termo, idCategoria, page, pageSize);
+        ProdutoViewDTO view = getProdutoView(produtosPage, currentPage, 
+                produtosPage.getTotalPages(), pageSize);
 
-        model.addAttribute("produtos", produtosPage);
-        model.addAttribute("currentPage", currentPage);
-        model.addAttribute("totalPages", produtosPage.getTotalPages());
-        model.addAttribute("target", "produtos");
+        model.addAttribute("view", view);
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "produtos :: content"
                 : "produtos";
+    }
+
+    public ProdutoViewDTO getProdutoView(Page<ProdutoDTO> produtosPage, int currentPage, int totalPages, int pageSize) {
+        return new ProdutoViewDTO(produtosPage.getContent(), categoriaService.findAll(), 
+                currentPage, totalPages, pageSize);
     }
 
     @SuppressWarnings("null")

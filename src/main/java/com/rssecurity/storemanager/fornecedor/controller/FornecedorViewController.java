@@ -1,4 +1,4 @@
-package com.rssecurity.storemanager.fornecedor.view;
+package com.rssecurity.storemanager.fornecedor.controller;
 
 import java.util.List;
 
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rssecurity.storemanager.fornecedor.dto.FornecedorDTO;
+import com.rssecurity.storemanager.fornecedor.dto.FornecedorViewDTO;
 import com.rssecurity.storemanager.fornecedor.service.FornecedorService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,15 +39,17 @@ public class FornecedorViewController {
         int pageSize = size != null ? size : DEFAULT_PAGE_SIZE;
 
         Page<FornecedorDTO> fornecedoresPage = handleSearch(termo, tipo, page, pageSize);
+        FornecedorViewDTO view = getFornecedorView(fornecedoresPage, currentPage, fornecedoresPage.getTotalPages(), pageSize);
 
-        model.addAttribute("fornecedores", fornecedoresPage);
-        model.addAttribute("currentPage", currentPage);
-        model.addAttribute("totalPages", fornecedoresPage.getTotalPages());
-        model.addAttribute("target", "fornecedores");
+        model.addAttribute("view", view);
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "fornecedores :: content"
                 : "fornecedores";
+    }
+
+    public FornecedorViewDTO getFornecedorView(Page<FornecedorDTO> fornecedoresPage, int currentPage, int totalPages, int size) {
+        return new FornecedorViewDTO(fornecedoresPage.getContent(), currentPage, totalPages, size);
     }
 
     private Page<FornecedorDTO> handleSearch(String termo, String tipo, int page, int size) {

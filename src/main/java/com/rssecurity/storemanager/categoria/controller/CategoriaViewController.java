@@ -1,4 +1,4 @@
-package com.rssecurity.storemanager.categoria.view;
+package com.rssecurity.storemanager.categoria.controller;
 
 import java.util.List;
 
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rssecurity.storemanager.categoria.dto.CategoriaDTO;
+import com.rssecurity.storemanager.categoria.dto.CategoriaViewDTO;
 import com.rssecurity.storemanager.categoria.service.CategoriaService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -38,15 +39,17 @@ public class CategoriaViewController {
         int pageSize = size != null ? size : DEFAULT_PAGE_SIZE;
 
         Page<CategoriaDTO> categoriasPage = handleSearch(tipo, termo, page, pageSize);
+        CategoriaViewDTO view = getCategoriaView(categoriasPage, currentPage, categoriasPage.getTotalPages(), pageSize);
 
-        model.addAttribute("categorias", categoriasPage);
-        model.addAttribute("currentPage", currentPage);
-        model.addAttribute("totalPages", categoriasPage.getTotalPages());
-        model.addAttribute("target", "categorias");
+        model.addAttribute("view", view);
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "categorias :: content"
                 : "categorias";
+    }
+
+    private CategoriaViewDTO getCategoriaView(Page<CategoriaDTO> categoriasPage, int currentPage, int totalPages, int size) {
+        return new CategoriaViewDTO(categoriasPage.getContent(), currentPage, totalPages, size);
     }
 
     private Page<CategoriaDTO> handleSearch(String tipo, String termo, int page, int size) {

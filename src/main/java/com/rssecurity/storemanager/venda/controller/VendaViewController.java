@@ -1,10 +1,10 @@
 package com.rssecurity.storemanager.venda.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.rssecurity.storemanager.categoria.service.CategoriaService;
 import com.rssecurity.storemanager.venda.dto.VendaDTO;
+import com.rssecurity.storemanager.venda.dto.VendaViewDTO;
 import com.rssecurity.storemanager.venda.service.VendaService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,47 +41,68 @@ public class VendaViewController {
         params.remove("page");
         params.remove("size");
 
-        int page = currentPage - 1;
-
         params.values().removeIf(String::isBlank);
 
         if (size == null) {
             size = DEFAULT_PAGE_SIZE;
         }
 
+        // Page<VendaDTO> vendasPage;
+
+        // if (params.isEmpty()) {
+        //     vendasPage = service.findAll(page, size);
+        // } else if (params.containsKey("tipo") && "idVenda".equals(params.get("tipo"))) {
+        //     // Search by ID
+        //     List<VendaDTO> vendas = new ArrayList<>();
+        //     try {
+        //         vendas.add(service.findById(Long.parseLong(params.get("termo"))));
+        //     } catch (Exception ignored) {}
+
+        //     model.addAttribute("vendas", vendas);
+        //     model.addAttribute("totalPages", 1);
+        //     model.addAttribute("currentPage", 1);
+        //     model.addAttribute("categorias", categoriaService.findAll());
+
+        //     return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
+        //             ? "vendas :: content"
+        //             : "vendas";
+
+        // } else {
+        //     // Search with filters
+        //     vendasPage = service.findAllByCustomMatcher(page, size, params);
+        // }
+
+        // model.addAttribute("vendas", vendasPage.getContent());
+        // model.addAttribute("totalPages", vendasPage.getTotalPages());
+        // model.addAttribute("currentPage", currentPage);
+        // model.addAttribute("categorias", categoriaService.findAll());
+        // model.addAttribute("target", "vendas");
+
+        model.addAttribute("view", getVendaView(currentPage, size, params));
+
+        return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
+                ? "vendas :: content"
+                : "vendas";
+    }
+
+    private VendaViewDTO getVendaView(int currentPage, int size, Map<String, String> params) {
+        int page = currentPage - 1;
         Page<VendaDTO> vendasPage;
 
         if (params.isEmpty()) {
             vendasPage = service.findAll(page, size);
         } else if (params.containsKey("tipo") && "idVenda".equals(params.get("tipo"))) {
             // Search by ID
-            List<VendaDTO> vendas = new ArrayList<>();
             try {
-                vendas.add(service.findById(Long.parseLong(params.get("termo"))));
-            } catch (Exception ignored) {}
-
-            model.addAttribute("vendas", vendas);
-            model.addAttribute("totalPages", 1);
-            model.addAttribute("currentPage", 1);
-            model.addAttribute("categorias", categoriaService.findAll());
-
-            return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
-                    ? "vendas :: content"
-                    : "vendas";
+                vendasPage = new PageImpl<>(List.of(service.findById(Long.parseLong(params.get("termo")))));
+            } catch (Exception ignored) {
+                vendasPage = new PageImpl<>(List.of());
+            }
 
         } else {
             // Search with filters
             vendasPage = service.findAllByCustomMatcher(page, size, params);
         }
-
-        model.addAttribute("vendas", vendasPage.getContent());
-        model.addAttribute("totalPages", vendasPage.getTotalPages());
-        model.addAttribute("currentPage", currentPage);
-        model.addAttribute("categorias", categoriaService.findAll());
-        model.addAttribute("target", "vendas");
-
-        return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
-                ? "vendas :: content"
-                : "vendas";
+        return new VendaViewDTO(vendasPage.getContent(), categoriaService.findAll(), currentPage, vendasPage.getTotalPages(), size);
     }
 }
