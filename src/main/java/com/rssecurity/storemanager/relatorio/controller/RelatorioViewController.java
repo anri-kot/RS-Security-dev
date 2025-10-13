@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.rssecurity.storemanager.relatorio.dto.RelatorioVendaDTO;
 import com.rssecurity.storemanager.relatorio.dto.RelatorioViewDTO;
 import com.rssecurity.storemanager.relatorio.facade.RelatorioFacade;
 
@@ -30,14 +31,10 @@ public class RelatorioViewController {
             @RequestParam(name = "page", defaultValue = "1") int currentPage,
             @RequestParam(defaultValue = "15") Integer size) {
         String todayString = LocalDate.now().toString();
-        RelatorioViewDTO relatorio = relatorioFacade.buildModel(todayString, todayString, currentPage, size);
 
-        model.addAttribute("relatorio", relatorio);
-        model.addAttribute("dataInicio", todayString);
-        model.addAttribute("dataFim", todayString);
-        model.addAttribute("currentPage", currentPage);
-        model.addAttribute("totalPages", relatorio.getVendas().getTotalPages());
-        model.addAttribute("size", size);
+        RelatorioViewDTO<RelatorioVendaDTO> view = relatorioFacade.getRelatorioView(todayString, todayString, currentPage, size);
+
+        model.addAttribute("view", view);
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "relatorios :: content"
@@ -52,18 +49,13 @@ public class RelatorioViewController {
             @RequestParam String dataFim,
             @RequestParam(name = "page", defaultValue = "1") int currentPage,
             @RequestParam(defaultValue = "15") Integer size) {
-        try {
-            RelatorioViewDTO relatorio = relatorioFacade.buildModel(dataInicio, dataFim, currentPage, size);
 
-            model.addAttribute("relatorio", relatorio);
-            model.addAttribute("dataInicio", dataInicio);
-            model.addAttribute("dataFim", dataFim);
-            model.addAttribute("currentPage", currentPage);
-            model.addAttribute("totalPages", relatorio.getVendas().getTotalPages());
-            model.addAttribute("size", size);
-        } catch (Exception e) {
-            model.addAttribute("erro", e.getMessage());
-        }
+        RelatorioViewDTO<RelatorioVendaDTO> view = relatorioFacade.getRelatorioView(
+                dataInicio, 
+                dataFim, 
+                currentPage, 
+                size);
+        model.addAttribute("view", view);
 
         return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
                 ? "relatorios :: content"

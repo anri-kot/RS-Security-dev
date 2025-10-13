@@ -4,21 +4,21 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.rssecurity.storemanager.relatorio.dto.LucroCompraDTO;
-import com.rssecurity.storemanager.relatorio.mapper.LucroCompraMapper;
-import com.rssecurity.storemanager.relatorio.repository.LucroCompraRepository;
+import com.rssecurity.storemanager.relatorio.dto.CustoCompraDTO;
+import com.rssecurity.storemanager.relatorio.mapper.CustoCompraMapper;
+import com.rssecurity.storemanager.relatorio.repository.CustoCompraRepository;
 
 @Service
 public class LucroCompraService {
-    private final LucroCompraRepository repository;
+    private final CustoCompraRepository repository;
 
-    public LucroCompraService(LucroCompraRepository repository) {
+    public LucroCompraService(CustoCompraRepository repository) {
         this.repository = repository;
     }
 
-    public List<LucroCompraDTO> findAllById(Iterable<Long> ids) {
+    public List<CustoCompraDTO> findAllById(Iterable<Long> ids) {
         return repository.findAllById(ids).stream()
-                .map(LucroCompraMapper::toDTO).
+                .map(CustoCompraMapper::toDTO).
                 toList();
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.rssecurity.storemanager.compra.service.CompraService;
 import com.rssecurity.storemanager.relatorio.dto.LucroVendaDTO;
+import com.rssecurity.storemanager.relatorio.dto.RelatorioVendaDTO;
 import com.rssecurity.storemanager.relatorio.dto.RelatorioViewDTO;
 import com.rssecurity.storemanager.relatorio.service.LucroVendaService;
 import com.rssecurity.storemanager.util.FormatterUtil;
@@ -36,8 +37,8 @@ public class RelatorioFacade {
      * @param startDateString is a LocalDate string;
      * @param endDateString is a LocalDate string;
     */
-    public RelatorioViewDTO buildModel(String startDateString, String endDateString, int currentPage, int size) {
-        RelatorioViewDTO dto = new RelatorioViewDTO();
+    public RelatorioVendaDTO getRelatorioVenda(String startDateString, String endDateString, int currentPage, int size) {
+        RelatorioVendaDTO dto = new RelatorioVendaDTO();
         int page = currentPage - 1;
 
         try {
@@ -65,7 +66,6 @@ public class RelatorioFacade {
             dto.setVendas(vendas);
             dto.setTotal(total);
             dto.setMonthlyTotal(monthlyTotal);
-            dto.setTarget("compras");
             dto.setLucroVendas(lucroVendas);
             dto.setLucroTotal(lucroTotal);
             dto.setCustoTotal(custoTotal);
@@ -78,7 +78,21 @@ public class RelatorioFacade {
 
             return dto;
         } catch (Exception e) {
-            throw new RuntimeException("Erro: " + e.getMessage());
+            dto.setErro("Erro: " + e.getMessage());
         }
+        return dto;
+    }
+
+    public RelatorioViewDTO<RelatorioVendaDTO> getRelatorioView(String startDateString, String endDateString, int currentPage, int size) {
+        RelatorioVendaDTO relatorio = getRelatorioVenda(startDateString, endDateString, currentPage, size);
+        return new RelatorioViewDTO<RelatorioVendaDTO>(
+            startDateString,
+            endDateString,
+            "vendas",
+            currentPage,
+            relatorio.getVendas().getTotalPages(),
+            size,
+            relatorio
+        );
     }
 }

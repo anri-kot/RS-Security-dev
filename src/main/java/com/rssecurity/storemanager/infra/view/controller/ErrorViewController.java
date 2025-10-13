@@ -1,4 +1,4 @@
-package com.rssecurity.storemanager.infra.view;
+package com.rssecurity.storemanager.infra.view.controller;
 
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.dao.DataAccessException;

@@ -1,4 +1,4 @@
-package com.rssecurity.storemanager.infra.view;
+package com.rssecurity.storemanager.infra.view.controller;
 
 import java.util.ArrayList;
 import java.util.List;

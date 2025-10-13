@@ -8,14 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.rssecurity.storemanager.relatorio.model.LucroCompra;
+import com.rssecurity.storemanager.relatorio.model.CustoCompra;
 
 @Repository
-public interface LucroCompraRepository extends JpaRepository<LucroCompra, Long> {
+public interface CustoCompraRepository extends JpaRepository<CustoCompra, Long> {
     @Query("""
-        SELECT SUM(lc.custoTotal)
-        FROM LucroCompra lc
-        WHERE lc.data BETWEEN :start AND :end
+        SELECT SUM(cc.custoTotal)
+        FROM CustoCompra cc
+        WHERE cc.data BETWEEN :start AND :end
     """)
     BigDecimal calcularCustoTotal(@Param("start") LocalDateTime dataInicio, @Param("end") LocalDateTime dataFim);
 }

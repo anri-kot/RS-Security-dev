@@ -8,16 +8,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "vw_lucro_compra")
-public class LucroCompra {
+@Table(name = "vw_custo_compra")
+public class CustoCompra {
     @Id
     private Long idProduto;
     private LocalDateTime data;
     private BigDecimal custoTotal;
 
-    public LucroCompra(){}
+    public CustoCompra(){}
 
-    public LucroCompra(Long idProduto, LocalDateTime data, BigDecimal custoTotal) {
+    public CustoCompra(Long idProduto, LocalDateTime data, BigDecimal custoTotal) {
         this.idProduto = idProduto;
         this.data = data;
         this.custoTotal = custoTotal;

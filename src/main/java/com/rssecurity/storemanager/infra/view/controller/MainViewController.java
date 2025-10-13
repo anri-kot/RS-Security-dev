@@ -1,10 +1,9 @@
-package com.rssecurity.storemanager.infra.view;
+package com.rssecurity.storemanager.infra.view.controller;
 
 import java.util.Map;
 
-import org.springframework.security.core.AuthenticationException;
-
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.stereotype.Controller;
