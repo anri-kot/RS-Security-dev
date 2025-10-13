@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Oct 08, 2025 at 07:29 PM
+-- Generation Time: Oct 13, 2025 at 11:19 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -144,34 +144,13 @@ CREATE TABLE `venda` (
 -- --------------------------------------------------------
 
 --
--- Stand-in structure for view `vw_lucro_produto`
+-- Stand-in structure for view `vw_custo_compra`
 -- (See below for the actual view)
 --
-CREATE TABLE `vw_lucro_produto` (
-`id_item` bigint(20)
-,`id_venda` bigint(20)
-,`id_produto` bigint(20)
-,`nome` varchar(255)
-,`quantidade` int(11)
-,`preco_venda_unitario` decimal(10,2)
-,`custo_medio_unitario` decimal(14,6)
-,`lucro_unitario` decimal(15,6)
-,`lucro_total` decimal(25,6)
-);
-
--- --------------------------------------------------------
-
---
--- Stand-in structure for view `vw_lucro_produto_resumo`
--- (See below for the actual view)
---
-CREATE TABLE `vw_lucro_produto_resumo` (
-`id_produto` bigint(20)
-,`nome` varchar(255)
-,`quantidade_total` decimal(32,0)
-,`preco_venda_medio` decimal(14,6)
-,`custo_medio_unitario` decimal(14,6)
-,`lucro_total` decimal(47,6)
+CREATE TABLE `vw_custo_compra` (
+`id_compra` bigint(20)
+,`data` datetime
+,`custo_total` decimal(37,2)
 );
 
 -- --------------------------------------------------------
@@ -183,29 +162,20 @@ CREATE TABLE `vw_lucro_produto_resumo` (
 CREATE TABLE `vw_lucro_venda` (
 `id_venda` bigint(20)
 ,`data` datetime
-,`receita_total` decimal(42,2)
+,`receita_total` decimal(52,8)
 ,`custo_total` decimal(46,6)
-,`lucro_total` decimal(47,6)
-,`lucro_percentual` decimal(53,2)
+,`lucro_total` decimal(53,8)
+,`lucro_percentual` decimal(56,2)
 );
 
 -- --------------------------------------------------------
 
 --
--- Structure for view `vw_lucro_produto`
+-- Structure for view `vw_custo_compra`
 --
-DROP TABLE IF EXISTS `vw_lucro_produto`;
+DROP TABLE IF EXISTS `vw_custo_compra`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_lucro_produto`  AS SELECT `iv`.`id_item` AS `id_item`, `iv`.`id_venda` AS `id_venda`, `p`.`id_produto` AS `id_produto`, `p`.`nome` AS `nome`, `iv`.`quantidade` AS `quantidade`, `iv`.`valor_unitario` AS `preco_venda_unitario`, (select avg(`ic`.`valor_unitario`) from `item_compra` `ic` where `ic`.`id_produto` = `p`.`id_produto`) AS `custo_medio_unitario`, `iv`.`valor_unitario`- (select avg(`ic`.`valor_unitario`) from `item_compra` `ic` where `ic`.`id_produto` = `p`.`id_produto`) AS `lucro_unitario`, (`iv`.`valor_unitario` - (select avg(`ic`.`valor_unitario`) from `item_compra` `ic` where `ic`.`id_produto` = `p`.`id_produto`)) * `iv`.`quantidade` AS `lucro_total` FROM (`item_venda` `iv` join `produto` `p` on(`p`.`id_produto` = `iv`.`id_produto`)) ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `vw_lucro_produto_resumo`
---
-DROP TABLE IF EXISTS `vw_lucro_produto_resumo`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_lucro_produto_resumo`  AS SELECT `p`.`id_produto` AS `id_produto`, `p`.`nome` AS `nome`, sum(`iv`.`quantidade`) AS `quantidade_total`, avg(`iv`.`valor_unitario`) AS `preco_venda_medio`, (select avg(`ic`.`valor_unitario`) from `item_compra` `ic` where `ic`.`id_produto` = `p`.`id_produto`) AS `custo_medio_unitario`, sum((`iv`.`valor_unitario` - (select avg(`ic`.`valor_unitario`) from `item_compra` `ic` where `ic`.`id_produto` = `p`.`id_produto`)) * `iv`.`quantidade`) AS `lucro_total` FROM (`item_venda` `iv` join `produto` `p` on(`p`.`id_produto` = `iv`.`id_produto`)) GROUP BY `p`.`id_produto`, `p`.`nome` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_custo_compra`  AS SELECT `c`.`id_compra` AS `id_compra`, `c`.`data` AS `data`, coalesce(sum(`ic`.`quantidade` * `ic`.`valor_unitario`),0) AS `custo_total` FROM (`compra` `c` join `item_compra` `ic` on(`ic`.`id_compra` = `c`.`id_compra`)) GROUP BY `c`.`id_compra`, `c`.`data` ;
 
 -- --------------------------------------------------------
 
@@ -214,7 +184,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `vw_lucro_venda`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_lucro_venda`  AS SELECT `v`.`id_venda` AS `id_venda`, `v`.`data` AS `data`, coalesce(sum(`iv`.`quantidade` * `iv`.`valor_unitario`),0) AS `receita_total`, coalesce(sum(`iv`.`quantidade` * (select avg(`ic`.`valor_unitario`) from `item_compra` `ic` where `ic`.`id_produto` = `iv`.`id_produto`)),0) AS `custo_total`, coalesce(sum(`iv`.`quantidade` * `iv`.`valor_unitario`),0) - coalesce(sum(`iv`.`quantidade` * (select avg(`ic`.`valor_unitario`) from `item_compra` `ic` where `ic`.`id_produto` = `iv`.`id_produto`)),0) AS `lucro_total`, CASE WHEN coalesce(sum(`iv`.`quantidade` * (select avg(`ic`.`valor_unitario`) from `item_compra` `ic` where `ic`.`id_produto` = `iv`.`id_produto`)),0) = 0 THEN NULL ELSE round((coalesce(sum(`iv`.`quantidade` * `iv`.`valor_unitario`),0) - coalesce(sum(`iv`.`quantidade` * (select avg(`ic`.`valor_unitario`) from `item_compra` `ic` where `ic`.`id_produto` = `iv`.`id_produto`)),0)) / coalesce(sum(`iv`.`quantidade` * (select avg(`ic`.`valor_unitario`) from `item_compra` `ic` where `ic`.`id_produto` = `iv`.`id_produto`)),0) * 100,2) END AS `lucro_percentual` FROM (`venda` `v` join `item_venda` `iv` on(`iv`.`id_venda` = `v`.`id_venda`)) GROUP BY `v`.`id_venda`, `v`.`data` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `vw_lucro_venda`  AS SELECT `v`.`id_venda` AS `id_venda`, `v`.`data` AS `data`, coalesce(sum(`iv`.`quantidade` * `iv`.`valor_unitario` * (1 - coalesce(`iv`.`desconto` / 100,0))),0) AS `receita_total`, coalesce(sum(`iv`.`quantidade` * `ic`.`avg_custo`),0) AS `custo_total`, coalesce(sum(`iv`.`quantidade` * `iv`.`valor_unitario` * (1 - coalesce(`iv`.`desconto` / 100,0))),0) - coalesce(sum(`iv`.`quantidade` * `ic`.`avg_custo`),0) AS `lucro_total`, CASE WHEN coalesce(sum(`iv`.`quantidade` * `ic`.`avg_custo`),0) = 0 THEN NULL ELSE round((coalesce(sum(`iv`.`quantidade` * `iv`.`valor_unitario` * (1 - coalesce(`iv`.`desconto` / 100,0))),0) - coalesce(sum(`iv`.`quantidade` * `ic`.`avg_custo`),0)) / coalesce(sum(`iv`.`quantidade` * `ic`.`avg_custo`),1) * 100,2) END AS `lucro_percentual` FROM ((`venda` `v` join `item_venda` `iv` on(`iv`.`id_venda` = `v`.`id_venda`)) left join (select `item_compra`.`id_produto` AS `id_produto`,avg(`item_compra`.`valor_unitario`) AS `avg_custo` from `item_compra` group by `item_compra`.`id_produto`) `ic` on(`ic`.`id_produto` = `iv`.`id_produto`)) GROUP BY `v`.`id_venda`, `v`.`data` ;
 
 --
 -- Indexes for dumped tables
