@@ -1,6 +1,7 @@
 export function init() {
     const DEFAULT_DATE_OPTIONS = ['TODAY', 'MONTH', 'SEMESTER', 'YEAR'];
     const vendaOptionsEl = document.getElementById('venda-options');
+    const compraOptionsEl = document.getElementById('compra-options');
     const relatorioModalEl = document.getElementById('relatorioModal');
 
     const dataInicioEl = relatorioModalEl.querySelector('#dataInicio');
@@ -17,11 +18,22 @@ export function init() {
     }
 
     vendaOptionsEl.addEventListener('click', async (e) => {
-        const selected = e.target.value.toUpperCase();
-        if (DEFAULT_DATE_OPTIONS.includes(selected)) {
-            const date = getSelectedDate(selected);
+        const selected = e.target.tagName.toLowerCase();
+        if (selected !== 'button') return;
+
+        const option = e.target.value.toUpperCase();
+        if (DEFAULT_DATE_OPTIONS.includes(option)) {
+            const date = getSelectedDate(option);
             loadRelatorioVendaByDate(date);
         }
+    });
+
+    compraOptionsEl.addEventListener('click', async e => {
+        const selected = e.target.tagName.toLowerCase();
+        if (selected !== 'button') return;
+        e.preventDefault();
+
+        alert('Funcionalidade ainda não implementada nesta versão.')
     });
 
     if (relatorioModalEl) {        

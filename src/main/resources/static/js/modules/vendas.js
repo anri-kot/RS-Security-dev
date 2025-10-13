@@ -218,10 +218,7 @@ export function init() {
     });
 
     // Saves form to local storage
-    vendaFormEl.addEventListener('input', (e) => {
-        const el = e.target.closest('form');
-        saveFormDraft(el);
-    });
+    modalObservacaoEl.addEventListener('input', () => saveFormDraft());
 
     modalFuncionarioEl.addEventListener('input', () => {
         validateFuncionario();
@@ -295,17 +292,21 @@ export function init() {
             const parsed = JSON.parse(draft);
 
             const form = parsed.form;
-            if (form) {
+            
+            if (form) {                
                 modalIdEl.value = form.idVenda || "";
                 modalDataEl.value = form.data || "";
                 modalObservacaoEl.value = form.observacao || "";
                 modalMetodoPagamentoEl.value = form.metodoPagamento || "";
                 modalValorRecebidoEl.value = form.valorRecebido || "";
                 modalTrocoEl.value = form.troco || "";
-                modalFuncionarioEl.value = form.funcionario.nome || "";
-                modalFuncionarioEl.dataset.nome = form.funcionario.nome || "";
-                modalFuncionarioIdEl.value = form.funcionario.id || "";
-                modalFuncionarioUsernameEl.value = form.funcionario.username || "";
+
+                if (form.funcionario) {
+                    modalFuncionarioEl.value = form.funcionario.nome || "";
+                    modalFuncionarioEl.dataset.nome = form.funcionario.nome || "";
+                    modalFuncionarioIdEl.value = form.funcionario.id || "";
+                    modalFuncionarioUsernameEl.value = form.funcionario.username || "";
+                }
 
                 const id = parseInt(form.idVenda) || 0;
                 lastEditId = id;
@@ -387,9 +388,10 @@ export function init() {
         lastEditId = parseInt(id);
         const vendaModal = bootstrap.Modal.getOrCreateInstance(vendaModalEl);
 
-        saveFormDraft();
         validateFuncionario();
         vendaModal.show();
+
+        saveFormDraft();
     }
 
     function populateVendaModal(venda) {
