@@ -10,63 +10,79 @@
 
     <div layout:fragment="content">
 
-        <div class="container py-4" th:fragment="content" data-page-id="relatorios" th:with="relatorio = ${view.relatorio}">
+        <div class="container py-4" th:fragment="content" data-page-id="relatorios"
+            th:with="relatorio = ${view.relatorio}">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="mb-0">Relatórios</h1>
-              
-                <div th:if="${relatorio != null}"
-                     th:with="
+
+                <div th:if="${relatorio != null}" th:with="
                        endpoint=${view.target == 'vendas' ? '/api/venda/export' : '/api/compra/export'},
                        available=${view.target == 'vendas' ?
                                    (relatorio.vendas != null and relatorio.vendas.totalElements > 0) :
                                    (relatorio.compras != null and relatorio.compras.totalElements > 0)}
                      ">
-              
-                  <span th:if="${available}">
-                    <a th:href="@{${endpoint}(dataInicio=${view.dataInicio},dataFim=${view.dataFim})}">
-                      <button class="btn btn-success">Exportar</button>
-                    </a>
-                  </span>
-              
-                  <span th:unless="${available}">
-                    <button class="btn btn-success" disabled>Exportar</button>
-                  </span>
-              
-                </div>
-              </div>
-            <div class="card mb-3">
-                <div class="card-body">
-                    <div class="row g-3 d-flex justify-content-center">
-                        <div class="col-6 text-center">
-                            <h5>Vendas</h5>
-                            <hr>
-                            <div id="venda-options">
-                                <button class="btn btn-sm btn-outline-primary" value="today">Hoje</button>
-                                <button class="btn btn-sm btn-outline-primary" value="month">Este mês</button>
-                                <button class="btn btn-sm btn-outline-primary" value="semester">Este semestre</button>
-                                <button class="btn btn-sm btn-outline-primary" value="year">Este ano</button>
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#relatorioModal" data-bs-tabela="Vendas">Customizado</button>
-                            </div>
-                        </div>
 
-                        <div class="col-6 text-center">
-                            <h5>Compras</h5>
-                            <hr>
-                            <div id="compra-options">
-                                <button class="btn btn-sm btn-outline-primary" value="today">Hoje</button>
-                                <button class="btn btn-sm btn-outline-primary" value="month">Este mês</button>
-                                <button class="btn btn-sm btn-outline-primary" value="semester">Este semestre</button>
-                                <button class="btn btn-sm btn-outline-primary" value="year">Este ano</button>
-                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#relatorioModal" data-bs-tabela="Compras">Customizado</button>
-                            </div>
-                        </div>
-                    </div>
+                    <span th:if="${available}">
+                        <a th:href="@{${endpoint}(dataInicio=${view.dataInicio},dataFim=${view.dataFim})}">
+                            <button class="btn btn-success">Exportar</button>
+                        </a>
+                    </span>
+
+                    <span th:unless="${available}">
+                        <button class="btn btn-success" disabled>Exportar</button>
+                    </span>
 
                 </div>
             </div>
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h4 class="text-center mb-4">Gerar Relatórios</h4>
+                    <div class="row row-cols-1 row-cols-md-2 g-4">
 
-            <div id="resultado-relatorio"th:fragment="resultado" 
-                    th:replace="${view.target == 'vendas'} 
+                        <div class="col">
+                            <div class="border rounded-3 p-3 h-100 text-center hover-shadow">
+                                <h5 class="fw-semibold text-primary mb-3">
+                                    <i class="bi bi-bar-chart-line me-1"></i> Vendas
+                                </h5>
+                                <div class="d-flex flex-wrap justify-content-center gap-2" id="venda-options">
+                                    <button class="btn btn-outline-primary btn-sm px-3" value="today">Hoje</button>
+                                    <button class="btn btn-outline-primary btn-sm px-3" value="month">Este mês</button>
+                                    <button class="btn btn-outline-primary btn-sm px-3"
+                                        value="semester">Semestre</button>
+                                    <button class="btn btn-outline-primary btn-sm px-3" value="year">Ano</button>
+                                    <button class="btn btn-outline-secondary btn-sm px-3" data-bs-toggle="modal"
+                                        data-bs-target="#relatorioModal" data-bs-tabela="Vendas">
+                                        <i class="bi bi-sliders"></i> Customizado
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="border rounded-3 p-3 h-100 text-center hover-shadow">
+                                <h5 class="fw-semibold text-success mb-3">
+                                    <i class="bi bi-receipt me-1"></i> Compras
+                                </h5>
+                                <div class="d-flex flex-wrap justify-content-center gap-2" id="compra-options">
+                                    <button class="btn btn-outline-success btn-sm px-3" value="today">Hoje</button>
+                                    <button class="btn btn-outline-success btn-sm px-3" value="month">Este mês</button>
+                                    <button class="btn btn-outline-success btn-sm px-3"
+                                        value="semester">Semestre</button>
+                                    <button class="btn btn-outline-success btn-sm px-3" value="year">Ano</button>
+                                    <button class="btn btn-outline-secondary btn-sm px-3" data-bs-toggle="modal"
+                                        data-bs-target="#relatorioModal" data-bs-tabela="Compras">
+                                        <i class="bi bi-sliders"></i> Customizado
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="resultado-relatorio" th:fragment="resultado" th:replace="${view.target == 'vendas'} 
                         ? ~{fragments/relatorio-vendas-fragment :: resultado}
                         : ~{fragments/relatorio-compras-fragment :: resultado}"></div>
 
@@ -87,22 +103,24 @@
                                 <div class="row">
                                     <div class="col">
                                         <label class="form-label" for="dataInicio">Início</label>
-                                        <input class="form-control" type="date" name="dataInicio" id="dataInicio" required>
+                                        <input class="form-control" type="date" name="dataInicio" id="dataInicio"
+                                            required>
                                     </div>
-    
+
                                     <div class="col">
                                         <label for="dataFim" class="form-label">Fim</label>
                                         <input class="form-control" type="date" name="dataFim" id="dataFim" required>
                                     </div>
                                 </div>
-                                <small id="periodoError" class="text-danger d-none">Período inválido. Data inicial deve ser menor ou igual à data final</small>
+                                <small id="periodoError" class="text-danger d-none">Período inválido. Data inicial deve
+                                    ser menor ou igual à data final</small>
                             </form>
                         </div>
-                        
+
                         <div class="modal-footer">
                             <button class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
-                            <button class="btn btn-success" id="confirm-register"
-                                data-action="confirm-modal" data-source="">Confirmar</button>
+                            <button class="btn btn-success" id="confirm-register" data-action="confirm-modal"
+                                data-source="">Confirmar</button>
                         </div>
                     </div>
                 </div>

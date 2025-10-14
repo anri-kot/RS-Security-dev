@@ -12,13 +12,16 @@ div.modal div.modal-backdrop {
     left: 0;
     overflow-y: auto;
 }
+
 .sidebar.collapsed {
     width: 80px;
 }
+
 .sidebar .nav-link {
     white-space: nowrap;
     overflow: hidden;
 }
+
 .sidebar.collapsed .nav-link span {
     display: none;
 }
@@ -52,7 +55,7 @@ div.modal div.modal-backdrop {
     transition: color 0.2s, border-color 0.2s;
 }
 
-.logout-btn:hover, 
+.logout-btn:hover,
 .logout-btn:focus {
     color: #f3e9ea !important;
     border-color: #dc3545 !important;
@@ -74,7 +77,8 @@ div.modal div.modal-backdrop {
 }
 
 label {
-    margin-right: 10px;;
+    margin-right: 10px;
+    ;
 }
 
 #autocomplete-dropdown .dropdown-menu {
@@ -120,7 +124,7 @@ label {
 }
 
 .arrow {
-    display: inline-block; 
+    display: inline-block;
 }
 
 .arrow-hide {
@@ -129,4 +133,13 @@ label {
 
 .arrow-show {
     transform: rotate(90deg);
+}
+
+.hover-shadow {
+    transition: box-shadow 0.2s ease-in-out, transform 0.1s;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
 }
