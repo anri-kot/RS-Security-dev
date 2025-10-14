@@ -24,19 +24,22 @@ export function init() {
         const option = e.target.value.toUpperCase();
         if (DEFAULT_DATE_OPTIONS.includes(option)) {
             const date = getSelectedDate(option);
-            loadRelatorioVendaByDate(date);
+            loadRelatorioByDate(date, 'vendas');
         }
     });
 
     compraOptionsEl.addEventListener('click', async e => {
         const selected = e.target.tagName.toLowerCase();
         if (selected !== 'button') return;
-        e.preventDefault();
 
-        alert('Funcionalidade ainda não implementada nesta versão.')
+        const option = e.target.value.toUpperCase();
+        if (DEFAULT_DATE_OPTIONS.includes(option)) {
+            const date = getSelectedDate(option);
+            loadRelatorioByDate(date, 'compras');
+        }
     });
 
-    if (relatorioModalEl) {        
+    if (relatorioModalEl) {
         const confirmBtnEl = relatorioModalEl.querySelector('#confirm-register');
 
         relatorioModalEl.addEventListener('show.bs.modal', event => {
@@ -55,11 +58,7 @@ export function init() {
 
             if (source.length === 0) return;
 
-            if (source === 'venda') {
-                loadRelatorioVendaByDate( getModalPeriod() )
-            } else {
-                // TODO: leadRelatorioCompraByDate
-            }
+            loadRelatorioByDate(getModalPeriod(), source);
         });
     }
 
@@ -128,20 +127,19 @@ export function init() {
             periodoErrorEl.classList.add('d-none');
             dataInicioEl.classList.remove('is-invalid');
             dataFimEl.classList.remove('is-invalid');
-            // prossegue com o envio ou lógica normal
         }
 
         return isValid;
     }
 
     // start, end: yyyy-mm-dd
-    async function loadRelatorioVendaByDate(period) {
-        const url = `/relatorios/vendas?dataInicio=${period.start}&dataFim=${period.end}`
+    async function loadRelatorioByDate(period, target) {
+        const url = `/relatorios/${target}?dataInicio=${period.start}&dataFim=${period.end}`
         try {
             //htmx.ajax('GET', url, { target: '#conteudo' });
             window.location.href = url;
         } catch (err) {
-            console.error(`Erro ao carregar relatório de vendas: ${err.message}`);
+            console.error(`Erro ao carregar relatório de ${target}: ${err.message}`);
         }
     }
 }

@@ -17,5 +17,5 @@ public interface CustoCompraRepository extends JpaRepository<CustoCompra, Long> 
         FROM CustoCompra cc
         WHERE cc.data BETWEEN :start AND :end
     """)
-    BigDecimal calcularCustoTotal(@Param("start") LocalDateTime dataInicio, @Param("end") LocalDateTime dataFim);
+    BigDecimal calcularCustoTotalBetween(@Param("start") LocalDateTime dataInicio, @Param("end") LocalDateTime dataFim);
 }

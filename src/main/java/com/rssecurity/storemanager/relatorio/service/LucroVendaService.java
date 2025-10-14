@@ -39,11 +39,11 @@ public class LucroVendaService {
                 toList();
     }
 
-    public BigDecimal calculateLucroTotal(LocalDate dataInicio, LocalDate dataFim) {
-        return repository.calcularLucroTotal(dataInicio.atStartOfDay(), dataFim.atTime(LocalTime.MAX));
+    public BigDecimal calculateLucroTotalBetween(LocalDate dataInicio, LocalDate dataFim) {
+        return repository.calcularLucroTotalBetween(dataInicio.atStartOfDay(), dataFim.atTime(LocalTime.MAX));
     }
 
-    public BigDecimal calculateCustoTotal(LocalDate dataInicio, LocalDate dataFim) {
-        return repository.calcularCustoTotal(dataInicio.atStartOfDay(), dataFim.atTime(LocalTime.MAX));
+    public BigDecimal calculateCustoMedioTotalBetween(LocalDate dataInicio, LocalDate dataFim) {
+        return repository.calcularCustoMedioTotalBetween(dataInicio.atStartOfDay(), dataFim.atTime(LocalTime.MAX));
     }
 }

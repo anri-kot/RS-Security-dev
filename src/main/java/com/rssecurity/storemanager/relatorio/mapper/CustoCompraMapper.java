@@ -6,7 +6,7 @@ import com.rssecurity.storemanager.relatorio.model.CustoCompra;
 public class CustoCompraMapper {
     public static CustoCompraDTO toDTO(CustoCompra entity) {
         return new CustoCompraDTO(
-            entity.getIdProduto(),
+            entity.getIdCompra(),
             entity.getData(),
             entity.getCustoTotal()
         );

@@ -1,7 +1,7 @@
 package com.rssecurity.storemanager.relatorio.controller;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -15,27 +15,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rssecurity.storemanager.relatorio.dto.LucroVendaDTO;
 import com.rssecurity.storemanager.relatorio.service.LucroVendaService;
-import com.rssecurity.storemanager.util.DateTimeUtil;
 import com.rssecurity.storemanager.venda.service.VendaService;
 
 @RestController
 @RequestMapping("/api/relatorio")
-public class RelatorioController {
+public class RelatorioVendaController {
 
     private final VendaService vendaService;
     private final LucroVendaService lucroVendaService;
 
-    public RelatorioController(VendaService vendaService, LucroVendaService lucroVendaService) {
+    public RelatorioVendaController(VendaService vendaService, LucroVendaService lucroVendaService) {
         this.vendaService = vendaService;
         this.lucroVendaService = lucroVendaService;
     }
 
     @GetMapping("/receita")
     public ResponseEntity<BigDecimal> calculateTotalVendaValueBetween(@RequestParam String start, @RequestParam String end) {
-        LocalDateTime startDateTime = DateTimeUtil.parseStartOfDay(start);
-        LocalDateTime endDateTime = DateTimeUtil.parseEndOfDay(end);
+        LocalDate startDateTime = LocalDate.parse(start);
+        LocalDate endDateTime = LocalDate.parse(end);
 
-        return ResponseEntity.ok(vendaService.calculateTotalVendaValueBetween(startDateTime, endDateTime));
+        return ResponseEntity.ok(lucroVendaService.calculateLucroTotalBetween(startDateTime, endDateTime));
     }
 
     @PostMapping("/lucro_venda/list")
@@ -47,4 +46,5 @@ public class RelatorioController {
     public ResponseEntity<LucroVendaDTO> findById(@PathVariable Long id) {
         return ResponseEntity.ok(lucroVendaService.findById(id));
     }
+
 }

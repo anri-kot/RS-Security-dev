@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record CustoCompraDTO(
-    Long idProduto,
+    Long idCompra,
     LocalDateTime data,
     BigDecimal custoTotal
 ) {}

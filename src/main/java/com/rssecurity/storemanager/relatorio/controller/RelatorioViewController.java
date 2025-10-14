@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.rssecurity.storemanager.relatorio.dto.RelatorioCompraDTO;
 import com.rssecurity.storemanager.relatorio.dto.RelatorioVendaDTO;
 import com.rssecurity.storemanager.relatorio.dto.RelatorioViewDTO;
 import com.rssecurity.storemanager.relatorio.facade.RelatorioFacade;
@@ -32,7 +33,8 @@ public class RelatorioViewController {
             @RequestParam(defaultValue = "15") Integer size) {
         String todayString = LocalDate.now().toString();
 
-        RelatorioViewDTO<RelatorioVendaDTO> view = relatorioFacade.getRelatorioView(todayString, todayString, currentPage, size);
+        RelatorioViewDTO<RelatorioVendaDTO> view = relatorioFacade.getRelatorioVendaView(todayString, todayString,
+                currentPage, size);
 
         model.addAttribute("view", view);
 
@@ -42,7 +44,7 @@ public class RelatorioViewController {
     }
 
     @GetMapping("/vendas")
-    public String gerarRelatorioVendas(
+    public String getRelatorioVendas(
             HttpServletRequest request,
             Model model,
             @RequestParam String dataInicio,
@@ -50,10 +52,10 @@ public class RelatorioViewController {
             @RequestParam(name = "page", defaultValue = "1") int currentPage,
             @RequestParam(defaultValue = "15") Integer size) {
 
-        RelatorioViewDTO<RelatorioVendaDTO> view = relatorioFacade.getRelatorioView(
-                dataInicio, 
-                dataFim, 
-                currentPage, 
+        RelatorioViewDTO<RelatorioVendaDTO> view = relatorioFacade.getRelatorioVendaView(
+                dataInicio,
+                dataFim,
+                currentPage,
                 size);
         model.addAttribute("view", view);
 
@@ -64,4 +66,20 @@ public class RelatorioViewController {
 
     // TODO: implement compra view at relatorios
 
+    @GetMapping("/compras")
+    public String getRelatorioCompras(
+            HttpServletRequest request,
+            Model model,
+            @RequestParam(required = false) String dataInicio,
+            @RequestParam(required = false) String dataFim,
+            @RequestParam(name = "page", defaultValue = "1") int currentPage,
+            @RequestParam(defaultValue = "15") int size) {
+        
+        RelatorioViewDTO<RelatorioCompraDTO> view = relatorioFacade.getRelatorioCompraView(dataInicio, dataFim, currentPage, size);
+        model.addAttribute("view", view);
+
+        return Boolean.TRUE.equals(request.getAttribute("layoutDisabled"))
+                ? "relatorios :: content"
+                : "relatorios";
+    }
 }

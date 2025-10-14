@@ -17,12 +17,12 @@ public interface LucroVendaRepository extends JpaRepository<LucroVenda, Long> {
         FROM LucroVenda lv
         WHERE lv.data BETWEEN :start AND :end
     """)
-    BigDecimal calcularLucroTotal(@Param("start") LocalDateTime dataInicio, @Param("end") LocalDateTime dataFim);
+    BigDecimal calcularLucroTotalBetween(@Param("start") LocalDateTime dataInicio, @Param("end") LocalDateTime dataFim);
 
     @Query("""
         SELECT SUM(lv.custoTotal)
         FROM LucroVenda lv
         WHERE lv.data BETWEEN :start AND :end
     """)
-    BigDecimal calcularCustoTotal(@Param("start") LocalDateTime dataInicio, @Param("end") LocalDateTime dataFim);
+    BigDecimal calcularCustoMedioTotalBetween(@Param("start") LocalDateTime dataInicio, @Param("end") LocalDateTime dataFim);
 }

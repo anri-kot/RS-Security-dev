@@ -11,24 +11,24 @@ import jakarta.persistence.Table;
 @Table(name = "vw_custo_compra")
 public class CustoCompra {
     @Id
-    private Long idProduto;
+    private Long idCompra;
     private LocalDateTime data;
     private BigDecimal custoTotal;
 
     public CustoCompra(){}
 
-    public CustoCompra(Long idProduto, LocalDateTime data, BigDecimal custoTotal) {
-        this.idProduto = idProduto;
+    public CustoCompra(Long idCompra, LocalDateTime data, BigDecimal custoTotal) {
+        this.idCompra = idCompra;
         this.data = data;
         this.custoTotal = custoTotal;
     }
 
-    public Long getIdProduto() {
-        return idProduto;
+    public Long getIdCompra() {
+        return idCompra;
     }
 
-    public void setIdProduto(Long idProduto) {
-        this.idProduto = idProduto;
+    public void setIdCompra(Long idProduto) {
+        this.idCompra = idProduto;
     }
 
     public LocalDateTime getData() {

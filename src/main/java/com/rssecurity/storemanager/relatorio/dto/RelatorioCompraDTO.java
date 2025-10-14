@@ -1,7 +1,6 @@
 package com.rssecurity.storemanager.relatorio.dto;
 
 import java.math.BigDecimal;
-import java.util.Map;
 
 import org.springframework.data.domain.Page;
 
@@ -10,15 +9,15 @@ import com.rssecurity.storemanager.compra.dto.CompraDTO;
 public class RelatorioCompraDTO {
     private Page<CompraDTO> compras;
     private String interval;
-    private Map<Long, CustoCompraDTO> custoCompras;
+    private BigDecimal custoTotal;
 
     private String erro = null;
 
-    public RelatorioCompraDTO(Page<CompraDTO> compras, String interval, Map<Long, CustoCompraDTO> custoCompras,
-            String erro) {
+    public RelatorioCompraDTO(){}
+
+    public RelatorioCompraDTO(Page<CompraDTO> compras, String interval, String erro) {
         this.compras = compras;
         this.interval = interval;
-        this.custoCompras = custoCompras;
         this.erro = erro;
     }
 
@@ -38,14 +37,6 @@ public class RelatorioCompraDTO {
         this.interval = interval;
     }
 
-    public Map<Long, CustoCompraDTO> getCustoCompras() {
-        return custoCompras;
-    }
-
-    public void setCustoCompras(Map<Long, CustoCompraDTO> custoCompras) {
-        this.custoCompras = custoCompras;
-    }
-
     public String getErro() {
         return erro;
     }
@@ -55,9 +46,10 @@ public class RelatorioCompraDTO {
     }
 
     public BigDecimal getCustoTotal() {
-        BigDecimal custoTotal = new BigDecimal(0);
-        custoCompras.values().stream()
-                .map(custo -> custoTotal.add(custo.custoTotal()));
         return custoTotal;
+    }
+
+    public void setCustoTotal(BigDecimal custoTotal) {
+        this.custoTotal = custoTotal;
     }
 }
