@@ -194,6 +194,7 @@ export function init() {
             const finalPriceCents = Math.round(fullPriceCents * discountMultiplier);
 
             totalCents += finalPriceCents;
+            const finalPrice = finalPriceCents / 100;
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
@@ -201,7 +202,7 @@ export function init() {
             <td>${item.produto.nome}</td>
             <td>${item.quantidade}</td>
             <td>R$ ${item.valorUnitario.toFixed(2)}</td>
-            <td>${Math.round(discount * 100)}</td>
+            <td>${discountPercent}</td>
             <td>R$ ${finalPrice.toFixed(2)}</td>
             <td><button class="btn btn-sm btn-danger" data-index="${index}">Remover</button>
             <button class="btn btn-sm btn-secondary" data-index="${index}">Editar</button></td>`;
