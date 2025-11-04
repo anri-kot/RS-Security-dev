@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
     layout:decorate="~{layout}">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,8 @@
         <div class="container py-4" th:fragment="content" data-page-id="fornecedores">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1 class="mb-0">Fornecedores</h1>
-                <button sec:authorize="hasRole('ROLE_ADMIN')" id="new-fornecedor" class="btn btn-success">+ Novo Fornecedor</button>
+                <button sec:authorize="hasRole('ROLE_ADMIN')" id="new-fornecedor" class="btn btn-success">+ Novo
+                    Fornecedor</button>
             </div>
 
             <div class="card mb-4">
@@ -50,39 +52,52 @@
                         <h5 class="mb-0">Fornecedores</h5>
                     </div>
 
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col">ID</th>
-                                    <th scope="col">Nome</th>
-                                    <th scope="col">CNPJ</th>
-                                    <th scope="col">Email</th>
-                                    <th scope="col">Telefone</th>
-                                    <th scope="col" class="text-end" sec:authorize="hasRole('ROLE_ADMIN')">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="fornecedor : ${view.fornecedores}">
-                                    <td th:text="${fornecedor.idFornecedor}"></td>
-                                    <td th:text="${fornecedor.nome}"></td>
-                                    <td th:text="${@formatterUtil.formatCnpj(fornecedor.cnpj)}"></td>
-                                    <td th:text="${fornecedor.email}"></td>
-                                    <td th:text="${@formatterUtil.formatPhone(fornecedor.telefone)}"></td>
-                                    <td class="text-end" sec:authorize="hasRole('ROLE_ADMIN')">
-                                        <button class="btn btn-sm btn-outline-primary me-2" th:attr="data-id=${fornecedor.idFornecedor}"
-                                            data-action="edit">
+                    <table class="table table-hover align-middle mb-0 table-sm">
+                        <thead class="table-light text-nowrap">
+                            <tr>
+                                <th scope="col" class="text-center" style="width: 5%">ID</th>
+                                <th scope="col" style="width: 35%">Nome</th>
+                                <th scope="col" style="width: 20%">CNPJ</th>
+                                <th scope="col" style="width: 20%">Email</th>
+                                <th scope="col" style="width: 15%">Telefone</th>
+                                <th scope="col" class="text-center" sec:authorize="hasRole('ROLE_ADMIN')"
+                                    style="width: 5%">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="fornecedor : ${view.fornecedores}">
+                                <td th:text="${fornecedor.idFornecedor}" class="text-center"></td>
+
+                                <td class="text-truncate" style="max-width: 200px;" th:text="${fornecedor.nome}"
+                                    th:attr="title=${fornecedor.nome}"></td>
+
+                                <td class="text-truncate" style="max-width: 160px;"
+                                    th:text="${@formatterUtil.formatCnpj(fornecedor.cnpj)}"
+                                    th:attr="title=${fornecedor.cnpj}"></td>
+
+                                <td class="text-truncate" style="max-width: 180px;" th:text="${fornecedor.email}"
+                                    th:attr="title=${fornecedor.email}"></td>
+
+                                <td class="text-truncate" style="max-width: 140px;"
+                                    th:text="${@formatterUtil.formatPhone(fornecedor.telefone)}"
+                                    th:attr="title=${fornecedor.telefone}"></td>
+
+                                <td class="text-end" sec:authorize="hasRole('ROLE_ADMIN')">
+                                    <div class="d-inline-flex">
+                                        <button class="btn btn-sm btn-outline-primary me-1"
+                                            th:attr="data-id=${fornecedor.idFornecedor}" data-action="edit">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger" th:attr="data-id=${fornecedor.idFornecedor}"
-                                            data-action="delete">
+                                        <button class="btn btn-sm btn-outline-danger"
+                                            th:attr="data-id=${fornecedor.idFornecedor}" data-action="delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                 </div>
 
                 <!-- Page Navigation -->
@@ -112,19 +127,23 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Nome</label>
-                                    <input type="text" name="nome" id="modal-fornecedor-nome" class="form-control" required>
+                                    <input type="text" name="nome" id="modal-fornecedor-nome" minlength="3"
+                                        maxlength="255" class="form-control" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">CNPJ</label>
-                                    <input type="text" name="cnpj" maxlength="18" minlength="18" id="modal-fornecedor-cnpj" class="form-control" required>
+                                    <input type="text" name="cnpj" maxlength="18" minlength="18"
+                                        id="modal-fornecedor-cnpj" class="form-control" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Telefone</label>
-                                    <input type="text" name="telefone" maxlength="15" minlength="14" id="modal-fornecedor-telefone" class="form-control" required>
+                                    <input type="text" name="telefone" maxlength="15" minlength="14"
+                                        id="modal-fornecedor-telefone" class="form-control" required>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Email</label>
-                                    <input type="email" name="email" id="modal-fornecedor-email" minlength="3" maxlength="255" class="form-control" required>
+                                    <input type="email" name="email" id="modal-fornecedor-email" minlength="3"
+                                        maxlength="255" class="form-control" required>
                                 </div>
                             </form>
 

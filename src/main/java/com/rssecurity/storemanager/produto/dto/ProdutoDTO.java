@@ -16,7 +16,7 @@ public record ProdutoDTO(
     @Size(max = 50, message = "deve ter no máximo 50 caracteres")
     String codigoBarras,
     BigDecimal precoAtual,
-    @Size(max = 155, message = "deve ter no máximo 155 caracteres")
+    @Size(max = 150, message = "deve ter no máximo 150 caracteres")
     String descricao,
     @NotNull(message = "não pode ser nulo")
     Integer estoque,

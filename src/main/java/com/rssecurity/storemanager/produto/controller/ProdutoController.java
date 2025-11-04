@@ -81,14 +81,14 @@ public class ProdutoController {
     // ACTIONS
 
     @PostMapping
-    public ResponseEntity<ProdutoDTO> create(@RequestBody @Valid ProdutoDTO produto) {
+    public ResponseEntity<ProdutoDTO> create(@Valid @RequestBody ProdutoDTO produto) {
         ProdutoDTO created = service.create(produto);
         URI location = URI.create("/api/produto/" + created.idProduto());
         return ResponseEntity.created(location).body(created);
     }
 
     @PutMapping("/{idProduto}")
-    public ResponseEntity<Void> update(@PathVariable Long idProduto, @RequestBody @Valid ProdutoDTO produto) {
+    public ResponseEntity<Void> update(@PathVariable Long idProduto, @Valid @RequestBody ProdutoDTO produto) {
         if (!produto.idProduto().equals(idProduto)) {
             throw new ConflictException("O ID informado no corpo da requisição difere do ID especificado na URL.");
         }

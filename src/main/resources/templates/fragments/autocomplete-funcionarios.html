@@ -1,8 +1,14 @@
 <ul th:fragment="options" class="list-group">
     <li th:each="result : ${results}" class="list-group-item list-group-item-action"
-        th:data-id-usuario="${result.idUsuario}" th:data-username="${result.username}" th:data-nome="${result.nome} + ' ' + ${result.sobrenome}">
-        <small th:text="'ID ' + ${result.idUsuario}"></small>
-        <strong th:text="${result.nome} + ' ' + ${result.sobrenome}">Produto</strong>
-        <small class="text-muted ms-2" th:text="${result.username}"></small>
+        th:data-id-usuario="${result.idUsuario}" th:data-username="${result.username}"
+        th:data-nome="${result.nome} + ' ' + ${result.sobrenome}">
+
+        <div class="d-flex flex-nowrap align-items-center">
+            <div class="flex-grow-1 text-truncate">
+                <small th:text="'ID ' + ${result.idUsuario}"></small>
+                <strong th:text="${result.nome} + ' ' + ${result.sobrenome}">Funcionario</strong>
+            </div>
+            <small class="text-muted ms-2" th:text="${result.username}"></small>
+        </div>
     </li>
 </ul>
