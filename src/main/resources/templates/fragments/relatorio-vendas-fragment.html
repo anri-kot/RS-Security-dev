@@ -1,5 +1,5 @@
 <div th:fragment="resultado" id="resultado-relatorio">
-    
+
 
     <div th:if="${relatorio.erro != null}" class="alert alert-danger" th:text="${relatorio.erro}"></div>
 
@@ -20,14 +20,13 @@
                         <i class="bi bi-cash-stack fs-3 text-success"></i>
                         <h6 class="mt-2">
                             Lucro C.M.
-                            <i class="bi bi-info-circle"
-                               data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Diferença entre a receita da venda e o custo médio dos produtos.">
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
+                                title="Diferença entre a receita da venda e o custo médio dos produtos.">
                             </i>
                         </h6>
-                        <h4>R$ 
-                            <span th:if="${view.relatorio.lucroTotal != null}" th:text="${#numbers.formatDecimal(view.relatorio.lucroTotal,1,'POINT',2,'COMMA')}">0,0</span>
+                        <h4>R$
+                            <span th:if="${view.relatorio.lucroTotal != null}"
+                                th:text="${#numbers.formatDecimal(view.relatorio.lucroTotal,1,'POINT',2,'COMMA')}">0,0</span>
                             <span th:unless="${view.relatorio.lucroTotal != null}">0,0</span>
                         </h4>
                     </div>
@@ -39,14 +38,13 @@
                         <i class="bi bi-credit-card fs-3 text-danger"></i>
                         <h6 class="mt-2">
                             Custo Médio Total
-                            <i class="bi bi-info-circle"
-                               data-bs-toggle="tooltip"
-                               data-bs-placement="top"
-                               title="Custo médio dos produtos dentro do período selecionado.">
+                            <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
+                                title="Custo médio dos produtos dentro do período selecionado.">
                             </i>
                         </h6>
-                        <h4>R$ 
-                            <span th:if="${view.relatorio.custoTotal != null}" th:text="${#numbers.formatDecimal(view.relatorio.custoTotal,1,'POINT',2,'COMMA')}"></span>
+                        <h4>R$
+                            <span th:if="${view.relatorio.custoTotal != null}"
+                                th:text="${#numbers.formatDecimal(view.relatorio.custoTotal,1,'POINT',2,'COMMA')}"></span>
                             <span th:unless="${view.relatorio.custoTotal != null}">0,0</span>
                         </h4>
                     </div>
@@ -54,100 +52,113 @@
             </div>
         </div>
     </div>
-    <div th:if="${view.relatorio != null && relatorio.total != null}" th:with="vendas=${view.relatorio.vendas}" class="card">
+    <div th:if="${view.relatorio != null && relatorio.total != null}" th:with="vendas=${view.relatorio.vendas}"
+        class="card">
         <div class="card-body">
             <div class="d-flex justify-content-between">
                 <h5 class="card-title">Vendas</h5>
                 <h6>Período: <span th:text="${view.relatorio.interval}" class="text-info"></span></h6>
             </div>
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th style="width: 5%"></th>
-                        <th>Data</th>
-                        <th>Receita</th>
-                        <th>
-                            Média Custo
-                            <i class="bi bi-info-circle"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="A média de custo se refere à soma da média dos gastos em cada produto.">
-                            </i>
-                        </th>
-                        <th>
-                            Média Lucro
-                            <i class="bi bi-info-circle"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="A média de lucro é calculada subtraindo a receita da venda pela média de custo dos produtos.">
-                            </i>
-                        </th>
-                        <th class="text-center">%</th>
-                        <th>Pagamento</th>
-                        <th>Observação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="v : ${vendas}">
+            <div class="table-responsive-sm">
+                <table class="table table-bordered align-middle table-striped w-100" style="table-layout: fixed;">
+                    <thead>
+                        <tr class="text-nowrap">
+                            <th style="width: 5%"></th>
+                            <th style="width: 10%">Data</th>
+                            <th style="width: 10%">Receita</th>
+                            <th style="width: 15%">
+                                Média Custo
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="A média de custo se refere à soma da média dos gastos em cada produto.">
+                                </i>
+                            </th>
+                            <th style="width: 15%">
+                                Média Lucro
+                                <i class="bi bi-info-circle" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="A média de lucro é calculada subtraindo a receita da venda pela média de custo dos produtos.">
+                                </i>
+                            </th>
+                            <th style="width: 5%" class="text-center">%</th>
+                            <th style="width: 15%">Pagamento</th>
+                            <th style="width: 20%">Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="v : ${vendas}">
 
-                        <td class="text-center">
-                            <a th:href="@{/vendas(tipo=idVenda,termo=${v.idVenda})}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-receipt"></i>
-                            </a>
-                        </td>
+                            <!-- ID -->
+                            <td class="text-center">
+                                <a th:href="@{/vendas(tipo=idVenda,termo=${v.idVenda})}"
+                                    class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-receipt"></i>
+                                </a>
+                            </td>
 
-                        <td>
-                            <span th:text="${#temporals.format(v.data, 'dd/MM/yyyy')}"></span><br>
-                            <small class="text-muted" th:text="${#temporals.format(v.data, 'HH:mm')}"></small>
-                        </td>
-                        
-                        <td class="fw-bold text-secondary">
-                            R$ <span th:text="${#numbers.formatDecimal(v.liquido,1,'POINT',2,'COMMA')}"></span>
-                        </td>
+                            <!-- DATA -->
+                            <td>
+                                <span th:text="${#temporals.format(v.data, 'dd/MM/yyyy')}"></span><br>
+                                <small class="text-muted" th:text="${#temporals.format(v.data, 'HH:mm')}"></small>
+                            </td>
 
-                        <td th:with="lucroVenda=${view.relatorio.lucroVendas.get(v.idVenda)}" class="fw-bold">
-                            <span class="text-danger" th:if="${lucroVenda.lucroPercentual != null}"
-                                th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.custoTotal, 1, 'POINT', 2, 'COMMA')}">
-                            </span>
-                        </td>
+                            <!-- Receita -->
+                            <td class="fw-bold text-secondary">
+                                R$ <span th:text="${#numbers.formatDecimal(v.liquido,1,'POINT',2,'COMMA')}"></span>
+                            </td>
 
-                        <td th:with="lucroVenda=${view.relatorio.lucroVendas.get(v.idVenda)}" class="fw-bold">
-                            <span class="text-success" th:if="${lucroVenda.lucroTotal >= 0}" th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.lucroTotal,1,'POINT',2,'COMMA')}"></span>
-                            <span class="text-danger" th:if="${lucroVenda.lucroTotal < 0}" th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.lucroTotal,1,'POINT',2,'COMMA')}"></span>
-                        </td>
+                            <!-- Cus Med -->
+                            <td th:with="lucroVenda=${view.relatorio.lucroVendas.get(v.idVenda)}" class="fw-bold">
+                                <span class="text-danger" th:if="${lucroVenda.lucroPercentual != null}"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.custoTotal, 1, 'POINT', 2, 'COMMA')}">
+                                </span>
+                            </td>
 
-                        <td th:with="lucroVenda=${view.relatorio.lucroVendas.get(v.idVenda)}" class="text-center fw-bold">
-                            <span class="text-success" th:if="${lucroVenda.lucroPercentual != null && lucroVenda.lucroPercentual > 0}"
-                                th:text="${lucroVenda.lucroPercentualFormatado + '%'}">
-                            </span>
-                            <span class="text-danger" th:if="${lucroVenda.lucroPercentual != null && lucroVenda.lucroPercentual < 0}"
-                                th:text="${lucroVenda.lucroPercentualFormatado + '%'}">
-                            </span>
-                            
-                        </td>
-                        
-                        <td>
-                            <span th:class="${v.metodoPagamento == 'PIX' ? 'badge bg-success' 
-                                            : (v.metodoPagamento == 'CARTAO_CREDITO' ? 'badge bg-primary' 
-                                            : 'badge bg-secondary')}">
-                                <span th:text="${v.metodoPagamento}"></span>
-                            </span>
-                        </td>
-                        
-                        <td th:text="${v.observacao ?: '-'}"></td>
-                    </tr>
-                </tbody>
+                            <!-- Luc Med -->
+                            <td th:with="lucroVenda=${view.relatorio.lucroVendas.get(v.idVenda)}" class="fw-bold">
+                                <span class="text-success" th:if="${lucroVenda.lucroTotal >= 0}"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.lucroTotal,1,'POINT',2,'COMMA')}"></span>
+                                <span class="text-danger" th:if="${lucroVenda.lucroTotal < 0}"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.lucroTotal,1,'POINT',2,'COMMA')}"></span>
+                            </td>
 
-                <script>
-                    // Initializing tooltip
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                        tooltipTriggerList.map(function (tooltipTriggerEl) {
-                            return new bootstrap.Tooltip(tooltipTriggerEl)
-                        })
-                    });
-                </script>
-            </table>
+                            <!-- % -->
+                            <td th:with="lucroVenda=${view.relatorio.lucroVendas.get(v.idVenda)}"
+                                class="text-center fw-bold">
+                                <span class="text-success"
+                                    th:if="${lucroVenda.lucroPercentual != null && lucroVenda.lucroPercentual > 0}"
+                                    th:text="${lucroVenda.lucroPercentualFormatado + '%'}">
+                                </span>
+                                <span class="text-danger"
+                                    th:if="${lucroVenda.lucroPercentual != null && lucroVenda.lucroPercentual < 0}"
+                                    th:text="${lucroVenda.lucroPercentualFormatado + '%'}">
+                                </span>
+
+                            </td>
+
+                            <!-- Met Pag -->
+                            <td>
+                                <span th:class="${v.metodoPagamento == 'PIX' ? 'badge bg-success' 
+                                                : (v.metodoPagamento == 'CARTAO_CREDITO' ? 'badge bg-primary' 
+                                                : 'badge bg-secondary')}">
+                                    <span th:text="${v.metodoPagamento}"></span>
+                                </span>
+                            </td>
+
+                            <!-- Obs -->
+                            <td class="text-truncate" style="overflow: hidden;" th:text="${v.observacao ?: '-'}"></td>
+                        </tr>
+                    </tbody>
+
+                    <script>
+                        // Initializing tooltip
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                                return new bootstrap.Tooltip(tooltipTriggerEl)
+                            })
+                        });
+                    </script>
+                </table>
+            </div>
             <!-- Page Navigation -->
             <div th:replace="~{fragments/page-nav :: page-nav}"></div>
         </div>

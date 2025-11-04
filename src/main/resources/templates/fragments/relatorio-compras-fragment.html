@@ -34,47 +34,49 @@
                 <h5 class="card-title">Compras</h5>
                 <h6>Período: <span th:text="${view.relatorio.interval}" class="text-info"></span></h6>
             </div>
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th style="width: 5%"></th>
-                        <th>Data</th>
-                        <th>Custo</th>
-                        <th>Observação</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="c : ${compras}">
-
-                        <td class="text-center">
-                            <a th:href="@{/compras(tipo=idCompra,termo=${c.idCompra})}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-receipt"></i>
-                            </a>
-                        </td>
-
-                        <td>
-                            <span th:text="${#temporals.format(c.data, 'dd/MM/yyyy')}"></span><br>
-                            <small class="text-muted" th:text="${#temporals.format(c.data, 'HH:mm')}"></small>
-                        </td>
-                        
-                        <td class="fw-bold text-secondary">
-                            R$ <span th:text="${#numbers.formatDecimal(c.total,1,'POINT',2,'COMMA')}"></span>
-                        </td>
-                        
-                        <td th:text="${c.observacao ?: '-'}"></td>
-                    </tr>
-                </tbody>
-
-                <script>
-                    // Initializing tooltip
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                        tooltipTriggerList.map(function (tooltipTriggerEl) {
-                            return new bootstrap.Tooltip(tooltipTriggerEl)
-                        })
-                    });
-                </script>
-            </table>
+            <div class="table-responsive-sm">
+                <table class="table table-bordered align-middle table-striped w-100" style="table-layout: fixed;">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%"></th>
+                            <th style="width: 10%">Data</th>
+                            <th style="width: 15%">Custo</th>
+                            <th style="width: 50%">Observação</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${compras}">
+    
+                            <td class="text-center">
+                                <a th:href="@{/compras(tipo=idCompra,termo=${c.idCompra})}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-receipt"></i>
+                                </a>
+                            </td>
+    
+                            <td>
+                                <span th:text="${#temporals.format(c.data, 'dd/MM/yyyy')}"></span><br>
+                                <small class="text-muted" th:text="${#temporals.format(c.data, 'HH:mm')}"></small>
+                            </td>
+                            
+                            <td class="fw-bold text-secondary text-nowrap">
+                                R$ <span th:text="${#numbers.formatDecimal(c.total,1,'POINT',2,'COMMA')}"></span>
+                            </td>
+                            
+                            <td th:text="${c.observacao ?: '-'}" class="text-truncate overflow-hidden"></td>
+                        </tr>
+                    </tbody>
+    
+                    <script>
+                        // Initializing tooltip
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                                return new bootstrap.Tooltip(tooltipTriggerEl)
+                            })
+                        });
+                    </script>
+                </table>
+            </div>
             <!-- Page Navigation -->
             <div th:replace="~{fragments/page-nav :: page-nav}"></div>
         </div>

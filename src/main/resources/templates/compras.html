@@ -130,7 +130,9 @@
 
                         <p class="mb-1"><strong>Observação:</strong> <span th:text="${compra.observacao}"></span></p>
                         <p class="mb-1"><strong>Fornecedor:</strong> 
-                            <span th:if="${compra.fornecedor}" th:text="${compra.fornecedor.nome}"></span>
+                            <a class="link-secondary" th:if="${compra.fornecedor}" th:href="@{compras(tipo='fornecedor', termo=${compra.fornecedor.nome})}">
+                                <span th:text="${compra.fornecedor.nome}"></span>
+                            </a>
                             <span th:unless="${compra.fornecedor}">EXCLUÍDO</span>
                         </p>
 
@@ -141,9 +143,10 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
 
                                     <div>
-                                        <div class="fw-semibold" th:if="${item.produto}" th:text="${item.produto.nome}">
-                                        </div>
-                                        <div class="fw-semibold" th:unless="${item.produto}">[REMOVIDO]</div>
+                                        <a class="link-dark" th:if="${item.produto}" th:href="@{produtos(tipo='id', termo=${item.produto.idProduto})}">
+                                            <span class="fw-semibold" th:text="${item.produto.nome}"></span>
+                                        </a>
+                                        <span class="fw-semibold" th:unless="${item.produto}">[REMOVIDO]</span>
                                         <small class="text-muted d-block">
                                             <span
                                                 th:text="'Qtd: ' + ${item.quantidade} + ' × R$ ' + ${#numbers.formatDecimal(item.valorUnitario, 1, 'POINT', 2, 'COMMA')}"></span>

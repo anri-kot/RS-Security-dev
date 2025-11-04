@@ -144,16 +144,29 @@
                     <div class="card-body px-3">
 
                         <p class="mb-1"><strong>Observação:</strong> <span th:text="${venda.observacao}"></span></p>
-                        <p class="mb-1"><strong>Pagamento:</strong> <span th:text="${venda.metodoPagamento}"></span></p>
-                        <p class="mb-1"><strong>Usuário:</strong> <abbr th:if="${venda.usuario != null}"
-                                th:text="${venda.usuario.username}" class="initialism"
-                                th:title="${venda.usuario.nome} + ' ' + ${venda.usuario.sobrenome}"></abbr></p>
+                        <p class="mb-1"><strong>Pagamento:</strong>
+                            <a  class="link-secondary" th:href="@{vendas(metodoPagamento=${venda.metodoPagamento})}">
+                                    <span th:text="${venda.metodoPagamento}"></span>
+                                </a>
+                        </p>
+                        <p class="mb-1">
+                            <strong>Usuário:</strong>
+                            <a  class="link-secondary" th:if="${venda.usuario != null}"
+                                th:href="@{vendas(tipo='usuario', termo=${venda.usuario.username})}">
+                                <abbr class="initialism" th:text="${venda.usuario.username}"
+                                    th:title="${venda.usuario.nome} + ' ' + ${venda.usuario.sobrenome}">
+                                </abbr>
+                            </a>
+                            <span th:unless="${venda.usuario != null}">—</span>
+                        </p>
+
 
                         <div class="collapse" th:id="'collapse__' + ${venda.idVenda}">
                             <p class="fw-bold mb-1">Valor Recebido: <span class="text-info"
                                     th:text="'R$ ' + ${#numbers.formatDecimal(venda.valorRecebido, 1, 'POINT', 2, 'COMMA')}"></span>
                             </p>
-                            <p class="fw-bold mb-1" th:if="${venda.metodoPagamento == 'DINHEIRO'}">Troco: <span class="text-danger"
+                            <p class="fw-bold mb-1" th:if="${venda.metodoPagamento == 'DINHEIRO'}">Troco: <span
+                                    class="text-danger"
                                     th:text="'R$ ' + ${#numbers.formatDecimal(venda.troco, 1, 'POINT', 2, 'COMMA')}"></span>
                             </p>
 
@@ -161,8 +174,12 @@
                             <ul class="list-group list-group-flush" th:each="item : ${venda.itens}">
                                 <li class="list-group-item d-flex justify-content-between align-items-start">
                                     <div>
-                                        <div class="fw-semibold" th:if="${item.produto}" th:text="${item.produto.nome}"></div>
-                                        <div class="fw-semibold" th:unless="${item.produto}">PRODUTO NÃO INCONTRADO</div>
+                                        <a class="link-dark" th:if="${item.produto}" th:href="@{produtos(tipo='id', termo=${item.produto.idProduto})}">
+                                            <div class="fw-semibold" th:text="${item.produto.nome}">
+                                            </div>
+                                        </a>
+                                        <div class="fw-semibold" th:unless="${item.produto}">PRODUTO EXCLUÍDO
+                                        </div>
                                         <small class="text-muted d-block">
                                             <span
                                                 th:text="'Qtd: ' + ${item.quantidade} + ' × R$ ' + ${#numbers.formatDecimal(item.valorUnitario, 1, 'POINT', 2, 'COMMA')}"></span>
@@ -174,7 +191,7 @@
                                         </small>
                                     </div>
                                     <div class="text-end">
-                                        <span class="fw-bold text-dark"
+                                        <span class="fw-bold text-dark text-nowrap"
                                             th:text="'R$ ' + ${#numbers.formatDecimal((item.valorUnitario - (item.desconto != null ? ((item.desconto / 100) * item.valorUnitario) : 0)) * item.quantidade, 1, 'POINT', 2, 'COMMA')}"></span>
                                     </div>
                                 </li>
@@ -293,13 +310,14 @@
                                                         <small class="text-muted">Ex: 10.00</small></label>
                                                     <input type="number" name="valorUnitario"
                                                         id="modal-venda-valorUnitario" class="form-control" step="0.01"
-                                                        min="0.05" value="0.05" readonly required disabled>
+                                                        min="0.05" value="0.05" required disabled>
                                                 </div>
                                                 <div class="mb-2">
                                                     <label for="desconto" class="form-label">Desconto (%) <small
                                                             class="text-muted">Ex: 15.00</small></label>
                                                     <input type="number" name="desconto" id="modal-venda-desconto"
-                                                        class="form-control" min="0" step="1" value="0" max="10" disabled>
+                                                        class="form-control" min="0" step="1" value="0" max="10"
+                                                        disabled>
                                                 </div>
 
                                                 <div class="d-flex justify-content-center mb-2">
@@ -316,21 +334,24 @@
 
                                             <div class="mb-2">
                                                 <label class="form-label">ID</label>
-                                                <input type="text" name="idVenda" id="modal-venda-idVenda" class="form-control"
-                                                    readonly>
+                                                <input type="text" name="idVenda" id="modal-venda-idVenda"
+                                                    class="form-control" readonly>
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Data <small class="text-muted">mês/dia/ano,
                                                         hora</small></label>
-                                                <input type="datetime-local" name="data" id="modal-venda-data" step="1" class="form-control" required>
+                                                <input type="datetime-local" name="data" id="modal-venda-data" step="1"
+                                                    class="form-control" required>
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Observação</label>
-                                                <input type="text" name="observacao" id="modal-venda-observacao" maxlength="255" class="form-control">
+                                                <input type="text" name="observacao" id="modal-venda-observacao"
+                                                    maxlength="255" class="form-control">
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Método de Pagamento</label>
-                                                <select name="metodoPagamento" id="modal-venda-metodoPagamento" class="form-select" required>
+                                                <select name="metodoPagamento" id="modal-venda-metodoPagamento"
+                                                    class="form-select" required>
                                                     <option value="">Selecione um método</option>
                                                     <option value="CARTAO_CREDITO">Cartão de Crédito</option>
                                                     <option value="CARTAO_DEBITO">Cartão de Débito</option>
@@ -340,13 +361,13 @@
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Valor Recebido (R$)</label>
-                                                <input type="number" name="valorRecebido" step="0.01" id="modal-venda-valorRecebido"
-                                                    class="form-control" required>
+                                                <input type="number" name="valorRecebido" step="0.01"
+                                                    id="modal-venda-valorRecebido" class="form-control" required>
                                             </div>
                                             <div class="mb-2">
                                                 <label class="form-label">Troco</label>
-                                                <input type="number" step="0.1" min="0.00" name="troco" id="modal-venda-troco"
-                                                    class="form-control" readonly required>
+                                                <input type="number" step="0.1" min="0.00" name="troco"
+                                                    id="modal-venda-troco" class="form-control" readonly required>
                                             </div>
                                             <div class="mb-2">
                                                 <div class="position-relative">
@@ -358,8 +379,10 @@
                                                         hx-target="#autocomplete-funcionario-options"
                                                         hx-trigger="keyup changed delay:300ms" required>
 
-                                                    <input type="hidden" name="funcionarioId" id="modal-venda-funcionario-id">
-                                                    <input type="hidden" name="funcionarioUsername" id="modal-venda-funcionario-username">
+                                                    <input type="hidden" name="funcionarioId"
+                                                        id="modal-venda-funcionario-id">
+                                                    <input type="hidden" name="funcionarioUsername"
+                                                        id="modal-venda-funcionario-username">
 
                                                     <div class="dropdown-menu w-100"
                                                         id="autocomplete-funcionario-options">
@@ -378,7 +401,9 @@
                                             <h4 class="mb-0">Itens Adicionados</h4>
                                             <div class="d-flex flex-column align-items-end">
                                                 <span class="fw-bold text-success m-0" id="modal-items-total"></span>
-                                                <small class="fw-bold text-muted text-decoration-line-through d-none m-0" id="modal-items-total-old"></small>
+                                                <small
+                                                    class="fw-bold text-muted text-decoration-line-through d-none m-0"
+                                                    id="modal-items-total-old"></small>
                                             </div>
                                         </div>
 
