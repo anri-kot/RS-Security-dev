@@ -14,8 +14,15 @@ import com.rssecurity.storemanager.compra.dto.ItemCompraDTO;
 import com.rssecurity.storemanager.excel.mapper.CompraExcelMapper;
 import com.rssecurity.storemanager.fornecedor.dto.FornecedorDTO;
 
+import jakarta.validation.Validator;
+
 public class CompraExcelReader {
+    private final Validator validator;
     
+    public CompraExcelReader(Validator validator) {
+        this.validator = validator;
+    }
+
     public List<CompraDTO> readFromExcelSheet(Sheet sheet) {
         CompraExcelMapper mapper = CompraExcelMapper.fromHeaderRow(sheet.getRow(0));        
         Map<CompraKey, List<ItemCompraDTO>> grouped = new LinkedHashMap<>();
@@ -37,7 +44,10 @@ public class CompraExcelReader {
             .map(entry -> {
                 CompraKey key = entry.getKey();
                 FornecedorDTO fornecedor = new FornecedorDTO(key.idFornecedor(), key.nomeFornecedor(), null, null, null);
-                return new CompraDTO(null, key.data(), key.observacao(), fornecedor, entry.getValue());
+                CompraDTO compra = new CompraDTO(null, key.data(), key.observacao(), fornecedor, entry.getValue());
+                
+                ReaderValidator.validate(validator.validate(compra));
+                return compra;
             })
             .toList();
     }

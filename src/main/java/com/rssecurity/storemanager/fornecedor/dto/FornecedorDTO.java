@@ -12,7 +12,7 @@ public record FornecedorDTO(
     String nome,
     @NotBlank(message = "cnpj não pode estar em branco")
     @Pattern(regexp = "^\\d+$", message = "deve conter apenas números")
-    @Size(max = 14, message = "deve conter no máximo 14 digitos")
+    @Size(min=14, max = 14, message = "deve conter 14 digitos, sem formatação")
     String cnpj,
     @NotBlank(message = "telefone não pode estar em branco")
     @Pattern(regexp = "^\\d+$", message = "deve conter apenas números")

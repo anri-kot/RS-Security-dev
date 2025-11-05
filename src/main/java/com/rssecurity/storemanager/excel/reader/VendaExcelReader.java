@@ -14,8 +14,15 @@ import com.rssecurity.storemanager.venda.dto.ItemVendaDTO;
 import com.rssecurity.storemanager.venda.dto.VendaDTO;
 import com.rssecurity.storemanager.venda.dto.VendaKey;
 
+import jakarta.validation.Validator;
+
 public class VendaExcelReader {
+    private final Validator validator;
     
+    public VendaExcelReader(Validator validator) {
+        this.validator = validator;
+    }
+
     public List<VendaDTO> readFromExcelSheet(Sheet sheet) {
         VendaExcelMapper mapper = VendaExcelMapper.fromHeaderRow(sheet.getRow(0));
         Map<VendaKey, List<ItemVendaDTO>> grouped = new LinkedHashMap<>();
@@ -38,7 +45,10 @@ public class VendaExcelReader {
                 .map(entry -> {
                     VendaKey key = entry.getKey();
                     UsuarioResumoDTO usuario = new UsuarioResumoDTO(null, key.username(), null, null);
-                    return new VendaDTO(null, key.data(), key.observacao(), usuario, entry.getValue(), key.metodoPagamento(), key.valorRecebido(), key.troco());
+                    VendaDTO venda = new VendaDTO(null, key.data(), key.observacao(), usuario, entry.getValue(), key.metodoPagamento(), key.valorRecebido(), key.troco());
+
+                    ReaderValidator.validate(validator.validate(venda));
+                    return venda;
                 })
                 .toList();
     }

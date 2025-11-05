@@ -11,10 +11,15 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
 
+import jakarta.validation.Validator;
+
 class ProdutoExcelReaderTest {
+    @Autowired
+    private Validator validator;
 
     @Test
     void shouldReadValidExcelFileAndReturnProdutos() throws Exception {
@@ -43,7 +48,7 @@ class ProdutoExcelReaderTest {
             workbook.write(out);
 
             // Act
-            ProdutoExcelReader reader = new ProdutoExcelReader();
+            ProdutoExcelReader reader = new ProdutoExcelReader(validator);
             List<ProdutoDTO> produtos = reader.readFromExcelSheet(sheet);
 
             // Assert

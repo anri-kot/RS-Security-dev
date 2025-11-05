@@ -9,7 +9,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import com.rssecurity.storemanager.categoria.dto.CategoriaDTO;
 import com.rssecurity.storemanager.excel.mapper.CategoriaExcelMapper;
 
+import jakarta.validation.Validator;
+
 public class CategoriaExcelReader {
+    private final Validator validator;
+
+    public CategoriaExcelReader(Validator validator) {
+        this.validator = validator;
+    }
 
     public List<CategoriaDTO> readFromExcelSheet(Sheet sheet) {
         List<CategoriaDTO> categorias = new ArrayList<>();
@@ -20,6 +27,8 @@ public class CategoriaExcelReader {
             if (row == null) continue;
             CategoriaDTO categoria = mapper.fromRow(row);
             if (categoria == null) continue;
+
+            ReaderValidator.validate(validator.validate(categoria));
 
             categorias.add(categoria);
         }

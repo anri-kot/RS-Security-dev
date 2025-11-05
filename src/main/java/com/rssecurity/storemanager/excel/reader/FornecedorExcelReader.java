@@ -9,7 +9,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import com.rssecurity.storemanager.excel.mapper.FornecedorExcelMapper;
 import com.rssecurity.storemanager.fornecedor.dto.FornecedorDTO;
 
+import jakarta.validation.Validator;
+
 public class FornecedorExcelReader {
+    private final Validator validator;
+
+    public FornecedorExcelReader(Validator validator) {
+        this.validator = validator;
+    }
     
     public List<FornecedorDTO> readFromExcelSheet(Sheet sheet) {
         List<FornecedorDTO> fornecedores = new ArrayList<>();
@@ -21,6 +28,8 @@ public class FornecedorExcelReader {
             
             FornecedorDTO fornecedor = mapper.fromRow(row);
             if (fornecedor == null) continue;
+            
+            ReaderValidator.validate(validator.validate(fornecedor));
             fornecedores.add(fornecedor);
         }
         return fornecedores;

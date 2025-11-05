@@ -2,8 +2,12 @@ package com.rssecurity.storemanager.util;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
+
+import jakarta.validation.ConstraintViolation;
 
 @Component
 public class FormatterUtil {
@@ -70,5 +74,14 @@ public class FormatterUtil {
         String str1 = start.format(formatter).toString();
         String str2 = end.format(formatter).toString();
         return str1 + " - " + str2;
+    }
+
+    /* Returns null if 'violations' is empty */
+    public static <T> String formatViolations(Set<ConstraintViolation<T>> violations) {
+        if (violations.isEmpty()) return null;
+        
+        return violations.stream()
+            .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+            .collect(Collectors.joining("; "));
     }
 }

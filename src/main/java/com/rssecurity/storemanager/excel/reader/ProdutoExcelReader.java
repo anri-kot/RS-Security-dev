@@ -9,7 +9,15 @@ import org.apache.poi.ss.usermodel.Sheet;
 import com.rssecurity.storemanager.excel.mapper.ProdutoExcelMapper;
 import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
 
+import jakarta.validation.Validator;
+
 public class ProdutoExcelReader {
+
+    private final Validator validator;
+
+    public ProdutoExcelReader(Validator validator) {
+        this.validator = validator;
+    }
 
     public List<ProdutoDTO> readFromExcelSheet(Sheet sheet) {
         List<ProdutoDTO> produtos = new ArrayList<>();
@@ -19,8 +27,10 @@ public class ProdutoExcelReader {
             Row row = sheet.getRow(i);
             if (row == null) continue;
             ProdutoDTO produto = mapper.fromRow(row);
+
             if (produto == null) continue;
             
+            ReaderValidator.validate(validator.validate(produto));
             produtos.add(produto);
         }
 

@@ -19,14 +19,14 @@ public class ExcelRowReader {
     private final Map<String, Integer> headerIndexMap;
     private final DataFormatter formatter = new DataFormatter();
 
-
     public ExcelRowReader(Map<String, Integer> headerIndexMap) {
         this.headerIndexMap = headerIndexMap;
     }
 
     public boolean isBlankRow(Row row) {
         for (Cell cell : row) {
-            if (!formatter.formatCellValue(cell).isBlank()) return false;
+            if (!formatter.formatCellValue(cell).isBlank())
+                return false;
         }
         return true;
     }
@@ -42,14 +42,16 @@ public class ExcelRowReader {
         Cell cell = row.getCell(index, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
         String value = formatter.formatCellValue(cell).trim();
 
-        if (value.isBlank()) return null;
+        if (value.isBlank())
+            return null;
         return value;
     }
 
     public Long tryGetLong(Row row, String headerName) {
         String value = getCellStringValue(row, headerName);
 
-        if (value == null) return null;
+        if (value == null)
+            return null;
 
         try {
             return Long.valueOf(value);
@@ -68,10 +70,11 @@ public class ExcelRowReader {
         try {
             Double.parseDouble(value);
             return value;
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ignored) {
+        }
 
         String cleaned = value.replaceAll("[^\\d,.]", "")
-                            .replace(",", ".");
+                .replace(",", ".");
 
         try {
             double numericValue = Double.parseDouble(cleaned);
@@ -84,7 +87,8 @@ public class ExcelRowReader {
     public BigDecimal tryGetBigDecimal(Row row, String headerName) {
         String cellValue = getCellStringValue(row, headerName);
 
-        if (cellValue == null) return null;
+        if (cellValue == null)
+            return null;
         String value = formatIfCurrency(cellValue);
 
         try {
@@ -99,7 +103,8 @@ public class ExcelRowReader {
     public Integer tryGetInteger(Row row, String headerName) {
         String value = getCellStringValue(row, headerName);
 
-        if (value == null) return null;
+        if (value == null)
+            return null;
 
         try {
             return Integer.valueOf(value);
@@ -113,16 +118,21 @@ public class ExcelRowReader {
     public LocalDateTime tryGetLocalDateTime(Row row, String headerName) {
         String value = getCellStringValue(row, headerName);
 
-        if (value == null) return null;
+        if (value == null || value.isBlank()) {
+            return null;
+        }
 
         try {
             return LocalDateTime.parse(value, DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
-        } catch (DateTimeParseException e) {
+        } catch (DateTimeParseException e1) {
             try {
-                return LocalDate.parse(value, DateTimeFormatter.ofPattern(DATE_FORMAT)).atStartOfDay();
-            } catch (BadRequestException ignore) {
-                throw new DateTimeParseException(String.format("Coluna '%s', linha %d: valor '%s' não é um número válido.",
-                                headerName, row.getRowNum() + 1, value), value, e.getErrorIndex());
+                LocalDate date = LocalDate.parse(value, DateTimeFormatter.ofPattern(DATE_FORMAT));
+                return date.atStartOfDay();
+            } catch (DateTimeParseException e2) {
+                String msg = String.format(
+                        "Erro ao converter data na coluna '%s' (linha %d): valor '%s' inválido. Esperava: '%s'",
+                        headerName, row.getRowNum() + 1, value, DATE_TIME_FORMAT);
+                throw new BadRequestException(msg);
             }
         }
     }

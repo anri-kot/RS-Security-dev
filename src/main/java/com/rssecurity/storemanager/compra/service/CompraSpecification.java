@@ -1,4 +1,4 @@
-package com.rssecurity.storemanager.compra;
+package com.rssecurity.storemanager.compra.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -6,10 +6,12 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import jakarta.persistence.criteria.Predicate;
+
 import org.springframework.data.jpa.domain.Specification;
 
 import com.rssecurity.storemanager.compra.model.Compra;
+
+import jakarta.persistence.criteria.Predicate;
 
 public class CompraSpecification {
     

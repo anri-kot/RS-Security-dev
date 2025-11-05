@@ -19,7 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.rssecurity.storemanager.compra.CompraSpecification;
 import com.rssecurity.storemanager.compra.dto.CompraDTO;
 import com.rssecurity.storemanager.compra.dto.ItemCompraDTO;
 import com.rssecurity.storemanager.compra.mapper.CompraMapper;
