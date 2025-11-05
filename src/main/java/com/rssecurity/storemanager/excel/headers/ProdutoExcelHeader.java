@@ -6,9 +6,9 @@ public enum ProdutoExcelHeader implements ExcelHeader{
     ID("id", false),
     NOME("nome", false),
     CODIGO_BARRAS("codigo barras", false),
-    PRECO_ATUAL("preco atual", false),
+    PRECO_ATUAL("preco atual", true),
     DESCRICAO("descricao", false),
-    ESTOQUE("estoque", false),
+    ESTOQUE("estoque", true),
     ID_CATEGORIA("id categoria", false),
     NOME_CATEGORIA("nome categoria", false);
 

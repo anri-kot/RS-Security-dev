@@ -2,6 +2,7 @@ package com.rssecurity.storemanager.relatorio.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -37,6 +38,12 @@ public class LucroVendaService {
         return repository.findAllById(ids).stream()
                 .map(LucroVendaMapper::toDTO).
                 toList();
+    }
+
+    public List<LucroVendaDTO> findByDataBetween(LocalDateTime start, LocalDateTime end) {
+        return repository.findByDataBetween(start, end).stream()
+                .map(LucroVendaMapper::toDTO)
+                .toList();
     }
 
     public BigDecimal calculateLucroTotalBetween(LocalDate dataInicio, LocalDate dataFim) {

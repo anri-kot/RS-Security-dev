@@ -108,16 +108,16 @@
                             <!-- Cus Med -->
                             <td th:with="lucroVenda=${view.relatorio.lucroVendas.get(v.idVenda)}" class="fw-bold">
                                 <span class="text-danger" th:if="${lucroVenda.lucroPercentual != null}"
-                                    th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.custoTotal, 1, 'POINT', 2, 'COMMA')}">
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.mediaCusto, 1, 'POINT', 2, 'COMMA')}">
                                 </span>
                             </td>
 
                             <!-- Luc Med -->
                             <td th:with="lucroVenda=${view.relatorio.lucroVendas.get(v.idVenda)}" class="fw-bold">
-                                <span class="text-success" th:if="${lucroVenda.lucroTotal >= 0}"
-                                    th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.lucroTotal,1,'POINT',2,'COMMA')}"></span>
-                                <span class="text-danger" th:if="${lucroVenda.lucroTotal < 0}"
-                                    th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.lucroTotal,1,'POINT',2,'COMMA')}"></span>
+                                <span class="text-success" th:if="${lucroVenda.mediaLucro >= 0}"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.mediaLucro,1,'POINT',2,'COMMA')}"></span>
+                                <span class="text-danger" th:if="${lucroVenda.mediaLucro < 0}"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(lucroVenda.mediaLucro,1,'POINT',2,'COMMA')}"></span>
                             </td>
 
                             <!-- % -->

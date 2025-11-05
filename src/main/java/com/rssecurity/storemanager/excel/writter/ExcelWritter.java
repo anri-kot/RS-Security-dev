@@ -27,7 +27,7 @@ public abstract class ExcelWritter<T> {
         ExcelHeader[] headers = getHeaders();
         for (int col = 0; col < headers.length; col++) {
             headerRow.createCell(col, CellType.STRING)
-                .setCellValue(headers[col].getHeaderName());
+                .setCellValue(headers[col].getHeaderName().toUpperCase());
         }
 
         // Criar linhas

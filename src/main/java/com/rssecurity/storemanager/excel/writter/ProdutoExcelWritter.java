@@ -32,7 +32,7 @@ public class ProdutoExcelWritter extends ExcelWritter<ProdutoDTO> {
 
         for (ProdutoDTO produto : produtos) {
             Map<String, Object> produtoMap = RecordUtils.recordToMap(produto);
-            Map<String, Object> catMap = (Map<String, Object>) produtoMap.get("categoria");
+            Map<String, Object> catMap = RecordUtils.recordToMap(produto.categoria());
 
             Map<String, Object> row = new HashMap<>();
             for (ProdutoExcelHeader header : HEADERS) {

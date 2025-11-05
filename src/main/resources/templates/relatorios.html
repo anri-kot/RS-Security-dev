@@ -16,7 +16,7 @@
                 <h1 class="mb-0">Relatórios</h1>
 
                 <div th:if="${relatorio != null}" th:with="
-                       endpoint=${view.target == 'vendas' ? '/api/venda/export' : '/api/compra/export'},
+                       endpoint=${view.target == 'vendas' ? '/api/relatorio/export' : '/api/compra/export'},
                        available=${view.target == 'vendas' ?
                                    (relatorio.vendas != null and relatorio.vendas.totalElements > 0) :
                                    (relatorio.compras != null and relatorio.compras.totalElements > 0)}
