@@ -11,7 +11,7 @@ import com.rssecurity.storemanager.infra.exception.RecordConversionException;
 public class RecordUtils {
     public static Map<String, Object> recordToMap(Object record) {
         if (record == null || !record.getClass().isRecord()) {
-            throw new RecordConversionException("Não é um Record");
+            throw new RecordConversionException(record.getClass().getName() + " não é um Record");
         }
     
         Map<String, Object> map = new HashMap<>();

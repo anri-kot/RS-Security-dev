@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import com.rssecurity.storemanager.categoria.dto.CategoriaDTO;
 import com.rssecurity.storemanager.excel.headers.ExcelHeader;
 import com.rssecurity.storemanager.excel.headers.ProdutoExcelHeader;
 import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
@@ -32,7 +33,9 @@ public class ProdutoExcelWritter extends ExcelWritter<ProdutoDTO> {
 
         for (ProdutoDTO produto : produtos) {
             Map<String, Object> produtoMap = RecordUtils.recordToMap(produto);
-            Map<String, Object> catMap = RecordUtils.recordToMap(produto.categoria());
+            Map<String, Object> catMap = produto.categoria() != null
+                    ? RecordUtils.recordToMap(produto.categoria())
+                    : null;
 
             Map<String, Object> row = new HashMap<>();
             for (ProdutoExcelHeader header : HEADERS) {
