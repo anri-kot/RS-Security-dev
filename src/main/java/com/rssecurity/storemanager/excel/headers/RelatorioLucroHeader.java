@@ -26,7 +26,7 @@ public enum RelatorioLucroHeader implements ExcelHeader {
     @Override
     public String getKey() {
         return switch (this) {
-            case ID -> "idProduto";
+            case ID -> "idVenda";
             case PORCEN -> "lucroPercentual";
             default -> FormatterUtil.formatCamelCase(headerName);
         };
