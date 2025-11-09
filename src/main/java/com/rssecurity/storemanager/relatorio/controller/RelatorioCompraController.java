@@ -14,18 +14,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rssecurity.storemanager.compra.service.CompraService;
 import com.rssecurity.storemanager.relatorio.dto.CustoCompraDTO;
 import com.rssecurity.storemanager.relatorio.service.CustoCompraService;
 
 @RestController
 @RequestMapping("/api/relatorio")
 public class RelatorioCompraController {
-    private final CompraService compraService;
     private final CustoCompraService custoService;
 
-    public RelatorioCompraController(CompraService compraService, CustoCompraService custoService) {
-        this.compraService = compraService;
+    public RelatorioCompraController(CustoCompraService custoService) {
         this.custoService = custoService;
     }
 

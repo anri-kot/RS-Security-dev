@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import com.rssecurity.storemanager.categoria.dto.CategoriaDTO;
 import com.rssecurity.storemanager.excel.headers.ExcelHeader;
 import com.rssecurity.storemanager.excel.headers.ProdutoExcelHeader;
 import com.rssecurity.storemanager.produto.dto.ProdutoDTO;
