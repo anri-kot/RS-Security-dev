@@ -43,7 +43,14 @@ public class CompraExcelReader {
         return grouped.entrySet().stream()
             .map(entry -> {
                 CompraKey key = entry.getKey();
-                FornecedorDTO fornecedor = new FornecedorDTO(key.idFornecedor(), key.nomeFornecedor(), null, null, null);
+                FornecedorDTO fornecedor;
+
+                if (key.idFornecedor() == null) {
+                    fornecedor = null;
+                } else {
+                    fornecedor = new FornecedorDTO(key.idFornecedor(), key.nomeFornecedor(), null, null, null);
+                }
+                
                 CompraDTO compra = new CompraDTO(null, key.data(), key.observacao(), fornecedor, entry.getValue());
                 
                 ReaderValidator.validate(validator.validate(compra));

@@ -5,7 +5,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DataFormatter;
@@ -15,7 +18,7 @@ import com.rssecurity.storemanager.infra.exception.BadRequestException;
 
 public class ExcelRowReader {
     private final String DATE_FORMAT = "dd-MM-yyyy";
-    private final String DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm";
+    private final String BR_DATE_TIME_FORMAT = "dd-MM-yyyy HH:mm";
     private final Map<String, Integer> headerIndexMap;
     private final DataFormatter formatter = new DataFormatter();
 
@@ -122,18 +125,28 @@ public class ExcelRowReader {
             return null;
         }
 
-        try {
-            return LocalDateTime.parse(value, DateTimeFormatter.ofPattern(DATE_TIME_FORMAT));
-        } catch (DateTimeParseException e1) {
-            try {
-                LocalDate date = LocalDate.parse(value, DateTimeFormatter.ofPattern(DATE_FORMAT));
-                return date.atStartOfDay();
-            } catch (DateTimeParseException e2) {
-                String msg = String.format(
-                        "Erro ao converter data na coluna '%s' (linha %d): valor '%s' inválido. Esperava: '%s'",
-                        headerName, row.getRowNum() + 1, value, DATE_TIME_FORMAT);
-                throw new BadRequestException(msg);
-            }
-        }
+        record Attempt(Function<String, LocalDateTime> parser) {}
+
+        List<Attempt> attempts = List.of(
+                new Attempt(v -> LocalDateTime.parse(v)),
+                new Attempt(v -> LocalDateTime.parse(v, DateTimeFormatter.ofPattern(BR_DATE_TIME_FORMAT))),
+                new Attempt(v -> LocalDate.parse(v, DateTimeFormatter.ofPattern(DATE_FORMAT)).atStartOfDay()));
+
+        return attempts.stream()
+                .map(a -> {
+                    try {
+                        return a.parser.apply(value);
+                    } catch (DateTimeParseException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseThrow(() -> {
+                    String msg = String.format(
+                            "Erro ao converter data na coluna '%s' (linha %d): valor '%s' inválido. Esperava: '%s'",
+                            headerName, row.getRowNum() + 1, value, BR_DATE_TIME_FORMAT);
+                    return new BadRequestException(msg);
+                });
     }
 }
